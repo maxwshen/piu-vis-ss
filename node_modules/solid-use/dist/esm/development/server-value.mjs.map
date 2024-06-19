@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/server-value.ts"],
+  "sourcesContent": ["import { sharedConfig } from 'solid-js';\nimport { isServer } from 'solid-js/web';\n\ntype HydrationContext = NonNullable<(typeof sharedConfig)['context']>;\n\ninterface ServerHydrationContext extends HydrationContext {\n  serialize(key: string, value: any, defer: boolean): void;\n}\n\nconst useServerValue = isServer\n  ? <T>(cb: () => T): T => {\n      const ctx = sharedConfig.context;\n      const value = cb();\n      if (ctx) {\n        (ctx as ServerHydrationContext).serialize(\n          `${ctx.id}${ctx.count++}`,\n          value,\n          false,\n        );\n      }\n      return value;\n    }\n  : <T>(cb: () => T): T => {\n      const ctx = sharedConfig.context;\n      if (ctx && sharedConfig.load && sharedConfig.has) {\n        const id = `${ctx.id}${ctx.count++}`;\n        if (sharedConfig.has(id)) {\n          return sharedConfig.load(id);\n        }\n      }\n      return cb();\n    };\n\nexport default useServerValue;\n"],
+  "mappings": ";AAAA,SAAS,oBAAoB;AAC7B,SAAS,gBAAgB;AAQzB,IAAM,iBAAiB,WACnB,CAAI,OAAmB;AACrB,QAAM,MAAM,aAAa;AACzB,QAAM,QAAQ,GAAG;AACjB,MAAI,KAAK;AACP,IAAC,IAA+B;AAAA,MAC9B,GAAG,IAAI,EAAE,GAAG,IAAI,OAAO;AAAA,MACvB;AAAA,MACA;AAAA,IACF;AAAA,EACF;AACA,SAAO;AACT,IACA,CAAI,OAAmB;AACrB,QAAM,MAAM,aAAa;AACzB,MAAI,OAAO,aAAa,QAAQ,aAAa,KAAK;AAChD,UAAM,KAAK,GAAG,IAAI,EAAE,GAAG,IAAI,OAAO;AAClC,QAAI,aAAa,IAAI,EAAE,GAAG;AACxB,aAAO,aAAa,KAAK,EAAE;AAAA,IAC7B;AAAA,EACF;AACA,SAAO,GAAG;AACZ;AAEJ,IAAO,uBAAQ;",
+  "names": []
+}

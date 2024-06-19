@@ -1,0 +1,1 @@
+import{sharedConfig as t}from"solid-js";import{isServer as n}from"solid-js/web";var a=n?r=>{let e=t.context,o=r();return e&&e.serialize(`${e.id}${e.count++}`,o,!1),o}:r=>{let e=t.context;if(e&&t.load&&t.has){let o=`${e.id}${e.count++}`;if(t.has(o))return t.load(o)}return r()},d=a;export{d as default};

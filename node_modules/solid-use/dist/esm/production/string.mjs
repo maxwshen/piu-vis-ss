@@ -1,0 +1,1 @@
+import{createMemo as f}from"solid-js";function u(t){return typeof t=="function"}function c(t,...i){return f(()=>{let e="",o=0;for(let n=0,l=t.length;n<l;n++)if(e=`${e}${t[n]}`,o<i.length){let r=i[o++];u(r)?e=`${e}${String(r())}`:e=`${e}${String(r)}`}return e})}export{c as default};

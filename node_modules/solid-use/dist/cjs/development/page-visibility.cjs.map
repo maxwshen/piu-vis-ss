@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/page-visibility.ts"],
+  "sourcesContent": ["import { createEffect, createSignal, onCleanup } from 'solid-js';\nimport { isServer } from 'solid-js/web';\n\nconst usePageVisibility = isServer\n  ? (): (() => boolean) => () => true\n  : (): (() => boolean) => {\n      const [state, setState] = createSignal(true);\n\n      createEffect(() => {\n        const callback = () => {\n          setState(document.visibilityState === 'visible');\n        };\n        callback();\n        document.addEventListener('visibilitychange', callback, false);\n        onCleanup(() => {\n          document.removeEventListener('visibilitychange', callback, false);\n        });\n      });\n\n      return state;\n    };\n\nexport default usePageVisibility;\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,sBAAsD;AACtD,iBAAyB;AAEzB,IAAM,oBAAoB,sBACtB,MAAuB,MAAM,OAC7B,MAAuB;AACrB,QAAM,CAAC,OAAO,QAAQ,QAAI,8BAAa,IAAI;AAE3C,oCAAa,MAAM;AACjB,UAAM,WAAW,MAAM;AACrB,eAAS,SAAS,oBAAoB,SAAS;AAAA,IACjD;AACA,aAAS;AACT,aAAS,iBAAiB,oBAAoB,UAAU,KAAK;AAC7D,mCAAU,MAAM;AACd,eAAS,oBAAoB,oBAAoB,UAAU,KAAK;AAAA,IAClE,CAAC;AAAA,EACH,CAAC;AAED,SAAO;AACT;AAEJ,IAAO,0BAAQ;",
+  "names": []
+}

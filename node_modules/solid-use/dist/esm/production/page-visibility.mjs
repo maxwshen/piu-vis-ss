@@ -1,0 +1,1 @@
+import{createEffect as a,createSignal as n,onCleanup as o}from"solid-js";import{isServer as r}from"solid-js/web";var s=r?()=>()=>!0:()=>{let[t,i]=n(!0);return a(()=>{let e=()=>{i(document.visibilityState==="visible")};e(),document.addEventListener("visibilitychange",e,!1),o(()=>{document.removeEventListener("visibilitychange",e,!1)})}),t},u=s;export{u as default};

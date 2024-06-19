@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/string.ts"],
+  "sourcesContent": ["import { createMemo } from 'solid-js';\n\nfunction isAccessor<T>(value: any): value is () => T {\n  return typeof value === 'function';\n}\n\nexport default function string<T>(\n  strings: TemplateStringsArray,\n  ...args: (T | (() => T))[]\n): () => string {\n  return createMemo(() => {\n    let result = '';\n    let a = 0;\n    for (let i = 0, len = strings.length; i < len; i++) {\n      result = `${result}${strings[i]}`;\n      if (a < args.length) {\n        const node = args[a++];\n        if (isAccessor(node)) {\n          result = `${result}${String(node())}`;\n        } else {\n          result = `${result}${String(node)}`;\n        }\n      }\n    }\n    return result;\n  });\n}\n"],
+  "mappings": ";AAAA,SAAS,kBAAkB;AAE3B,SAAS,WAAc,OAA8B;AACnD,SAAO,OAAO,UAAU;AAC1B;AAEe,SAAR,OACL,YACG,MACW;AACd,SAAO,WAAW,MAAM;AACtB,QAAI,SAAS;AACb,QAAI,IAAI;AACR,aAAS,IAAI,GAAG,MAAM,QAAQ,QAAQ,IAAI,KAAK,KAAK;AAClD,eAAS,GAAG,MAAM,GAAG,QAAQ,CAAC,CAAC;AAC/B,UAAI,IAAI,KAAK,QAAQ;AACnB,cAAM,OAAO,KAAK,GAAG;AACrB,YAAI,WAAW,IAAI,GAAG;AACpB,mBAAS,GAAG,MAAM,GAAG,OAAO,KAAK,CAAC,CAAC;AAAA,QACrC,OAAO;AACL,mBAAS,GAAG,MAAM,GAAG,OAAO,IAAI,CAAC;AAAA,QACnC;AAAA,MACF;AAAA,IACF;AACA,WAAO;AAAA,EACT,CAAC;AACH;",
+  "names": []
+}

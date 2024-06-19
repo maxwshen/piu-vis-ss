@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/atom.ts"],
+  "sourcesContent": ["import { createSignal } from 'solid-js';\n\nexport interface Atom<T> {\n  (): T;\n  (value: T): T;\n}\n\nexport default function atom<T>(value: T, equals = Object.is): Atom<T> {\n  const [state, setState] = createSignal(value, {\n    equals,\n  });\n  return (...args: [] | [T]): T => {\n    if (args.length === 1) {\n      setState(() => args[0]);\n    }\n    return state();\n  };\n}\n"],
+  "mappings": ";AAAA,SAAS,oBAAoB;AAOd,SAAR,KAAyB,OAAU,SAAS,OAAO,IAAa;AACrE,QAAM,CAAC,OAAO,QAAQ,IAAI,aAAa,OAAO;AAAA,IAC5C;AAAA,EACF,CAAC;AACD,SAAO,IAAI,SAAsB;AAC/B,QAAI,KAAK,WAAW,GAAG;AACrB,eAAS,MAAM,KAAK,CAAC,CAAC;AAAA,IACxB;AACA,WAAO,MAAM;AAAA,EACf;AACF;",
+  "names": []
+}
