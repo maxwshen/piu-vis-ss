@@ -1,25 +1,41 @@
-import { A } from "@solidjs/router";
-import Counter from "~/components/Counter";
+import { createSignal, createResource } from "solid-js";
+import { render } from "solid-js/web";
+// import { useParams } from "@solidjs/router";
+
+const fetchData = async (id: string) => {
+  const response = await fetch(`/public/${id}.json`);
+  return response.json();
+}
+
+
+const checkEnvironment = () => {
+  let base_url =
+    import.meta.env.VITE_ENV === "dev"
+      ? "http://localhost:3000"
+      : "https://example.com"; // https://v2ds.netlify.app
+  return base_url;
+};
+
 
 export default function About() {
+  const [chartId, setChartId] = createSignal<string>();
+  const [data] = createResource(chartId, fetchData);
+
+  console.log(import.meta.env.VITE_ENV);
+  console.log(checkEnvironment());
+
   return (
-    <main class="text-center mx-auto text-gray-700 p-4">
-      <h1 class="max-6-xs text-6xl text-sky-700 font-thin uppercase my-16">About Page</h1>
-      <Counter />
-      <p class="mt-8">
-        Visit{" "}
-        <a href="https://solidjs.com" target="_blank" class="text-sky-600 hover:underline">
-          solidjs.com
-        </a>{" "}
-        to learn how to build Solid apps.
-      </p>
-      <p class="my-4">
-        <A href="/" class="text-sky-600 hover:underline">
-          Home
-        </A>
-        {" - "}
-        <span>About Page</span>
-      </p>
-    </main>
+    <>
+      <input
+        type="string"
+        placeholder="Enter text"
+        onChange={(e) => setChartId(e.currentTarget.value)}
+      />
+      <span>{data.loading && "Loading..."}</span>
+      <span>{data.error && "Error"}</span>
+      <div>
+        <pre> {JSON.stringify(data(), null, 2)}</pre>
+      </div>
+    </>
   );
-}
+};
