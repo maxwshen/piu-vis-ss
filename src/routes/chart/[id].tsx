@@ -5,18 +5,26 @@ import { JSX } from "solid-js/h/jsx-runtime";
 
 // [panel, time, limbAnnot]
 type ArrowArt = [number, number, string];
-// [panel, start_time, end_time, limbAnnot]
+// [panel, startTime, endTime, limbAnnot]
 type HoldArt = [number, number, number, string];
 type ChartArt = [ArrowArt[], HoldArt[]];
 
-const panel_px_interval = 50;
-const pixels_per_second = 100;
+const panelPxInterval = 50;
+const pxPerSecond = 200;
 // arrow imgs are square
 const canvasWidth = 500;
 const canvasHeight = 5000;
 const arrowImgWidth = 40;
 const arrowImgHeight = arrowImgWidth;
 
+interface strToStr {
+  [key: string]: string;
+};
+const clickTo: strToStr = {
+  '?': 'l',
+  'l': 'r',
+  'r': 'l',
+};
 
 /**
  * Get base URL, depending on local env variable
@@ -164,12 +172,25 @@ function getImage(
  * Draws HTML canvas of arrow arts and hold arts.
  * @param data 
  */
-function drawCanvas(data: ChartArt) {
+function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>) {
   var canvasRef: HTMLCanvasElement;
 
   onMount(() => {
     const ctx = canvasRef.getContext("2d");
 
+    // compute canvas height from last note
+    let arrowarts = data[0];
+    let holdarts = data[1];
+    let lastArrowTime = 0;
+    let lastHoldEndTime = 0;
+    if (arrowarts && arrowarts.length > 0) {
+      lastArrowTime = arrowarts[arrowarts.length - 1][1];
+    }
+    if (holdarts && holdarts.length > 0) {
+      lastHoldEndTime = holdarts[holdarts.length - 1][2];
+    }
+    canvasRef.height = Math.max(lastArrowTime, lastHoldEndTime) * pxPerSecond + 100;
+    
     // draw spaced lines for time
     if (ctx) {
       const x_left = 100;
@@ -201,8 +222,8 @@ function drawCanvas(data: ChartArt) {
       image.onload = () => {
         ctx.drawImage(
           image, 
-          panelPos * panel_px_interval, 
-          time * pixels_per_second,
+          panelPos * panelPxInterval, 
+          time * pxPerSecond,
           arrowImgWidth,
           arrowImgHeight);
       };
@@ -214,46 +235,43 @@ function drawCanvas(data: ChartArt) {
     let holdarts = data[1];
 
     for (const arrowart of holdarts) {
-      const [panelPos, start_time, end_time, limbAnnot] = arrowart;
+      const [panelPos, startTime, endTime, limbAnnot] = arrowart;
 
       // draw hold trail first, so it's on bottom of z-axis
       const holdTrail = new Image();
-      // const [trailImageGetter, __] = trailImageSignals[panelPos % 5];
       const [trailImageGetter, __] = getImage(panelPos, limbAnnot, 'trail');
       holdTrail.src = trailImageGetter();
       holdTrail.onload = () => {
         ctx.drawImage(
           holdTrail, 
-          panelPos * panel_px_interval, 
-          start_time * pixels_per_second + arrowImgHeight / 2,
+          panelPos * panelPxInterval, 
+          startTime * pxPerSecond + arrowImgHeight / 2,
           arrowImgWidth,
-          (end_time - start_time) * pixels_per_second);
+          (endTime - startTime) * pxPerSecond);
       };
 
       // draw hold cap
       const holdCap = new Image();
-      // const [capImageGetter, ___] = capImgSignals[panelPos % 5];
       const [capImageGetter, ___] = getImage(panelPos, limbAnnot, 'cap');
       holdCap.src = capImageGetter();
       holdCap.onload = () => {
         ctx.drawImage(
           holdCap, 
-          panelPos * panel_px_interval, 
-          end_time * pixels_per_second,
+          panelPos * panelPxInterval, 
+          endTime * pxPerSecond,
           arrowImgWidth,
           arrowImgHeight);
       };
 
       // draw hold head last, so it's on top of z-axis
       const holdHead = new Image();
-      // const [headImageGetter, _] = arrowImgSignals[panelPos % 5];
       const [headImageGetter, _] = getImage(panelPos, limbAnnot, 'arrow');
       holdHead.src = headImageGetter();
       holdHead.onload = () => {
         ctx.drawImage(
           holdHead, 
-          panelPos * panel_px_interval, 
-          start_time * pixels_per_second,
+          panelPos * panelPxInterval, 
+          startTime * pxPerSecond,
           arrowImgWidth,
           arrowImgHeight);
       };
@@ -270,10 +288,12 @@ function drawCanvas(data: ChartArt) {
     console.log(x, y);
 
     let arrowarts = data[0];
-    for (const arrowart of arrowarts) {
+    let holdarts = data[1];
+    for (let i: number = 0; i < arrowarts.length; i++) {
+      let arrowart = arrowarts[i];
       const [panelPos, time, limbAnnot] = arrowart;
-      const arrow_x = panelPos * panel_px_interval;
-      const arrow_y = time * pixels_per_second;
+      const arrow_x = panelPos * panelPxInterval;
+      const arrow_y = time * pxPerSecond;
 
       if (
         x >= arrow_x &&
@@ -281,19 +301,46 @@ function drawCanvas(data: ChartArt) {
         y >= arrow_y &&
         y <= arrow_y + arrowImgHeight
       ) {
-        console.log("Arrow clicked!", arrowart);
+        let editedArrowArts = arrowarts.slice(0, i).concat(
+          [[panelPos, time, clickTo[limbAnnot]]],
+        ).concat(arrowarts.slice(i + 1, arrowarts.length));
+        mutate([editedArrowArts, holdarts]);
+        return;
+      }
+    };
+
+    for (let i: number = 0; i < holdarts.length; i++) {
+      let holdart = holdarts[i];
+      const [panelPos, startTime, endTime, limbAnnot] = holdart;
+      const arrow_x = panelPos * panelPxInterval;
+      const arrow_y = startTime * pxPerSecond;
+
+      if (
+        x >= arrow_x &&
+        x <= arrow_x + arrowImgWidth &&
+        y >= arrow_y &&
+        y <= arrow_y + arrowImgHeight
+      ) {
+        // console.log("Hold clicked!", holdart);
+        let editedHoldArts = holdarts.slice(0, i).concat(
+          [[panelPos, startTime, endTime, clickTo[limbAnnot]]],
+        ).concat(holdarts.slice(i + 1, holdarts.length));
+        mutate([arrowarts, editedHoldArts]);
+        return;
       }
     };
   };
 
   return (
-    <canvas 
-      // ! asserts that canvasRef is not null
-      ref={canvasRef!} 
-      width={canvasWidth} 
-      height={canvasHeight} 
-      style={`border: 1px solid red;`}
-    />
+    <div style={'max-height: 600px; max-width: 550px; overflow: scroll; overflow-x: hidden'}>
+      <canvas 
+        // ! asserts that canvasRef is not null
+        ref={canvasRef!} 
+        width={canvasWidth} 
+        height={canvasHeight} 
+        style={`border: 1px solid red;`}
+      />
+    </div>
   )
 }
 
@@ -307,7 +354,7 @@ export default function DynamicPage(): JSX.Element {
   const params = useParams();
 
   // Refetches data whenever params.id changes
-  const [data] = createResource(params.id, fetchData);
+  const [data, { mutate, refetch }] = createResource(params.id, fetchData);
 
   console.log('env: ', checkEnvironment());
   // console.log(data());
@@ -316,7 +363,7 @@ export default function DynamicPage(): JSX.Element {
       <span> {params.id} </span>
       <span> {data.loading && "Loading..."} </span>
       <span> {data.error && "Error"} </span>
-      <div> {drawCanvas(data()!)} </div>
+      <div> {drawCanvas(data()!, mutate)} </div>
       <div>
         {/* <pre> {data() && JSON.stringify(data()![0][0], null, 0)}</pre> */}
         <pre> {JSON.stringify(data(), null, 1)}</pre>
