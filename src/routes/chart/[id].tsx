@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { createSignal, createResource, onMount } from "solid-js";
-import type { Signal, Accessor, Setter } from 'solid-js';
+import type { Signal, Accessor, Setter, JSXElement } from 'solid-js';
 import { JSX } from "solid-js/h/jsx-runtime";
 
 // [panel, time, limbAnnot]
@@ -193,15 +193,18 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
     
     // draw spaced lines for time
     if (ctx) {
-      const x_left = 100;
-      const x_right = 300;
+      const lineMargin = 50;
+      const x_left = 0 + lineMargin;
+      const x_right = canvasWidth - lineMargin;
       const y_interval = 50;
-      const num_lines = 30;
+      const num_lines = canvasRef.height / y_interval;
       for (let i: number = 0; i < num_lines; i++) {
         ctx.beginPath();
         const y = i * y_interval;
         ctx.moveTo(x_left, y);
         ctx.lineTo(x_right, y);
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "gray";
         ctx.stroke();
       }
       drawArrowArts(ctx);
@@ -332,18 +335,50 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
   };
 
   return (
-    <div style={'max-height: 600px; max-width: 550px; overflow: scroll; overflow-x: hidden'}>
-      <canvas 
-        // ! asserts that canvasRef is not null
-        ref={canvasRef!} 
-        width={canvasWidth} 
-        height={canvasHeight} 
-        style={`border: 1px solid red;`}
-      />
-    </div>
+    <canvas 
+      // ! asserts that canvasRef is not null
+      ref={canvasRef!} 
+      width={canvasWidth} 
+      height={canvasHeight} 
+      style={`border: 1px solid gray; margin: auto`}
+    />
+    // <div style={'max-height: 600px; max-width: 550px; overflow: scroll; overflow-x: hidden'}>
+    //   <canvas 
+    //     // ! asserts that canvasRef is not null
+    //     ref={canvasRef!} 
+    //     width={canvasWidth} 
+    //     height={canvasHeight} 
+    //     style={`border: 1px solid red;`}
+    //   />
+    // </div>
   )
 }
 
+function SaveJsonButton(data: ChartArt): JSXElement {
+  // Function to save JSON to file
+  const saveJsonToFile = () => {
+    const json = JSON.stringify(data, null, 2); // Convert JSON object to string
+    const blob = new Blob([json], { type: "application/json" }); // Create a Blob from the JSON string
+    const url = URL.createObjectURL(blob); // Create a URL for the Blob
+
+    // Create a temporary anchor element and trigger a download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "data.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // Revoke the object URL to free up memory
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div>
+      <button onClick={saveJsonToFile}>Save JSON to File</button>
+    </div>
+  );
+};
 
 /**
  * Default function, drawn by solid.js
@@ -363,10 +398,11 @@ export default function DynamicPage(): JSX.Element {
       <span> {params.id} </span>
       <span> {data.loading && "Loading..."} </span>
       <span> {data.error && "Error"} </span>
+      <div> {SaveJsonButton(data()!)} </div>
       <div> {drawCanvas(data()!, mutate)} </div>
       <div>
         {/* <pre> {data() && JSON.stringify(data()![0][0], null, 0)}</pre> */}
-        <pre> {JSON.stringify(data(), null, 1)}</pre>
+        {/* <pre> {JSON.stringify(data(), null, 1)}</pre> */}
       </div>
     </>
   );
