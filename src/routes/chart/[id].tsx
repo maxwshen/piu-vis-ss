@@ -1,7 +1,8 @@
 import { useParams } from "@solidjs/router";
-import { createSignal, createResource, onMount } from "solid-js";
+import { createSignal, createResource, onMount, onCleanup, createEffect } from "solid-js";
 import type { Signal, Accessor, Setter, JSXElement } from 'solid-js';
-import { JSX } from "solid-js/h/jsx-runtime";
+import "./[id].css"
+
 
 // [panel, time, limbAnnot]
 type ArrowArt = [number, number, string];
@@ -375,16 +376,106 @@ function SaveJsonButton(data: ChartArt): JSXElement {
 
   return (
     <div>
-      <button onClick={saveJsonToFile}>Save JSON to File</button>
+      <button class="nice-button" onClick={saveJsonToFile}>Save JSON to File</button>
     </div>
   );
 };
+
+function ScrollButton(): JSXElement {
+  const [scrolling, setScrolling] = createSignal(false);
+  let scrollInterval: any;
+  let logScrollPosition: any;
+
+  // 10 ms per scroll event
+  let millisecondInterval = 10;
+  let scrollEventsPerSec = 1000 / millisecondInterval;
+  let scrollByPx = pxPerSecond / scrollEventsPerSec;
+
+  const startScrolling = () => {
+    if (!scrolling()) {
+      setScrolling(true);
+      scrollInterval = setInterval(() => {
+        window.scrollBy(0, scrollByPx); // Scroll by pixels
+      }, 10); // ms interval per scroll event
+
+      createEffect(() => {
+        if (scrolling()) {
+          const logScrollPosition = setInterval(() => {
+            console.log('scrolling', scrolling());
+            console.log("Scroll Y:", window.scrollY);
+            playTickSound();
+            if (!scrolling()) {
+              clearInterval(logScrollPosition);
+            }
+          }, 1000);
+    
+          // cleanup function
+          return () => clearInterval(logScrollPosition);
+        }
+      });
+    }
+  };
+
+  const stopScrolling = () => {
+    if (scrolling()) {
+      setScrolling(false);
+      clearInterval(scrollInterval);
+      clearInterval(logScrollPosition);
+    }
+  };
+
+  return (
+    <div>
+      <button class="nice-button" onClick={startScrolling} disabled={scrolling()}>
+        Start Scrolling
+      </button>
+      <button class="nice-button" onClick={stopScrolling} disabled={!scrolling()}>
+        Stop Scrolling
+      </button>
+    </div>
+  );
+};
+
+async function playTickSound() {
+  const src = checkEnvironment().concat(`/public/sound/tick.mp3`);
+  const audioCtx = new AudioContext();
+  const response = await fetch(src);
+  const arrayBuffer = await response.arrayBuffer();
+  const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+  const source = audioCtx.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(audioCtx.destination);
+
+  source.start();
+  // setIsPlaying(true);
+  // source.onended = () => setIsPlaying(false);
+};
+
+
+function PlaySoundButton(): JSXElement {
+  const [isPlaying, setIsPlaying] = createSignal(false);
+  
+  const handleClick = () => {
+    if (!isPlaying()) {
+      playTickSound();
+    }
+  };
+  
+  return (
+    <button class='nice-button' onClick={handleClick}>
+      {isPlaying() ? "Stop Tick" : "Play Tick"}
+    </button>
+  );
+};
+
+
 
 /**
  * Default function, drawn by solid.js
  * @returns 
  */
-export default function DynamicPage(): JSX.Element {
+export default function DynamicPage(): JSXElement {
   // Stores current route path; /chart/:id = params.id = [id].tsx
   const params = useParams();
 
@@ -395,10 +486,14 @@ export default function DynamicPage(): JSX.Element {
   // console.log(data());
   return (
     <>
-      <span> {params.id} </span>
-      <span> {data.loading && "Loading..."} </span>
-      <span> {data.error && "Error"} </span>
-      <div> {SaveJsonButton(data()!)} </div>
+      <div style={'position: fixed'}>
+        <span> {params.id} </span>
+        <span> {data.loading && "Loading..."} </span>
+        <span> {data.error && "Error"} </span>
+        {SaveJsonButton(data()!)}
+        {ScrollButton()}
+        {PlaySoundButton()}
+        </div>
       <div> {drawCanvas(data()!, mutate)} </div>
       <div>
         {/* <pre> {data() && JSON.stringify(data()![0][0], null, 0)}</pre> */}

@@ -1,0 +1,26 @@
+.nice-button {
+  background-color: #4CAF50; /* Green background */
+  border: none; /* Remove borders */
+  color: white; /* White text */
+  padding: 5px 10px; /* Some padding */
+  text-align: center; /* Center the text */
+  text-decoration: none; /* Remove underline */
+  display: inline-block; /* Make the button inline-block */
+  /* font-size: 16px; Increase font size */
+  margin: 4px 2px; /* Some margin */
+  cursor: pointer; /* Pointer/hand icon */
+  border-radius: 12px; /* Rounded corners */
+  /* box-shadow: 0 4px #999; Add a shadow */
+  transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
+}
+
+.nice-button:hover {
+  background-color: #45a049; /* Darker green on hover */
+  /* transform: scale(1.05); Slightly larger on hover */
+}
+
+.nice-button:active {
+  background-color: #3e8e41; /* Even darker green on click */
+  box-shadow: 0 2px #666; /* Move the shadow */
+  transform: translateY(2px); /* Move the button down */
+}
