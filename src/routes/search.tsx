@@ -1,7 +1,12 @@
 
-import { createSignal, createMemo, For, createEffect, JSXElement } from "solid-js";
+import { createSignal, createMemo, For, createEffect, JSXElement, createResource } from "solid-js";
 import "./search.css"
 
+
+interface searchItemType {
+  name: string,
+  url: string,
+}
 
 /**
  * Get base URL, depending on local env variable
@@ -18,23 +23,48 @@ function checkEnvironment(): string {
 
 
 /**
+ * Fetches search struct data
+ * @param id: json filename
+ * @returns 
+ */
+async function fetchSearchItems(): Promise<searchItemType[] | null> {
+  try {
+    const response = await fetch(
+      checkEnvironment().concat(`/public/piucenter-annot-070824/search-struct.json`)
+  );
+    const names = await response.json();
+
+    const searchItems: searchItemType[] = [];
+      for (const name of names) {
+        const searchItem = {
+          'name': name, 
+          'url': checkEnvironment().concat(`/chart/${name}`)
+        };
+        searchItems.push(searchItem);
+      }
+    return searchItems;
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
+}
+
+
+
+/**
  * 
  * @returns 
  */
 function searchTable(): JSXElement {
+  const [items, setItems] = createResource([], fetchSearchItems);
   const [query, setQuery] = createSignal("");
-  const [items, setItems] = createSignal([
-    { name: "example", url: checkEnvironment().concat(`/chart/example`) },
-    { name: "example-holds", url: checkEnvironment().concat(`/chart/example-holds`) },
-    // ... more items
-  ]);
   const [filteredItems, setFilteredItems] = createSignal(items());
 
   createEffect(() => {
     // Update filteredItems when query changes
     const q = query().toLowerCase();
     setFilteredItems(
-      items().filter(item => item.name.toLowerCase().includes(q))
+      items()!.filter(item => item.name.toLowerCase().includes(q))
     );
   });
 

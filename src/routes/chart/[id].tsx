@@ -22,9 +22,10 @@ interface strToStr {
   [key: string]: string;
 };
 const clickTo: strToStr = {
-  '?': 'l',
   'l': 'r',
-  'r': 'l',
+  'r': '?',
+  '?': 'h',
+  'h': 'l',
 };
 
 /**
@@ -49,7 +50,7 @@ function checkEnvironment(): string {
 async function fetchData(id: string): Promise<ChartArt | null> {
   try {
     const response = await fetch(
-      checkEnvironment().concat(`/public/chart-json/${id}.json`)
+      checkEnvironment().concat(`/public/piucenter-annot-070824/chart-json/${id}.json`)
   );
     const obj = await response.json();
     return obj;
@@ -111,7 +112,6 @@ const arrowImgSignalsRight = Array.from(
     checkEnvironment().concat(arrowImagePathsRight[i])
   )
 );
-
 const trailImagePathsRight = [
   '/public/images/arrows-hint/trail_downleft_right.png',
   '/public/images/arrows-hint/trail_upleft_right.png',
@@ -125,7 +125,6 @@ const trailImageSignalsRight = Array.from(
     checkEnvironment().concat(trailImagePathsRight[i])
   )
 );
-
 const capImagePathsRight = [
   '/public/images/arrows-hint/holdcap_downleft_right.png',
   '/public/images/arrows-hint/holdcap_upleft_right.png',
@@ -139,12 +138,89 @@ const capImgSignalsRight = Array.from(
     checkEnvironment().concat(capImagePathsRight[i])
   )
 );
-
+const arrowImagePathsEither = [
+  '/public/images/arrows-hint/arrow_downleft_either.png',
+  '/public/images/arrows-hint/arrow_upleft_either.png',
+  '/public/images/arrows-hint/arrow_center_either.png',
+  '/public/images/arrows-hint/arrow_upright_either.png',
+  '/public/images/arrows-hint/arrow_downright_either.png',
+];
+const arrowImgSignalsEither = Array.from(
+  { length: arrowImagePathsEither.length }, 
+  (_, i) => createSignal(
+    checkEnvironment().concat(arrowImagePathsEither[i])
+  )
+);
+const trailImagePathsEither = [
+  '/public/images/arrows-hint/trail_downleft_either.png',
+  '/public/images/arrows-hint/trail_upleft_either.png',
+  '/public/images/arrows-hint/trail_center_either.png',
+  '/public/images/arrows-hint/trail_upright_either.png',
+  '/public/images/arrows-hint/trail_downright_either.png',
+];
+const trailImageSignalsEither = Array.from(
+  { length: trailImagePathsEither.length }, 
+  (_, i) => createSignal(
+    checkEnvironment().concat(trailImagePathsEither[i])
+  )
+);
+const capImagePathsEither = [
+  '/public/images/arrows-hint/holdcap_downleft_either.png',
+  '/public/images/arrows-hint/holdcap_upleft_either.png',
+  '/public/images/arrows-hint/holdcap_center_either.png',
+  '/public/images/arrows-hint/holdcap_upright_either.png',
+  '/public/images/arrows-hint/holdcap_downright_either.png',
+];
+const capImgSignalsEither = Array.from(
+  { length: capImagePathsEither.length }, 
+  (_, i) => createSignal(
+    checkEnvironment().concat(capImagePathsEither[i])
+  )
+);
+const arrowImagePathsHand = [
+  '/public/images/arrows-hint/arrow_downleft_hand.png',
+  '/public/images/arrows-hint/arrow_upleft_hand.png',
+  '/public/images/arrows-hint/arrow_center_hand.png',
+  '/public/images/arrows-hint/arrow_upright_hand.png',
+  '/public/images/arrows-hint/arrow_downright_hand.png',
+];
+const arrowImgSignalsHand = Array.from(
+  { length: arrowImagePathsHand.length }, 
+  (_, i) => createSignal(
+    checkEnvironment().concat(arrowImagePathsHand[i])
+  )
+);
+const trailImagePathsHand = [
+  '/public/images/arrows-hint/trail_downleft_hand.png',
+  '/public/images/arrows-hint/trail_upleft_hand.png',
+  '/public/images/arrows-hint/trail_center_hand.png',
+  '/public/images/arrows-hint/trail_upright_hand.png',
+  '/public/images/arrows-hint/trail_downright_hand.png',
+];
+const trailImageSignalsHand = Array.from(
+  { length: trailImagePathsHand.length }, 
+  (_, i) => createSignal(
+    checkEnvironment().concat(trailImagePathsHand[i])
+  )
+);
+const capImagePathsHand = [
+  '/public/images/arrows-hint/holdcap_downleft_hand.png',
+  '/public/images/arrows-hint/holdcap_upleft_hand.png',
+  '/public/images/arrows-hint/holdcap_center_hand.png',
+  '/public/images/arrows-hint/holdcap_upright_hand.png',
+  '/public/images/arrows-hint/holdcap_downright_hand.png',
+];
+const capImgSignalsHand = Array.from(
+  { length: capImagePathsHand.length }, 
+  (_, i) => createSignal(
+    checkEnvironment().concat(capImagePathsHand[i])
+  )
+);
 
 /**
  * Fetches Signal for query image
  * @param panel: number in [0-9]
- * @param limbAnnot: one of ['l', 'r', 'e', 'h']
+ * @param limbAnnot: one of ['l', 'r', 'e', 'h', '?']
  * @param imageName: one of ['arrow', 'trail', 'cap']
  */
 function getImage(
@@ -162,6 +238,12 @@ function getImage(
     'r_arrow': arrowImgSignalsRight,
     'r_trail': trailImageSignalsRight,
     'r_cap': capImgSignalsRight,
+    'h_arrow': arrowImgSignalsHand,
+    'h_trail': trailImageSignalsHand,
+    'h_cap': capImgSignalsHand,
+    '?_arrow': arrowImgSignalsEither,
+    '?_trail': trailImageSignalsEither,
+    '?_cap': capImgSignalsEither,
   }
   let key = (limbAnnot + '_' + imageName);
   let imgSet = tree[key];
@@ -237,21 +319,22 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
   // draw holds
   const drawHoldArts = (ctx: CanvasRenderingContext2D) => {
     let holdarts = data[1];
+    ctx.globalCompositeOperation = "destination-over";
 
     for (const arrowart of holdarts) {
       const [panelPos, startTime, endTime, limbAnnot] = arrowart;
 
-      // draw hold trail first, so it's on bottom of z-axis
-      const holdTrail = new Image();
-      const [trailImageGetter, __] = getImage(panelPos, limbAnnot, 'trail');
-      holdTrail.src = trailImageGetter();
-      holdTrail.onload = () => {
+      // draw hold head
+      const holdHead = new Image();
+      const [headImageGetter, _] = getImage(panelPos, limbAnnot, 'arrow');
+      holdHead.src = headImageGetter();
+      holdHead.onload = () => {
         ctx.drawImage(
-          holdTrail, 
+          holdHead, 
           panelPos * panelPxInterval, 
-          startTime * pxPerSecond + arrowImgHeight / 2,
+          startTime * pxPerSecond,
           arrowImgWidth,
-          (endTime - startTime) * pxPerSecond);
+          arrowImgHeight);
       };
 
       // draw hold cap
@@ -267,17 +350,17 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
           arrowImgHeight);
       };
 
-      // draw hold head last, so it's on top of z-axis
-      const holdHead = new Image();
-      const [headImageGetter, _] = getImage(panelPos, limbAnnot, 'arrow');
-      holdHead.src = headImageGetter();
-      holdHead.onload = () => {
+      // draw hold trail
+      const holdTrail = new Image();
+      const [trailImageGetter, __] = getImage(panelPos, limbAnnot, 'trail');
+      holdTrail.src = trailImageGetter();
+      holdTrail.onload = () => {
         ctx.drawImage(
-          holdHead, 
+          holdTrail, 
           panelPos * panelPxInterval, 
-          startTime * pxPerSecond,
+          startTime * pxPerSecond + arrowImgHeight / 2,
           arrowImgWidth,
-          arrowImgHeight);
+          (endTime - startTime) * pxPerSecond);
       };
 
     }
@@ -343,19 +426,10 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
       height={canvasHeight} 
       style={`border: 1px solid gray; margin: auto`}
     />
-    // <div style={'max-height: 600px; max-width: 550px; overflow: scroll; overflow-x: hidden'}>
-    //   <canvas 
-    //     // ! asserts that canvasRef is not null
-    //     ref={canvasRef!} 
-    //     width={canvasWidth} 
-    //     height={canvasHeight} 
-    //     style={`border: 1px solid red;`}
-    //   />
-    // </div>
   )
 }
 
-function SaveJsonButton(data: ChartArt): JSXElement {
+function SaveJsonButton(id: string, data: ChartArt): JSXElement {
   // Function to save JSON to file
   const saveJsonToFile = () => {
     const json = JSON.stringify(data, null, 2); // Convert JSON object to string
@@ -365,7 +439,7 @@ function SaveJsonButton(data: ChartArt): JSXElement {
     // Create a temporary anchor element and trigger a download
     const a = document.createElement("a");
     a.href = url;
-    a.download = "data.json";
+    a.download = `${id}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -490,7 +564,7 @@ export default function DynamicPage(): JSXElement {
         <span> {params.id} </span>
         <span> {data.loading && "Loading..."} </span>
         <span> {data.error && "Error"} </span>
-        {SaveJsonButton(data()!)}
+        {SaveJsonButton(params.id, data()!)}
         {ScrollButton()}
         {PlaySoundButton()}
         </div>
