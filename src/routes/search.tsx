@@ -95,7 +95,7 @@ function searchTable(): JSXElement {
 
 export default function Page(): JSXElement {
   return (
-    <div>
+    <div style={'background-color: #2e2e2e'}>
       {searchTable()}
     </div>
   );

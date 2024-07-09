@@ -11,7 +11,7 @@ type HoldArt = [number, number, number, string];
 type ChartArt = [ArrowArt[], HoldArt[]];
 
 const panelPxInterval = 50;
-const pxPerSecond = 200;
+const [pxPerSecond, setPxPerSecond] = createSignal(400);
 // arrow imgs are square
 const canvasWidth = 500;
 const canvasHeight = 5000;
@@ -23,9 +23,10 @@ interface strToStr {
 };
 const clickTo: strToStr = {
   'l': 'r',
-  'r': '?',
-  '?': 'h',
-  'h': 'l',
+  'r': 'l',
+  // 'r': '?',
+  // '?': 'h',
+  // 'h': 'l',
 };
 
 /**
@@ -272,7 +273,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
     if (holdarts && holdarts.length > 0) {
       lastHoldEndTime = holdarts[holdarts.length - 1][2];
     }
-    canvasRef.height = Math.max(lastArrowTime, lastHoldEndTime) * pxPerSecond + 100;
+    canvasRef.height = Math.max(lastArrowTime, lastHoldEndTime) * pxPerSecond() + 100;
     
     // draw spaced lines for time
     if (ctx) {
@@ -309,7 +310,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         ctx.drawImage(
           image, 
           panelPos * panelPxInterval, 
-          time * pxPerSecond,
+          time * pxPerSecond(),
           arrowImgWidth,
           arrowImgHeight);
       };
@@ -332,7 +333,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         ctx.drawImage(
           holdHead, 
           panelPos * panelPxInterval, 
-          startTime * pxPerSecond,
+          startTime * pxPerSecond(),
           arrowImgWidth,
           arrowImgHeight);
       };
@@ -345,7 +346,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         ctx.drawImage(
           holdCap, 
           panelPos * panelPxInterval, 
-          endTime * pxPerSecond,
+          endTime * pxPerSecond(),
           arrowImgWidth,
           arrowImgHeight);
       };
@@ -358,9 +359,9 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         ctx.drawImage(
           holdTrail, 
           panelPos * panelPxInterval, 
-          startTime * pxPerSecond + arrowImgHeight / 2,
+          startTime * pxPerSecond() + arrowImgHeight / 2,
           arrowImgWidth,
-          (endTime - startTime) * pxPerSecond);
+          (endTime - startTime) * pxPerSecond());
       };
 
     }
@@ -380,7 +381,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
       let arrowart = arrowarts[i];
       const [panelPos, time, limbAnnot] = arrowart;
       const arrow_x = panelPos * panelPxInterval;
-      const arrow_y = time * pxPerSecond;
+      const arrow_y = time * pxPerSecond();
 
       if (
         x >= arrow_x &&
@@ -400,8 +401,9 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
       let holdart = holdarts[i];
       const [panelPos, startTime, endTime, limbAnnot] = holdart;
       const arrow_x = panelPos * panelPxInterval;
-      const arrow_y = startTime * pxPerSecond;
+      const arrow_y = startTime * pxPerSecond();
 
+      // clicking on head
       if (
         x >= arrow_x &&
         x <= arrow_x + arrowImgWidth &&
@@ -415,6 +417,22 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         mutate([arrowarts, editedHoldArts]);
         return;
       }
+
+      // allow clicking on cap
+      const arrow_y_end = endTime * pxPerSecond();
+      if (
+        x >= arrow_x &&
+        x <= arrow_x + arrowImgWidth &&
+        y >= arrow_y_end &&
+        y <= arrow_y_end + arrowImgHeight
+      ) {
+        let editedHoldArts = holdarts.slice(0, i).concat(
+          [[panelPos, startTime, endTime, clickTo[limbAnnot]]],
+        ).concat(holdarts.slice(i + 1, holdarts.length));
+        mutate([arrowarts, editedHoldArts]);
+        return;
+      }
+
     };
   };
 
@@ -463,7 +481,7 @@ function ScrollButton(): JSXElement {
   // 10 ms per scroll event
   let millisecondInterval = 10;
   let scrollEventsPerSec = 1000 / millisecondInterval;
-  let scrollByPx = pxPerSecond / scrollEventsPerSec;
+  let scrollByPx = pxPerSecond() / scrollEventsPerSec;
 
   const startScrolling = () => {
     if (!scrolling()) {
@@ -560,15 +578,28 @@ export default function DynamicPage(): JSXElement {
   // console.log(data());
   return (
     <>
-      <div style={'position: fixed'}>
+      <div style={'position: fixed; background-color: #3e3e3e'}>
         <span> {params.id} </span>
         <span> {data.loading && "Loading..."} </span>
         <span> {data.error && "Error"} </span>
         {SaveJsonButton(params.id, data()!)}
         {ScrollButton()}
         {PlaySoundButton()}
+        <br></br>
+        <span> Pixels per second: </span>
+        <input
+          id='setPxPerSecInput'
+          type="text"
+          value={pxPerSecond()}
+          onBlur={(e) => {
+            console.log(e.target.value);
+            setPxPerSecond(Number(e.target.value));
+            refetch();
+          }}
+          placeholder="Set pixels per second ..."
+        />
         </div>
-      <div> {drawCanvas(data()!, mutate)} </div>
+      <div style={'background-color: #2e2e2e'}> {drawCanvas(data()!, mutate)} </div>
       <div>
         {/* <pre> {data() && JSON.stringify(data()![0][0], null, 0)}</pre> */}
         {/* <pre> {JSON.stringify(data(), null, 1)}</pre> */}
