@@ -30,7 +30,7 @@ function checkEnvironment(): string {
 async function fetchSearchItems(): Promise<searchItemType[] | null> {
   try {
     const response = await fetch(
-      checkEnvironment().concat(`/public/piucenter-annot-070824/search-struct.json`)
+      checkEnvironment().concat(`/chart-jsons/092424/search-struct.json`)
   );
     const names = await response.json();
 

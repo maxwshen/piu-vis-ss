@@ -15,6 +15,11 @@ a:active {
   color: #0a3785; /* Even darker blue when active (clicked) */
 }
 
+/* Visited state */
+a:visited {
+  color: #8c68cb; /* Purple color for visited links */
+}
+
 
 /* Lists */
 ul {

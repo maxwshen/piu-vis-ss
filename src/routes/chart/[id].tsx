@@ -10,7 +10,7 @@ type ArrowArt = [number, number, string];
 type HoldArt = [number, number, number, string];
 type ChartArt = [ArrowArt[], HoldArt[]];
 
-const panelPxInterval = 50;
+const panelPxInterval = 43;
 const [pxPerSecond, setPxPerSecond] = createSignal(400);
 // arrow imgs are square
 const canvasWidth = 500;
@@ -51,7 +51,10 @@ function checkEnvironment(): string {
 async function fetchData(id: string): Promise<ChartArt | null> {
   try {
     const response = await fetch(
-      checkEnvironment().concat(`/public/piucenter-annot-070824/chart-json/${id}.json`)
+      checkEnvironment().concat(`/chart-jsons/092424/${id}.json`)
+      // checkEnvironment().concat(`/rayden-072924-ae-072824-lgbm-091924/${id}.json`)
+      // checkEnvironment().concat(`/public/piucenter-annot-070824/chart-json/${id}.json`)
+      // checkEnvironment().concat(`/rayden-072624/chart-json/${id}.json`)
   );
     const obj = await response.json();
     return obj;
@@ -273,7 +276,8 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
     if (holdarts && holdarts.length > 0) {
       lastHoldEndTime = holdarts[holdarts.length - 1][2];
     }
-    canvasRef.height = Math.max(lastArrowTime, lastHoldEndTime) * pxPerSecond() + 100;
+    let lastTime = Math.max(lastArrowTime, lastHoldEndTime);
+    canvasRef.height = lastTime * pxPerSecond() + 100;
     
     // draw spaced lines for time
     if (ctx) {
@@ -291,6 +295,18 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         ctx.strokeStyle = "gray";
         ctx.stroke();
       }
+
+      // draw text for time
+      const seconds_per_timestamp = 5;
+      const num_timestamps = lastTime / seconds_per_timestamp + 1;
+      ctx.font = "32px Helvetica";
+      ctx.fillStyle = "White";
+      for (let i: number = 1; i < num_timestamps; i++) {
+        const y = i * seconds_per_timestamp * pxPerSecond();
+        ctx.fillText(`${i*seconds_per_timestamp}s`, 0, y);
+      }
+
+      // draw arrows and holds
       drawArrowArts(ctx);
       drawHoldArts(ctx);
       canvasRef.addEventListener("click", handleCanvasClick);
