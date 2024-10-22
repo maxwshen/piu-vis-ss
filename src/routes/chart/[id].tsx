@@ -21,13 +21,16 @@ const arrowImgHeight = arrowImgWidth;
 interface strToStr {
   [key: string]: string;
 };
-const clickTo: strToStr = {
-  'l': 'r',
-  'r': 'l',
-  // 'r': '?',
-  // '?': 'h',
-  // 'h': 'l',
-};
+
+const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
+
+// const clickTo: strToStr = {
+//   'l': 'r',
+//   'r': 'l',
+//   // 'r': '?',
+//   // '?': 'h',
+//   // 'h': 'l',
+// };
 
 /**
  * Get base URL, depending on local env variable
@@ -51,7 +54,7 @@ function checkEnvironment(): string {
 async function fetchData(id: string): Promise<ChartArt | null> {
   try {
     const response = await fetch(
-      checkEnvironment().concat(`/chart-jsons/092424/${id}.json`)
+      checkEnvironment().concat(`/chart-jsons/101824/${id}.json`)
       // checkEnvironment().concat(`/rayden-072924-ae-072824-lgbm-091924/${id}.json`)
       // checkEnvironment().concat(`/public/piucenter-annot-070824/chart-json/${id}.json`)
       // checkEnvironment().concat(`/rayden-072624/chart-json/${id}.json`)
@@ -245,6 +248,9 @@ function getImage(
     'h_arrow': arrowImgSignalsHand,
     'h_trail': trailImageSignalsHand,
     'h_cap': capImgSignalsHand,
+    'e_arrow': arrowImgSignalsEither,
+    'e_trail': trailImageSignalsEither,
+    'e_cap': capImgSignalsEither,
     '?_arrow': arrowImgSignalsEither,
     '?_trail': trailImageSignalsEither,
     '?_cap': capImgSignalsEither,
@@ -297,13 +303,14 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
       }
 
       // draw text for time
-      const seconds_per_timestamp = 5;
+      const seconds_per_timestamp = 1;
       const num_timestamps = lastTime / seconds_per_timestamp + 1;
       ctx.font = "32px Helvetica";
       ctx.fillStyle = "White";
+      ctx.textAlign = "right";
       for (let i: number = 1; i < num_timestamps; i++) {
         const y = i * seconds_per_timestamp * pxPerSecond();
-        ctx.fillText(`${i*seconds_per_timestamp}s`, 0, y);
+        ctx.fillText(`${i*seconds_per_timestamp}s`, canvasWidth, y);
       }
 
       // draw arrows and holds
@@ -406,7 +413,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         y <= arrow_y + arrowImgHeight
       ) {
         let editedArrowArts = arrowarts.slice(0, i).concat(
-          [[panelPos, time, clickTo[limbAnnot]]],
+          [[panelPos, time, clickTo()[limbAnnot]]],
         ).concat(arrowarts.slice(i + 1, arrowarts.length));
         mutate([editedArrowArts, holdarts]);
         return;
@@ -428,7 +435,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
       ) {
         // console.log("Hold clicked!", holdart);
         let editedHoldArts = holdarts.slice(0, i).concat(
-          [[panelPos, startTime, endTime, clickTo[limbAnnot]]],
+          [[panelPos, startTime, endTime, clickTo()[limbAnnot]]],
         ).concat(holdarts.slice(i + 1, holdarts.length));
         mutate([arrowarts, editedHoldArts]);
         return;
@@ -443,7 +450,7 @@ function drawCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>)
         y <= arrow_y_end + arrowImgHeight
       ) {
         let editedHoldArts = holdarts.slice(0, i).concat(
-          [[panelPos, startTime, endTime, clickTo[limbAnnot]]],
+          [[panelPos, startTime, endTime, clickTo()[limbAnnot]]],
         ).concat(holdarts.slice(i + 1, holdarts.length));
         mutate([arrowarts, editedHoldArts]);
         return;
@@ -578,6 +585,32 @@ function PlaySoundButton(): JSXElement {
 };
 
 
+function SetClickToEitherButton(): JSXElement {
+  const ChangeClickAction = () => {
+    setClickTo({'l': 'e', 'r': 'e'});
+  };
+
+  return (
+    <div>
+      <button class="nice-button" onClick={ChangeClickAction}>Set Click To Either</button>
+    </div>
+  )
+};
+
+
+function SetClickToLRButton(): JSXElement {
+  const ChangeClickAction = () => {
+    setClickTo({'l': 'r', 'r': 'l', 'e': 'l'});
+  };
+
+  return (
+    <div>
+      <button class="nice-button" onClick={ChangeClickAction}>Set Click To L/R</button>
+    </div>
+  )
+};
+
+
 
 /**
  * Default function, drawn by solid.js
@@ -601,6 +634,8 @@ export default function DynamicPage(): JSXElement {
         {SaveJsonButton(params.id, data()!)}
         {ScrollButton()}
         {PlaySoundButton()}
+        {SetClickToEitherButton()}
+        {SetClickToLRButton()}
         <br></br>
         <span> Pixels per second: </span>
         <input
