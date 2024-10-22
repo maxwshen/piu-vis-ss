@@ -587,7 +587,7 @@ function PlaySoundButton(): JSXElement {
 
 function SetClickToEitherButton(): JSXElement {
   const ChangeClickAction = () => {
-    setClickTo({'l': 'e', 'r': 'e'});
+    setClickTo({'l': 'e', 'r': 'e', 'e': 'e'});
   };
 
   return (
