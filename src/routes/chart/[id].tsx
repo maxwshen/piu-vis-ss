@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
-import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP } from "solid-js";
-import type { Signal, Accessor, Setter, JSXElement } from 'solid-js';
+import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack } from "solid-js";
+import type { Signal, Accessor, Resource, Setter, JSXElement } from 'solid-js';
 import "./[id].css"
 import Konva from 'konva';
 import { isServer } from 'solid-js/web';
@@ -23,8 +23,6 @@ interface strToStr {
   [key: string]: string;
 };
 const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
-
-const [scrollPosition, setScrollPosition] = createSignal(0);
 
 
 /**
@@ -258,11 +256,30 @@ function getImage(
 
 
 /**
+ * Computes last time in ChartArt
+ * @param data 
+ */
+function computeLastTime(data: ChartArt): number {
+  let arrowarts = data[0];
+  let holdarts = data[1];
+  let lastArrowTime = 0;
+  let lastHoldEndTime = 0;
+  if (arrowarts && arrowarts.length > 0) {
+    lastArrowTime = arrowarts[arrowarts.length - 1][1];
+  }
+  if (holdarts && holdarts.length > 0) {
+    lastHoldEndTime = holdarts[holdarts.length - 1][2];
+  }
+  let lastTime = Math.max(lastArrowTime, lastHoldEndTime);
+  return lastTime;
+}
+
+
+/**
  * Draws Konva HTML canvas of arrow arts and hold arts.
  * @param data 
  */
-function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefined>) {
-  const [isClient, setIsClient] = createSignal(false);
+function drawKonvaCanvas(dataGet: Resource<ChartArt>, mutate: Setter<ChartArt | null | undefined>) {
   let containerRef: HTMLDivElement;
   let scrollContainerRef: HTMLDivElement;
   let largeContainerRef: HTMLDivElement;
@@ -271,53 +288,40 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
   // Konva creates canvas elements directly in the DOM after mounting,
   // which can conflict with SSR/hydration.
   onMount(() => {
-    setIsClient(true);
-  });
-
-  createEffect(() => {
     // Skip initialization if we're on the server or Konva isn't ready
-    if (isServer || !isClient()) return;
-
+    if (isServer ) return;
+    
     // Dynamically import Konva only on the client side
     import('konva').then((Konva) => {
       // draw
-
-      // compute canvas height from last note
+      let data = dataGet()!;
       let arrowarts = data[0];
       let holdarts = data[1];
-      let lastArrowTime = 0;
-      let lastHoldEndTime = 0;
-      if (arrowarts && arrowarts.length > 0) {
-        lastArrowTime = arrowarts[arrowarts.length - 1][1];
-      }
-      if (holdarts && holdarts.length > 0) {
-        lastHoldEndTime = holdarts[holdarts.length - 1][2];
-      }
-      let lastTime = Math.max(lastArrowTime, lastHoldEndTime);
+
+      // compute canvas height from last note
+      let lastTime = computeLastTime(data);
       var canvas_height = lastTime * pxPerSecond() + 100;
-
       largeContainerRef.style.height = canvas_height + 'px';
-
       var PADDING = 500;
-      console.log(window.innerWidth, window.innerHeight);
+      // console.log(window.innerWidth, window.innerHeight);
 
       // make stage & layers
-      const newStage = new Konva.default.Stage({
+      const stage = new Konva.default.Stage({
         container: containerRef,
         width: window.innerWidth + PADDING * 2,
         height: window.innerHeight + PADDING * 2,
-        // width: canvasWidth,
-        // height: canvas_height,
       });
       const layer1 = new Konva.default.Layer();
       const layer2 = new Konva.default.Layer();
+      const layer3 = new Konva.default.Layer();
+      const layer4 = new Konva.default.Layer();
 
       // make background
       const background = new Konva.default.Rect({
         x: 0,
         y: 0,
-        width: newStage.width(),
-        height: newStage.height(),
+        width: stage.width(),
+        height: stage.height(),
         fill: '#2e2e2e'
       });
       layer1.add(background);
@@ -355,8 +359,9 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
         layer1.add(text);
       }
 
-      // add arrows
-      for (const arrowart of arrowarts) {
+      // draw arrows
+      for (let i: number = 0; i < arrowarts.length; i++) {
+        let arrowart = arrowarts[i];
         const [panelPos, time, limbAnnot] = arrowart;
         const image = new Image();
         const [imageGetter, _] = getImage(panelPos, limbAnnot, 'arrow');
@@ -368,13 +373,16 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
             image: image,
             width: arrowImgWidth,
             height: arrowImgHeight,
+            id: String(i),
           });
           layer1.add(konva_img);
         };
       }
 
-      // add holds
-      for (const holdart of holdarts) {
+      // draw holds
+      // for (const holdart of holdarts) {
+      for (let i: number = 0; i < holdarts.length; i++) {
+        let holdart = holdarts[i];
         const [panelPos, startTime, endTime, limbAnnot] = holdart;
   
         // draw hold head
@@ -388,10 +396,11 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
             image: holdHead,
             width: arrowImgWidth,
             height: arrowImgHeight,
+            id: String(i),
           });
           layer2.add(konva_img);
         };
-  
+
         // draw hold trail
         const holdTrail = new Image();
         const [trailImageGetter, __] = getImage(panelPos, limbAnnot, 'trail');
@@ -403,8 +412,9 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
             image: holdTrail,
             width: arrowImgWidth,
             height: (endTime - startTime) * pxPerSecond(),
+            id: String(i),
           });
-          layer1.add(konva_img);
+          layer3.add(konva_img);
         };
 
         // draw hold cap
@@ -418,20 +428,24 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
             image: holdCap,
             width: arrowImgWidth,
             height: arrowImgHeight,
+            id: String(i),
           });
-          layer1.add(konva_img);
+          layer4.add(konva_img);
         };
       }
 
       // interactivity on stage
-      newStage.on('click', function (e) {
+      stage.on('click', function (e) {
+        let data = dataGet()!;
+        let arrowarts = data[0];
+        let holdarts = data[1];
+
         // e.target is a clicked Konva.Shape or current stage if you clicked on empty space
         const scrolly = scrollContainerRef.scrollTop - PADDING;
         const scrollx = scrollContainerRef.scrollLeft - PADDING;
-        const x = newStage.getPointerPosition()!.x + scrollx;
-        const y = newStage.getPointerPosition()!.y + scrolly;
-        console.log(x, y);
-
+        const x = stage.getPointerPosition()!.x + scrollx;
+        const y = stage.getPointerPosition()!.y + scrolly;
+        // console.log(x, y);
         // console.log('clicked on', e.target);
         // console.log('clicked on', newStage.getPointerPosition().x);
         // console.log('clicked on', newStage.getPointerPosition().y);
@@ -445,6 +459,7 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
           const [panelPos, time, limbAnnot] = arrowart;
           const arrow_x = lineMargin + panelPos * panelPxInterval;
           const arrow_y = time * pxPerSecond();
+          let id = String(i);
     
           if (
             x >= arrow_x &&
@@ -456,6 +471,27 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
               [[panelPos, time, clickTo()[limbAnnot]]],
             ).concat(arrowarts.slice(i + 1, arrowarts.length));
             mutate([editedArrowArts, holdarts]);
+
+            // remove prev arrow
+            const node = layer1?.findOne(`#${id}`);
+            node?.destroy();
+
+            // draw new arrow
+            let newLimb = clickTo()[limbAnnot];
+            const image = new Image();
+            const [imageGetter, _] = getImage(panelPos, newLimb, 'arrow');
+            image.src = imageGetter();
+            image.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: time * pxPerSecond(),
+                image: image,
+                width: arrowImgWidth,
+                height: arrowImgHeight,
+                id: id,
+              });
+              layer1.add(konva_img);
+            };
             return;
           }
         };
@@ -474,11 +510,70 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
             y >= arrow_y &&
             y <= arrow_y + arrowImgHeight
           ) {
-            // console.log("Hold clicked!", holdart);
             let editedHoldArts = holdarts.slice(0, i).concat(
               [[panelPos, startTime, endTime, clickTo()[limbAnnot]]],
             ).concat(holdarts.slice(i + 1, holdarts.length));
             mutate([arrowarts, editedHoldArts]);
+
+            // remove prev art
+            let id = String(i);
+            const node2 = layer2?.findOne(`#${id}`);
+            node2?.destroy();
+            const node3 = layer3?.findOne(`#${id}`);
+            node3?.destroy();
+            const node4 = layer4?.findOne(`#${id}`);
+            node4?.destroy();
+
+            // draw new art
+            let newLimb = clickTo()[limbAnnot];
+            // draw hold head
+            const holdHead = new Image();
+            const [headImageGetter, _] = getImage(panelPos, newLimb, 'arrow');
+            holdHead.src = headImageGetter();
+            holdHead.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: startTime * pxPerSecond(),
+                image: holdHead,
+                width: arrowImgWidth,
+                height: arrowImgHeight,
+                id: String(i),
+              });
+              layer2.add(konva_img);
+            };
+
+            // draw hold trail
+            const holdTrail = new Image();
+            const [trailImageGetter, __] = getImage(panelPos, newLimb, 'trail');
+            holdTrail.src = trailImageGetter();
+            holdTrail.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: startTime * pxPerSecond() + arrowImgHeight / 2,
+                image: holdTrail,
+                width: arrowImgWidth,
+                height: (endTime - startTime) * pxPerSecond(),
+                id: String(i),
+              });
+              layer3.add(konva_img);
+            };
+
+            // draw hold cap
+            const holdCap = new Image();
+            const [capImageGetter, ___] = getImage(panelPos, newLimb, 'cap');
+            holdCap.src = capImageGetter();
+            holdCap.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: endTime * pxPerSecond(),
+                image: holdCap,
+                width: arrowImgWidth,
+                height: arrowImgHeight,
+                id: String(i),
+              });
+              layer4.add(konva_img);
+            };
+
             return;
           }
     
@@ -494,6 +589,66 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
               [[panelPos, startTime, endTime, clickTo()[limbAnnot]]],
             ).concat(holdarts.slice(i + 1, holdarts.length));
             mutate([arrowarts, editedHoldArts]);
+
+            // remove prev art
+            let id = String(i);
+            const node2 = layer2?.findOne(`#${id}`);
+            node2?.destroy();
+            const node3 = layer3?.findOne(`#${id}`);
+            node3?.destroy();
+            const node4 = layer4?.findOne(`#${id}`);
+            node4?.destroy();
+
+            // draw new art
+            let newLimb = clickTo()[limbAnnot];
+            // draw hold head
+            const holdHead = new Image();
+            const [headImageGetter, _] = getImage(panelPos, newLimb, 'arrow');
+            holdHead.src = headImageGetter();
+            holdHead.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: startTime * pxPerSecond(),
+                image: holdHead,
+                width: arrowImgWidth,
+                height: arrowImgHeight,
+                id: String(i),
+              });
+              layer2.add(konva_img);
+            };
+
+            // draw hold trail
+            const holdTrail = new Image();
+            const [trailImageGetter, __] = getImage(panelPos, newLimb, 'trail');
+            holdTrail.src = trailImageGetter();
+            holdTrail.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: startTime * pxPerSecond() + arrowImgHeight / 2,
+                image: holdTrail,
+                width: arrowImgWidth,
+                height: (endTime - startTime) * pxPerSecond(),
+                id: String(i),
+              });
+              layer3.add(konva_img);
+            };
+
+            // draw hold cap
+            const holdCap = new Image();
+            const [capImageGetter, ___] = getImage(panelPos, newLimb, 'cap');
+            holdCap.src = capImageGetter();
+            holdCap.onload = () => {
+              var konva_img = new Konva.default.Image({
+                x: lineMargin + panelPos * panelPxInterval,
+                y: endTime * pxPerSecond(),
+                image: holdCap,
+                width: arrowImgWidth,
+                height: arrowImgHeight,
+                id: String(i),
+              });
+              layer4.add(konva_img);
+            };
+
             return;
           }
     
@@ -504,22 +659,18 @@ function drawKonvaCanvas(data: ChartArt, mutate: Setter<ChartArt | null | undefi
       function repositionStage() {
         var dx = scrollContainerRef.scrollLeft - PADDING;
         var dy = scrollContainerRef.scrollTop - PADDING;
-        newStage.container().style.transform =
+        stage.container().style.transform =
           'translate(' + dx + 'px, ' + dy + 'px)';
-        newStage.x(-dx);
-        newStage.y(-dy);
-        if (dy != - PADDING) {
-          setScrollPosition(dy);
-        };
+        stage.x(-dx);
+        stage.y(-dy);
       }
       scrollContainerRef.addEventListener('scroll', repositionStage);
       repositionStage();
 
-      newStage.add(layer1);
-      newStage.add(layer2);
-
-      // on solidjs redraw, scroll back to previous location
-      scrollContainerRef.scrollTo(0, scrollPosition() + PADDING);
+      stage.add(layer4);
+      stage.add(layer3);
+      stage.add(layer2);
+      stage.add(layer1);
     });
   });
 
@@ -888,9 +1039,9 @@ export default function DynamicPage(): JSXElement {
 
   // Refetches data whenever params.id changes
   const [data, { mutate, refetch }] = createResource(params.id, fetchData);
+  let chartData = data()!;
 
   console.log('env: ', checkEnvironment());
-  // console.log(data());
   return (
     <>
       <div style={'position: fixed; background-color: #3e3e3e'}>
@@ -915,7 +1066,8 @@ export default function DynamicPage(): JSXElement {
           placeholder="Set pixels per second ..."
         />
         </div>
-      <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data()!, mutate)} </div>
+      <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data, mutate)} </div>
+      {/* <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data()!, mutate)} </div> */}
       {/* <div style={'background-color: #2e2e2e'}> {drawCanvas(data()!, mutate)} </div> */}
       {/* <div> */}
         {/* <pre> {data() && JSON.stringify(data()![0][0], null, 0)}</pre> */}
