@@ -1,25 +1,13 @@
 
 import { createSignal, createMemo, For, createEffect, JSXElement, createResource } from "solid-js";
 import "./search.css"
+import { checkEnvironment, fetchData } from '../lib/data';
 
 
 interface searchItemType {
   name: string,
   url: string,
 }
-
-/**
- * Get base URL, depending on local env variable
- * https://stackoverflow.com/questions/74966208/next-js-typeerror-failed-to-parse-url-from-api-projects-or-error-connect-econ
- * @returns 
- */
-function checkEnvironment(): string {
-  let base_url =
-    import.meta.env.VITE_ENV === "dev"
-      ? "http://localhost:3000"
-      : "https://example.com"; // https://v2ds.netlify.app
-  return base_url;
-};
 
 
 /**
