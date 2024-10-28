@@ -65,12 +65,14 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
       let data = dataGet()!;
       let arrowarts = data[0];
       let holdarts = data[1];
-
+    
       // compute canvas height from last note
       let lastTime = computeLastTime(data);
       var canvas_height = lastTime * pxPerSecond() + 100;
+    
+
       largeContainerRef.style.height = canvas_height + 'px';
-      var PADDING = 500;
+      var PADDING = 0;
       // console.log(window.innerWidth, window.innerHeight);
 
       // make stage & layers
@@ -78,6 +80,7 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
         container: containerRef,
         width: window.innerWidth + PADDING * 2,
         height: window.innerHeight + PADDING * 2,
+        // height: canvas_height,
       });
       const layer1 = new Konva.default.Layer();
       const layer2 = new Konva.default.Layer();
@@ -148,7 +151,6 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
       }
 
       // draw holds
-      // for (const holdart of holdarts) {
       for (let i: number = 0; i < holdarts.length; i++) {
         let holdart = holdarts[i];
         const [panelPos, startTime, endTime, limbAnnot] = holdart;
@@ -425,20 +427,29 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
 
       // scrolling
       function repositionStage() {
-        var dx = scrollContainerRef.scrollLeft - PADDING;
-        var dy = scrollContainerRef.scrollTop - PADDING;
+        // var dx = scrollContainerRef.scrollLeft - PADDING;
+        // var dy = scrollContainerRef.scrollTop - PADDING;
+        var dx = scrollContainerRef.scrollLeft;
+        var dy = scrollContainerRef.scrollTop;
         stage.container().style.transform =
           'translate(' + dx + 'px, ' + dy + 'px)';
         stage.x(-dx);
         stage.y(-dy);
       }
-      scrollContainerRef.addEventListener('scroll', repositionStage);
-      repositionStage();
 
+      // layer1 has background; draw it on bottom
+      stage.add(layer1);
+
+      // layers for holds
       stage.add(layer4);
       stage.add(layer3);
       stage.add(layer2);
-      stage.add(layer1);
+
+      repositionStage();
+      scrollContainerRef.addEventListener('scroll', repositionStage);
+      stage.container().style.transform = 'translate(0px, 0px)';
+      stage.x(0);
+      stage.y(0);
     });
   });
 
@@ -451,15 +462,16 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
           "width": "1000px",
           "height": "calc(100vh - 100px)",
           "margin": "auto",
-          "border": "1px solid grey",
+          // "border": "1px solid grey",
         }}
       >
         <div
           ref={largeContainerRef!}
           style={{
             "width": "800px",
-            // "height": "200000px",
-            "height": "200px",
+            // "height": "calc(100vh - 100px)",
+            "height": "10px",
+            // "height": canvas_height + "px",
             "overflow": "hidden",
             "background-color": "#2e2e2e",
           }}
@@ -467,10 +479,12 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
           <div 
             ref={containerRef!} 
             style={{
-              "border": "1px solid #ccc",
+              // "border": "1px solid #ccc",
               "margin": "auto",
               "width": "800px",
-              "height": "600px",
+              "height": "1000px",
+              // "height": "10px",
+              // "height": canvas_height + "px",
               "background-color": "#2e2e2e",
             }}
           >
