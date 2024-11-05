@@ -6,14 +6,13 @@ import Konva from 'konva';
 import { isServer } from 'solid-js/web';
 import { getImage } from '../../lib/images';
 import { checkEnvironment, fetchData } from '../../lib/data';
-import { ArrowArt, HoldArt, ChartArt } from '../../lib/types';
+import { ArrowArt, HoldArt, HoldTick, ChartArt } from '../../lib/types';
 
 
 const panelPxInterval = 43;
 const [pxPerSecond, setPxPerSecond] = createSignal(400);
 // arrow imgs are square
 const canvasWidth = 530;
-const canvasHeight = 5000;
 const arrowImgWidth = 40;
 const arrowImgHeight = arrowImgWidth;
 
@@ -65,22 +64,22 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
       let data = dataGet()!;
       let arrowarts = data[0];
       let holdarts = data[1];
+      let metadata = data[2];
+      let holdticks: Array<HoldTick> = metadata['Hold ticks'];
     
       // compute canvas height from last note
       let lastTime = computeLastTime(data);
       var canvas_height = lastTime * pxPerSecond() + 100;
-    
 
       largeContainerRef.style.height = canvas_height + 'px';
+      largeContainerRef.style.width = canvasWidth + 80 + 'px';
       var PADDING = 0;
-      // console.log(window.innerWidth, window.innerHeight);
 
       // make stage & layers
       const stage = new Konva.default.Stage({
         container: containerRef,
         width: window.innerWidth + PADDING * 2,
         height: window.innerHeight + PADDING * 2,
-        // height: canvas_height,
       });
       const layer1 = new Konva.default.Layer();
       const layer2 = new Konva.default.Layer();
@@ -122,12 +121,41 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
           text: `${i*seconds_per_timestamp}s`,
           x: 0,
           y: y,
-          fontSize: 32,
+          fontSize: 24,
           fontFamily: 'Helvetica',
-          fill: 'White',
+          fill: '#AAAAAA',
           align: 'right',
         });
         layer1.add(text);
+      }
+
+      // draw holdticks
+      const holdtick_x = canvasWidth - lineMargin + 10;
+      const y_gap = 4;
+      for (let i: number = 0; i < holdticks.length; i++) {
+        let holdtick = holdticks[i];
+        const [startTime, endTime, nTicks] = holdtick;
+        const y = i * seconds_per_timestamp * pxPerSecond();
+        // draw text
+        var text = new Konva.default.Text({
+          text: `${nTicks}`,
+          x: holdtick_x + 5,
+          y: startTime * pxPerSecond() + arrowImgHeight / 2,
+          fontSize: 18,
+          fontFamily: 'Helvetica',
+          fill: 'gray',
+          align: 'right',
+        });
+        layer1.add(text);
+        // draw line
+        var line = new Konva.default.Line({
+          points: [
+            holdtick_x, startTime * pxPerSecond() + arrowImgHeight / 2, 
+            holdtick_x, endTime * pxPerSecond() - y_gap + arrowImgHeight / 2],
+          stroke: 'gray',
+          strokeWidth: 1,
+        });
+        layer1.add(line);
       }
 
       // draw arrows
@@ -439,7 +467,6 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
 
       // layer1 has background; draw it on bottom
       stage.add(layer1);
-
       // layers for holds
       stage.add(layer4);
       stage.add(layer3);
@@ -459,7 +486,8 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
         ref={scrollContainerRef!}
         style={{
           "overflow": "auto",
-          "width": "1000px",
+            "width": canvasWidth + 100 + "px",
+          // "width": "1000px",
           "height": "calc(100vh - 100px)",
           "margin": "auto",
           // "border": "1px solid grey",
@@ -468,7 +496,7 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
         <div
           ref={largeContainerRef!}
           style={{
-            "width": "800px",
+            "width": "80px",
             // "height": "calc(100vh - 100px)",
             "height": "10px",
             // "height": canvas_height + "px",
@@ -481,7 +509,7 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
             style={{
               // "border": "1px solid #ccc",
               "margin": "auto",
-              "width": "800px",
+              "width": canvasWidth + 100 + "px",
               "height": "1000px",
               // "height": "10px",
               // "height": canvas_height + "px",
