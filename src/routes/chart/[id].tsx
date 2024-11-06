@@ -46,7 +46,10 @@ function computeLastTime(data: ChartArt): number {
  * Draws Konva HTML canvas of arrow arts and hold arts.
  * @param data 
  */
-function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<ChartArt | null | undefined>) {
+function drawKonvaCanvas(
+  dataGet: Resource<ChartArt | null>, 
+  mutate: Setter<ChartArt | null | undefined>
+) {
   let containerRef: HTMLDivElement;
   let scrollContainerRef: HTMLDivElement;
   let largeContainerRef: HTMLDivElement;
@@ -125,6 +128,24 @@ function drawKonvaCanvas(dataGet: Resource<ChartArt | null>, mutate: Setter<Char
           fontFamily: 'Helvetica',
           fill: '#AAAAAA',
           align: 'right',
+        });
+        layer1.add(text);
+      }
+
+      // draw effective NPS annotations
+      const enps_annots = metadata['eNPS annotations'];
+      const nps_x = canvasWidth - lineMargin + 25;
+      for (let i: number = 0; i < enps_annots.length; i++) {
+        const [time, nps_annot] = enps_annots[i];
+        // draw text
+        var text = new Konva.default.Text({
+          text: `${nps_annot}`,
+          x: nps_x,
+          y: time * pxPerSecond(),
+          fontSize: 18,
+          fontFamily: 'Helvetica',
+          fill: 'gray',
+          align: 'left',
         });
         layer1.add(text);
       }
