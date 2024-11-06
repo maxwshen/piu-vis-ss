@@ -6,6 +6,7 @@ import Konva from 'konva';
 import { isServer } from 'solid-js/web';
 import { getImage } from '../../lib/images';
 import { checkEnvironment, fetchData } from '../../lib/data';
+import { getLevel, getSinglesOrDoubles, computeLastTime } from '../../lib/canvas_art';
 import { ArrowArt, HoldArt, HoldTick, ChartArt } from '../../lib/types';
 
 
@@ -20,26 +21,6 @@ interface strToStr {
   [key: string]: string;
 };
 const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
-
-
-/**
- * Computes last time in ChartArt
- * @param data 
- */
-function computeLastTime(data: ChartArt): number {
-  let arrowarts = data[0];
-  let holdarts = data[1];
-  let lastArrowTime = 0;
-  let lastHoldEndTime = 0;
-  if (arrowarts && arrowarts.length > 0) {
-    lastArrowTime = arrowarts[arrowarts.length - 1][1];
-  }
-  if (holdarts && holdarts.length > 0) {
-    lastHoldEndTime = holdarts[holdarts.length - 1][2];
-  }
-  let lastTime = Math.max(lastArrowTime, lastHoldEndTime);
-  return lastTime;
-}
 
 
 /**
@@ -70,7 +51,19 @@ function drawKonvaCanvas(
       let metadata = data[2];
       let holdticks: Array<HoldTick> = metadata['Hold ticks'];
     
-      // compute canvas height from last note
+      // compute canvas height and width
+      const numPanels = getSinglesOrDoubles(data);
+      var canvasWidth = panelPxInterval * numPanels + 100;
+
+      const level = getLevel(data);
+      if (level < 11) {
+        setPxPerSecond(250);
+      } else if (level < 16) {
+        setPxPerSecond(300);
+      } else {
+        setPxPerSecond(400);
+      }
+
       let lastTime = computeLastTime(data);
       var canvas_height = lastTime * pxPerSecond() + 100;
 
@@ -142,7 +135,7 @@ function drawKonvaCanvas(
           text: `${nps_annot}`,
           x: nps_x,
           y: time * pxPerSecond(),
-          fontSize: 18,
+          fontSize: 16,
           fontFamily: 'Helvetica',
           fill: 'gray',
           align: 'left',
@@ -479,7 +472,7 @@ function SaveJsonButton(id: string, data: ChartArt): JSXElement {
 };
 
 
-function ScrollButton(): JSXElement {
+function ScrollButtons(): JSXElement {
   const [scrolling, setScrolling] = createSignal(false);
   let scrollInterval: any;
   let logScrollPosition: any;
@@ -562,7 +555,6 @@ function SetClickToLRButton(): JSXElement {
   const ChangeClickAction = () => {
     setClickTo({'l': 'r', 'r': 'l', 'e': 'l', 'h': 'l'});
   };
-
   return (
     <div>
       <button class="nice-button" onClick={ChangeClickAction}>Set Click To L/R</button>
@@ -590,23 +582,11 @@ export default function DynamicPage(): JSXElement {
         <span> {data.loading && "Loading..."} </span>
         <span> {data.error && "Error"} </span>
         {SaveJsonButton(params.id, data()!)}
-        {ScrollButton()}
+        {ScrollButtons()}
         {SetClickToEitherButton()}
         {SetClickToMissButton()}
         {SetClickToLRButton()}
         <br></br>
-        <span> Pixels per second: </span>
-        <input
-          id='setPxPerSecInput'
-          type="text"
-          value={pxPerSecond()}
-          onBlur={(e) => {
-            console.log(e.target.value);
-            setPxPerSecond(Number(e.target.value));
-            refetch();
-          }}
-          placeholder="Set pixels per second ..."
-        />
         </div>
       <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data, mutate)} </div>
     </>
