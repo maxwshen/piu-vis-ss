@@ -24,3 +24,19 @@
   box-shadow: 0 2px #666; /* Move the shadow */
   transform: translateY(2px); /* Move the button down */
 }
+
+
+#scrollbar1::-webkit-scrollbar {
+  width: 10px;
+}
+
+#scrollbar1::-webkit-scrollbar-track {
+  border-radius: 8px;
+  background-color: #e7e7e7;
+  border: 1px solid #cacaca;
+}
+
+#scrollbar1::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: #d55959;
+}
