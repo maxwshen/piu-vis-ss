@@ -1,13 +1,13 @@
 import { useParams } from "@solidjs/router";
-import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack } from "solid-js";
-import type { Signal, Accessor, Resource, Setter, JSXElement } from 'solid-js';
+import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For } from "solid-js";
+import type { Signal, Accessor, Resource, Setter, JSXElement, Component } from 'solid-js';
 import "./[id].css"
 import Konva from 'konva';
 import { isServer } from 'solid-js/web';
 import { getImage } from '../../lib/images';
 import { checkEnvironment, fetchData } from '../../lib/data';
 import { getLevel, getSinglesOrDoubles, computeLastTime } from '../../lib/canvas_art';
-import { ArrowArt, HoldArt, HoldTick, ChartArt } from '../../lib/types';
+import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '../../lib/types';
 
 
 const panelPxInterval = 43;
@@ -23,6 +23,9 @@ interface strToStr {
 const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
 
 
+const [scrollContainerRef, setScrollContainerRef] = createSignal<HTMLDivElement>();
+
+
 /**
  * Draws Konva HTML canvas of arrow arts and hold arts.
  * @param data 
@@ -32,7 +35,6 @@ function drawKonvaCanvas(
   mutate: Setter<ChartArt | null | undefined>
 ) {
   let containerRef: HTMLDivElement;
-  let scrollContainerRef: HTMLDivElement;
   let largeContainerRef: HTMLDivElement;
 
   // Only run on client-side - avoids hydration error.
@@ -58,7 +60,7 @@ function drawKonvaCanvas(
       const level = getLevel(data);
       if (level < 11) {
         setPxPerSecond(250);
-      } else if (level < 16) {
+      } else if (level <= 14) {
         setPxPerSecond(300);
       } else {
         setPxPerSecond(400);
@@ -273,8 +275,8 @@ function drawKonvaCanvas(
         let arrowarts = data[0];
         let holdarts = data[1];
 
-        const scrolly = scrollContainerRef.scrollTop - PADDING;
-        const scrollx = scrollContainerRef.scrollLeft - PADDING;
+        const scrolly = scrollContainerRef()!.scrollTop - PADDING;
+        const scrollx = scrollContainerRef()!.scrollLeft - PADDING;
         const x = stage.getPointerPosition()!.x + scrollx;
         const y = stage.getPointerPosition()!.y + scrolly;
 
@@ -377,8 +379,8 @@ function drawKonvaCanvas(
       function repositionStage() {
         // var dx = scrollContainerRef.scrollLeft - PADDING;
         // var dy = scrollContainerRef.scrollTop - PADDING;
-        var dx = scrollContainerRef.scrollLeft;
-        var dy = scrollContainerRef.scrollTop;
+        var dx = scrollContainerRef()!.scrollLeft;
+        var dy = scrollContainerRef()!.scrollTop;
         stage.container().style.transform =
           'translate(' + dx + 'px, ' + dy + 'px)';
         stage.x(-dx);
@@ -393,7 +395,7 @@ function drawKonvaCanvas(
       stage.add(layer2);
 
       repositionStage();
-      scrollContainerRef.addEventListener('scroll', repositionStage);
+      scrollContainerRef()!.addEventListener('scroll', repositionStage);
       stage.container().style.transform = 'translate(0px, 0px)';
       stage.x(0);
       stage.y(0);
@@ -403,7 +405,7 @@ function drawKonvaCanvas(
   return (
     <div>
       <div
-        ref={scrollContainerRef!}
+        ref={setScrollContainerRef}
         id={"scrollbar1"}
         style={{
           "overflow": "auto",
@@ -563,6 +565,90 @@ function SetClickToLRButton(): JSXElement {
 };
 
 
+interface SegmentTimelineProps {
+  segments: Segment[];
+  segmentData: strToStr[];
+}
+
+const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
+  const scrollToTime = (startTime: number) => {
+    scrollContainerRef()!.scrollTo({
+      top: startTime * pxPerSecond(),
+      behavior: 'smooth'
+    });
+  };
+
+  // const SegmentButton = (segment: Segment) => {
+  //   const fmtStart = `${Math.round(segment[0] * 10) / 10}s`;
+  //   const fmtEnd = `${Math.round(segment[1] * 10) / 10}s`;
+
+  //   return (
+  //     <button
+  //       class="p-2 bg-gray-100 hover:bg-gray-200 rounded text-left transition-colors"
+  //       onClick={() => scrollToTime(segment[0])}
+  //     >
+  //       <span class="font-medium">{fmtStart} - {fmtEnd}</span>
+  //     </button>
+  //   );
+  // };
+
+  const SegmentCollapsible = (segment: Segment, data: strToStr) => {
+    const [isOpen, setIsOpen] = createSignal(false);
+    const fmtStart = `${Math.round(segment[0] * 10) / 10}s`;
+    const fmtEnd = `${Math.round(segment[1] * 10) / 10}s`;
+
+    return (
+      <div class="border rounded-lg mb-2 overflow-hidden">
+        {/* Header - Always visible */}
+        <div 
+          class="p-3 bg-gray-100 hover:bg-gray-200 cursor-pointer flex justify-between items-center transition-colors"
+          onClick={() => setIsOpen(!isOpen())}
+        >
+          <div class="flex-1">
+          <span class="font-medium">{fmtStart} - {fmtEnd}</span>
+          </div>
+          <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </div>
+
+        {/* Collapsible content */}
+        <div 
+          class={`overflow-hidden transition-all ${isOpen() ? 'max-h-96' : 'max-h-0'}`}
+        >
+          <div class="p-3 bg-white">
+            {/* Add your SegmentData display here */}
+            <pre class="whitespace-pre-wrap text-sm">
+              {JSON.stringify(data, null, 2)}
+            </pre>
+            <button
+              class="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering collapse toggle
+                scrollToTime(segment[0]);
+              }}
+            >
+              Scroll to Segment
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div class="flex flex-col gap-2 p-4">
+      {/* <For each={props.segments}>
+        {(segment) => SegmentButton(segment)}
+      </For> */}
+      {props.segments.map((segment, index) =>
+        SegmentCollapsible(segment, props.segmentData[index])
+      )}
+    </div>
+  );
+};
+
+
 /**
  * Default function, drawn by solid.js
  * @returns 
@@ -574,6 +660,14 @@ export default function DynamicPage(): JSXElement {
   // Refetches data whenever params.id changes
   const [data, { mutate, refetch }] = createResource(params.id, fetchData);
 
+  let segments: Segment[] = [];
+  let segmentdata: strToStr[] = [];
+  if ( data() ) {
+    let metadata = data()![2];
+    segments = metadata['Segments'];
+    segmentdata = metadata['Segment metadata'];
+  }
+
   console.log('env: ', checkEnvironment());
   return (
     <>
@@ -582,10 +676,13 @@ export default function DynamicPage(): JSXElement {
         <span> {data.loading && "Loading..."} </span>
         <span> {data.error && "Error"} </span>
         {SaveJsonButton(params.id, data()!)}
-        {ScrollButtons()}
+        {/* {ScrollButtons()} */}
         {SetClickToEitherButton()}
         {SetClickToMissButton()}
         {SetClickToLRButton()}
+        <SegmentTimeline 
+          segments={segments} segmentData={segmentdata}
+        />
         <br></br>
         </div>
       <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data, mutate)} </div>
