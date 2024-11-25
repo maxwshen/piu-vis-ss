@@ -20,6 +20,9 @@ const arrowImgHeight = arrowImgWidth;
 interface strToStr {
   [key: string]: string;
 };
+interface strToAny {
+  [key: string]: any;
+};
 const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
 
 
@@ -52,7 +55,8 @@ function drawKonvaCanvas(
       let holdarts = data[1];
       let metadata = data[2];
       let holdticks: Array<HoldTick> = metadata['Hold ticks'];
-    
+      let segments = metadata['Segments'];
+
       // compute canvas height and width
       const numPanels = getSinglesOrDoubles(data);
       var canvasWidth = panelPxInterval * numPanels + 100;
@@ -125,6 +129,22 @@ function drawKonvaCanvas(
           align: 'right',
         });
         layer1.add(text);
+      }
+
+      // draw segments demarcations
+      for (let i: number = 0; i < segments.length; i++) {
+        let segment = segments[i];
+        const startTime: number = segment[0];
+        const x_left = 0 + lineMargin / 2;
+        const x_right = canvasWidth - lineMargin / 2;
+        const y = startTime * pxPerSecond();
+        var line = new Konva.default.Line({
+          points: [x_left, y, x_right, y],
+          stroke: 'white',
+          strokeWidth: 1,
+        });
+        line.dash([10, 5]);
+        layer1.add(line);
       }
 
       // draw effective NPS annotations
@@ -235,7 +255,7 @@ function drawKonvaCanvas(
           id: String(id),
           opacity: trail_alpha,
         });
-        layer3.add(konva_img);
+        layer4.add(konva_img);
 
         // draw hold cap
         const holdCap = new Image();
@@ -250,7 +270,7 @@ function drawKonvaCanvas(
           id: String(id),
           opacity: alpha,
         });
-        layer4.add(konva_img);
+        layer3.add(konva_img);
 
       };
 
@@ -567,7 +587,21 @@ function SetClickToLRButton(): JSXElement {
 
 interface SegmentTimelineProps {
   segments: Segment[];
-  segmentData: strToStr[];
+  segmentData: strToAny[];
+}
+
+
+function RainBowColor(t: number): string {
+  if (t < 0.6) {
+    return '#aed677'
+  } else if (t < 0.75) {
+    return '#f3c746'
+  } else if (t < 0.875) {
+    return '#f59640'
+  } else if (t < 0.97) {
+    return '#ec4339'
+  }
+  return '#e2247f'
 }
 
 const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
@@ -578,34 +612,30 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     });
   };
 
-  // const SegmentButton = (segment: Segment) => {
-  //   const fmtStart = `${Math.round(segment[0] * 10) / 10}s`;
-  //   const fmtEnd = `${Math.round(segment[1] * 10) / 10}s`;
+  // console.log(props.segmentData);
+  const levels = props.segmentData.map((d) => Number(d['level']));
+  const minSegmentLevel = Math.min(...levels);
+  const maxSegmentLevel = Math.max(...levels);
 
-  //   return (
-  //     <button
-  //       class="p-2 bg-gray-100 hover:bg-gray-200 rounded text-left transition-colors"
-  //       onClick={() => scrollToTime(segment[0])}
-  //     >
-  //       <span class="font-medium">{fmtStart} - {fmtEnd}</span>
-  //     </button>
-  //   );
-  // };
-
-  const SegmentCollapsible = (segment: Segment, data: strToStr) => {
+  const SegmentCollapsible = (segment: Segment, data: strToAny) => {
     const [isOpen, setIsOpen] = createSignal(false);
-    const fmtStart = `${Math.round(segment[0] * 10) / 10}s`;
-    const fmtEnd = `${Math.round(segment[1] * 10) / 10}s`;
+    const fmtStart = `${Math.round(segment[0])}`;
+    const fmtEnd = `${Math.round(segment[1])}`;
+    const level = Number(data['level']);
+    const n = (level - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
+    const levelColor = RainBowColor(n);
+    const styleColor = `color:${levelColor};`;
 
     return (
       <div class="border rounded-lg mb-2 overflow-hidden">
         {/* Header - Always visible */}
         <div 
-          class="p-3 bg-gray-100 hover:bg-gray-200 cursor-pointer flex justify-between items-center transition-colors"
-          onClick={() => setIsOpen(!isOpen())}
+          class="p-3 bg-gray-900 hover:bg-gray-500 cursor-pointer flex justify-between items-center transition-colors"
+          onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
-          <span class="font-medium">{fmtStart} - {fmtEnd}</span>
+          <span class="font-medium" style="color:#bbb">{fmtStart}-{fmtEnd}s: </span>
+          <span class="font-medium" style={styleColor}>lv.{Math.round(level)}</span>
           </div>
           <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
             ▼
@@ -621,15 +651,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
             <pre class="whitespace-pre-wrap text-sm">
               {JSON.stringify(data, null, 2)}
             </pre>
-            <button
-              class="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent triggering collapse toggle
-                scrollToTime(segment[0]);
-              }}
-            >
-              Scroll to Segment
-            </button>
+
           </div>
         </div>
       </div>
@@ -661,7 +683,7 @@ export default function DynamicPage(): JSXElement {
   const [data, { mutate, refetch }] = createResource(params.id, fetchData);
 
   let segments: Segment[] = [];
-  let segmentdata: strToStr[] = [];
+  let segmentdata: strToAny[] = [];
   if ( data() ) {
     let metadata = data()![2];
     segments = metadata['Segments'];
