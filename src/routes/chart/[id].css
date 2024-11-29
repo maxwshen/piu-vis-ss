@@ -1,7 +1,7 @@
 .nice-button {
-  background-color: #4CAF50; /* Green background */
+  background-color: #666; /* Green background */
   border: none; /* Remove borders */
-  color: white; /* White text */
+  color: #bbb; /* White text */
   padding: 5px 10px; /* Some padding */
   text-align: center; /* Center the text */
   text-decoration: none; /* Remove underline */

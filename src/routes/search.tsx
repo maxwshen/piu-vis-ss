@@ -17,15 +17,26 @@ interface searchItemType {
  */
 async function fetchSearchItems(): Promise<searchItemType[] | null> {
   try {
-    const response = await fetch(
-      checkEnvironment().concat(`/chart-jsons/101824/search-struct.json`)
-  );
-    const names = await response.json();
+    const searchNameList = await fetch(
+      checkEnvironment().concat(`/chart-jsons/112624/__search-struct.json`)
+    );
+    const names = await searchNameList.json();
+
+    const manualAnnotatedList = await fetch(
+      checkEnvironment().concat(`/chart-jsons/112624/__manual-limb-annotated.json`)
+    );
+    const manualAnnotated = await manualAnnotatedList.json();
 
     const searchItems: searchItemType[] = [];
       for (const name of names) {
+
+        let modName = name;
+        if (manualAnnotated.includes(name)) {
+          modName = `${name} ✅`
+        }
+
         const searchItem = {
-          'name': name, 
+          'name': modName, 
           'url': checkEnvironment().concat(`/chart/${name}`)
         };
         searchItems.push(searchItem);

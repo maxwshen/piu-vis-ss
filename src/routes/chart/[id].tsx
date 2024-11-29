@@ -591,7 +591,7 @@ interface SegmentTimelineProps {
 }
 
 
-function RainBowColor(t: number): string {
+function getLevelColor(t: number): string {
   if (t < 0.6) {
     return '#aed677'
   } else if (t < 0.75) {
@@ -603,6 +603,19 @@ function RainBowColor(t: number): string {
   }
   return '#e2247f'
 }
+
+
+function getLevelText(level: number): string {
+  const r = Math.round(level);
+  const threshold = 0.3;
+  if (level - r <= -1 * threshold) {
+    return `${r}-`;
+  } else if (level - r >= threshold) {
+    return `${r}+`;
+  }
+  return `${r}`;
+}
+
 
 const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
   const scrollToTime = (startTime: number) => {
@@ -623,8 +636,15 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     const fmtEnd = `${Math.round(segment[1])}`;
     const level = Number(data['level']);
     const n = (level - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
-    const levelColor = RainBowColor(n);
+    const levelColor = getLevelColor(n);
     const styleColor = `color:${levelColor};`;
+    const levelText = getLevelText(level);
+
+    const rareSkills = data['rare skills'];
+    let rareSkillText = '';
+    if (rareSkills.length > 0) {
+      rareSkillText = '⚠️';
+    }
 
     return (
       <div class="border rounded-lg mb-2 overflow-hidden">
@@ -635,7 +655,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
         >
           <div class="flex-1">
           <span class="font-medium" style="color:#bbb">{fmtStart}-{fmtEnd}s: </span>
-          <span class="font-medium" style={styleColor}>lv.{Math.round(level)}</span>
+          <span class="font-medium" style={styleColor}>lv.{levelText} {rareSkillText}</span>
           </div>
           <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
             ▼
@@ -649,6 +669,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
           <div class="p-3 bg-white">
             {/* Add your SegmentData display here */}
             <pre class="whitespace-pre-wrap text-sm">
+              {JSON.stringify(segment)}
               {JSON.stringify(data, null, 2)}
             </pre>
 
@@ -684,17 +705,33 @@ export default function DynamicPage(): JSXElement {
 
   let segments: Segment[] = [];
   let segmentdata: strToAny[] = [];
+  let manuallyAnnotatedFlag: string = '';
   if ( data() ) {
     let metadata = data()![2];
     segments = metadata['Segments'];
     segmentdata = metadata['Segment metadata'];
+
+    // console.log(metadata);
+    console.log(metadata['Manual limb annotation']);
+    if (metadata['Manual limb annotation']) {
+      manuallyAnnotatedFlag = '✅';
+    }
   }
+
+  onMount(() => {
+    if (typeof document !== 'undefined') {
+      document.title = params.id;
+    }
+  });
 
   console.log('env: ', checkEnvironment());
   return (
     <>
       <div style={'position: fixed; background-color: #3e3e3e'}>
-        <span> {params.id} </span>
+        <span class="font-medium" style="color:#eee">
+          {params.id.replace(/_/g," ")}
+        </span>
+        <span> {manuallyAnnotatedFlag} </span>
         <span> {data.loading && "Loading..."} </span>
         <span> {data.error && "Error"} </span>
         {SaveJsonButton(params.id, data()!)}
