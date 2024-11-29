@@ -25,6 +25,7 @@ interface strToAny {
 };
 const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
 
+const [canvasScrollPositionMirror, setCanvasScrollPositionMirror] = createSignal<number>();
 
 const [scrollContainerRef, setScrollContainerRef] = createSignal<HTMLDivElement>();
 
@@ -405,6 +406,9 @@ function drawKonvaCanvas(
           'translate(' + dx + 'px, ' + dy + 'px)';
         stage.x(-dx);
         stage.y(-dy);
+
+        // track scroll position in mirror
+        setCanvasScrollPositionMirror(dy);
       }
 
       // layer1 has background; draw it on bottom
@@ -645,6 +649,29 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     if (rareSkills.length > 0) {
       rareSkillText = '⚠️';
     }
+
+    // create effect to open segment when scrolling into it
+    let startPx = segment[0] * pxPerSecond();
+    let endPx = segment[1] * pxPerSecond();
+    createEffect(() => {
+      const beforeLeniency = 500;
+      const afterLeniency = -100;
+      let y = canvasScrollPositionMirror();
+      if (y) {
+        // open if near
+        if ((y > startPx - beforeLeniency) && (y < endPx + afterLeniency)) {
+          setIsOpen(true);
+        }
+
+        // close if far
+        if (y < startPx - beforeLeniency) {
+          setIsOpen(false);
+        }
+        if (y > endPx + afterLeniency) {
+          setIsOpen(false);
+        }
+      }
+    })
 
     return (
       <div class="border rounded-lg mb-2 overflow-hidden">
