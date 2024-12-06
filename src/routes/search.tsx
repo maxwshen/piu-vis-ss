@@ -18,12 +18,12 @@ interface searchItemType {
 async function fetchSearchItems(): Promise<searchItemType[] | null> {
   try {
     const searchNameList = await fetch(
-      checkEnvironment().concat(`/chart-jsons/112624/__search-struct.json`)
+      checkEnvironment().concat(`/chart-jsons/120524/__search-struct.json`)
     );
     const names = await searchNameList.json();
 
     const manualAnnotatedList = await fetch(
-      checkEnvironment().concat(`/chart-jsons/112624/__manual-limb-annotated.json`)
+      checkEnvironment().concat(`/chart-jsons/120524/__manual-limb-annotated.json`)
     );
     const manualAnnotated = await manualAnnotatedList.json();
 

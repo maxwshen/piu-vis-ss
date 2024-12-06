@@ -423,6 +423,26 @@ function drawKonvaCanvas(
       stage.container().style.transform = 'translate(0px, 0px)';
       stage.x(0);
       stage.y(0);
+
+      // once everything is loaded, scroll to first arrow, or section
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramSection = urlParams.get('section');
+      if (paramSection) {
+        // Adjust from 1-indexed to 0-indexing
+        const sectionIdx = Number(paramSection) - 1;
+        const sectionStartTime = segments[sectionIdx][0];
+        scrollContainerRef()!.scrollTo({
+          top: sectionStartTime * pxPerSecond(),
+        });
+      } else {
+        const firstHoldTime = holdarts[0][1];
+        const firstArrowTime = arrowarts[0][1];
+        const firstTime = Math.min(firstHoldTime, firstArrowTime);
+        scrollContainerRef()!.scrollTo({
+          top: firstTime * pxPerSecond(),
+        });
+      }
+
     });
   });
 
@@ -498,61 +518,6 @@ function SaveJsonButton(id: string, data: ChartArt): JSXElement {
 };
 
 
-function ScrollButtons(): JSXElement {
-  const [scrolling, setScrolling] = createSignal(false);
-  let scrollInterval: any;
-  let logScrollPosition: any;
-
-  // 10 ms per scroll event
-  let millisecondInterval = 10;
-  let scrollEventsPerSec = 1000 / millisecondInterval;
-  let scrollByPx = pxPerSecond() / scrollEventsPerSec;
-
-  const startScrolling = () => {
-    if (!scrolling()) {
-      setScrolling(true);
-      scrollInterval = setInterval(() => {
-        window.scrollBy(0, scrollByPx); // Scroll by pixels
-      }, 10); // ms interval per scroll event
-
-      createEffect(() => {
-        if (scrolling()) {
-          const logScrollPosition = setInterval(() => {
-            console.log('scrolling', scrolling());
-            console.log("Scroll Y:", window.scrollY);
-            if (!scrolling()) {
-              clearInterval(logScrollPosition);
-            }
-          }, 1000);
-    
-          // cleanup function
-          return () => clearInterval(logScrollPosition);
-        }
-      });
-    }
-  };
-
-  const stopScrolling = () => {
-    if (scrolling()) {
-      setScrolling(false);
-      clearInterval(scrollInterval);
-      clearInterval(logScrollPosition);
-    }
-  };
-
-  return (
-    <div>
-      <button class="nice-button" onClick={startScrolling} disabled={scrolling()}>
-        Start Scrolling
-      </button>
-      <button class="nice-button" onClick={stopScrolling} disabled={!scrolling()}>
-        Stop Scrolling
-      </button>
-    </div>
-  );
-};
-
-
 function SetClickToEitherButton(): JSXElement {
   const ChangeClickAction = () => {
     setClickTo({'l': 'e', 'r': 'e', 'e': 'e', 'h': 'e'});
@@ -621,6 +586,29 @@ function getLevelText(level: number): string {
 }
 
 
+function segmentContent(segment: Segment, data: strToAny): JSXElement {
+  let similarSections = data['Closest sections'];
+
+  let baseUrl = checkEnvironment();
+  function makeUrlBullets(section: any): JSXElement {
+    let [chartName, sectionIdx] = section;
+    const sectionIdx1 = sectionIdx + 1;
+    let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
+    let linkName = section[0].split('_').join(' ');
+    return <li><a href={link}>{linkName}, §{sectionIdx1}</a></li>
+  }
+
+  return  <pre class="whitespace-pre-wrap text-sm">
+    <ul>
+      {similarSections.map((section: any) =>
+        makeUrlBullets(section)
+      )}
+    </ul>
+    {/* {JSON.stringify(data, null, 2)} */}
+  </pre>
+}
+
+
 const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
   const scrollToTime = (startTime: number) => {
     scrollContainerRef()!.scrollTo({
@@ -634,8 +622,9 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
   const minSegmentLevel = Math.min(...levels);
   const maxSegmentLevel = Math.max(...levels);
 
-  const SegmentCollapsible = (segment: Segment, data: strToAny) => {
+  const SegmentCollapsible = (segment: Segment, data: strToAny, index: Number) => {
     const [isOpen, setIsOpen] = createSignal(false);
+    const sectionNumberP1 = index + 1;
     const fmtStart = `${Math.round(segment[0])}`;
     const fmtEnd = `${Math.round(segment[1])}`;
     const level = Number(data['level']);
@@ -681,7 +670,8 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
-          <span class="font-medium" style="color:#bbb">{fmtStart}-{fmtEnd}s: </span>
+          <span class="font-medium" style="color:#ddd">§{sectionNumberP1}</span>
+          <span class="font-medium" style="color:#777"> ({fmtStart}-{fmtEnd}s): </span>
           <span class="font-medium" style={styleColor}>lv.{levelText} {rareSkillText}</span>
           </div>
           <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
@@ -695,11 +685,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
         >
           <div class="p-3 bg-white">
             {/* Add your SegmentData display here */}
-            <pre class="whitespace-pre-wrap text-sm">
-              {JSON.stringify(segment)}
-              {JSON.stringify(data, null, 2)}
-            </pre>
-
+            {segmentContent(segment, data)};
           </div>
         </div>
       </div>
@@ -712,7 +698,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
         {(segment) => SegmentButton(segment)}
       </For> */}
       {props.segments.map((segment, index) =>
-        SegmentCollapsible(segment, props.segmentData[index])
+        SegmentCollapsible(segment, props.segmentData[index], index)
       )}
     </div>
   );
@@ -738,8 +724,6 @@ export default function DynamicPage(): JSXElement {
     segments = metadata['Segments'];
     segmentdata = metadata['Segment metadata'];
 
-    // console.log(metadata);
-    console.log(metadata['Manual limb annotation']);
     if (metadata['Manual limb annotation']) {
       manuallyAnnotatedFlag = '✅';
     }
@@ -748,8 +732,19 @@ export default function DynamicPage(): JSXElement {
   onMount(() => {
     if (typeof document !== 'undefined') {
       document.title = params.id;
+
     }
+
+    // if (typeof window !== 'undefined') {
+    //   // Code that uses the window object
+    //   console.log(window.location);
+    //   console.log(window.location.search);
+    //   const urlParams = new URLSearchParams(window.location.search);
+    //   const paramSection = urlParams.get('section');
+    //   console.log(paramSection);
+    // }
   });
+
 
   console.log('env: ', checkEnvironment());
   return (
@@ -766,9 +761,11 @@ export default function DynamicPage(): JSXElement {
         {SetClickToEitherButton()}
         {SetClickToMissButton()}
         {SetClickToLRButton()}
-        <SegmentTimeline 
-          segments={segments} segmentData={segmentdata}
-        />
+        <div style={'height: 600px; overflow: auto'}>
+          <SegmentTimeline 
+            segments={segments} segmentData={segmentdata}
+          />
+        </div>
         <br></br>
         </div>
       <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data, mutate)} </div>
