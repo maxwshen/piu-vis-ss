@@ -121,7 +121,7 @@ function drawKonvaCanvas(
       for (let i: number = 1; i < num_timestamps; i++) {
         const y = i * seconds_per_timestamp * pxPerSecond();
         var text = new Konva.default.Text({
-          text: `${i*seconds_per_timestamp}s`,
+          text: `${secondsToTimeStr(i*seconds_per_timestamp)}`,
           x: 0,
           y: y,
           fontSize: 24,
@@ -455,7 +455,8 @@ function drawKonvaCanvas(
           "overflow": "auto",
             "width": canvasWidth + 100 + "px",
           // "width": "1000px",
-          "height": "calc(100vh - 100px)",
+          "height": "calc(100vh - 0px)",
+          // "height": "100%",
           "margin": "auto",
           // "border": "1px solid grey",
         }}
@@ -477,7 +478,8 @@ function drawKonvaCanvas(
               // "border": "1px solid #ccc",
               "margin": "auto",
               "width": canvasWidth + 100 + "px",
-              "height": "1000px",
+              // "height": "1000px",
+              "height": "100%",
               // "height": "10px",
               // "height": canvas_height + "px",
               "background-color": "#2e2e2e",
@@ -599,6 +601,7 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
   }
 
   return  <pre class="whitespace-pre-wrap text-sm">
+    <p>Similar chart sections:</p>
     <ul>
       {similarSections.map((section: any) =>
         makeUrlBullets(section)
@@ -606,6 +609,17 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
     </ul>
     {/* {JSON.stringify(data, null, 2)} */}
   </pre>
+}
+
+
+function secondsToTimeStr(time: number): string {
+  const min = Math.floor(time / 60);
+  const sec = time - min * 60;
+  function str_pad_left(string: string, pad: string, length: number) {
+    return (new Array(length + 1).join(pad) + string).slice(-length);
+  }
+  const finalTime = str_pad_left(String(min), '0', 1) + ':' + str_pad_left(String(sec), '0', 2);
+  return finalTime;
 }
 
 
@@ -622,11 +636,11 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
   const minSegmentLevel = Math.min(...levels);
   const maxSegmentLevel = Math.max(...levels);
 
-  const SegmentCollapsible = (segment: Segment, data: strToAny, index: Number) => {
+  const SegmentCollapsible = (segment: Segment, data: strToAny, index: number) => {
     const [isOpen, setIsOpen] = createSignal(false);
     const sectionNumberP1 = index + 1;
-    const fmtStart = `${Math.round(segment[0])}`;
-    const fmtEnd = `${Math.round(segment[1])}`;
+    const fmtTimeStart = secondsToTimeStr(Math.round(segment[0]));
+    const fmtTimeEnd = secondsToTimeStr(Math.round(segment[1]));
     const level = Number(data['level']);
     const n = (level - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
     const levelColor = getLevelColor(n);
@@ -670,8 +684,11 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
-          <span class="font-medium" style="color:#ddd">§{sectionNumberP1}</span>
-          <span class="font-medium" style="color:#777"> ({fmtStart}-{fmtEnd}s): </span>
+          <span class="font-medium" style="color:#ddd">
+            {/* §{sectionNumberP1} */}
+            {sectionNumberP1}.
+          </span>
+          <span class="font-small" style="color:#777"> {fmtTimeStart}-{fmtTimeEnd} </span>
           <span class="font-medium" style={styleColor}>lv.{levelText} {rareSkillText}</span>
           </div>
           <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
@@ -749,26 +766,28 @@ export default function DynamicPage(): JSXElement {
   console.log('env: ', checkEnvironment());
   return (
     <>
-      <div style={'position: fixed; background-color: #3e3e3e'}>
-        <span class="font-medium" style="color:#eee">
-          {params.id.replace(/_/g," ")}
+      <div style={'position: fixed; height: 100%; background-color: #3e3e3e'}>
+        <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
+          {params.id}
+          {/* {params.id.replace(/_/g," ")} */}
         </span>
         <span> {manuallyAnnotatedFlag} </span>
         <span> {data.loading && "Loading..."} </span>
         <span> {data.error && "Error"} </span>
-        {SaveJsonButton(params.id, data()!)}
-        {/* {ScrollButtons()} */}
-        {SetClickToEitherButton()}
-        {SetClickToMissButton()}
-        {SetClickToLRButton()}
-        <div style={'height: 600px; overflow: auto'}>
+        <div style={'display: flex'}>
+          {SaveJsonButton(params.id, data()!)}
+          {SetClickToEitherButton()}
+          {SetClickToMissButton()}
+          {SetClickToLRButton()}
+        </div>
+        <div style={'height: 100%; overflow: auto'}>
           <SegmentTimeline 
             segments={segments} segmentData={segmentdata}
           />
         </div>
         <br></br>
         </div>
-      <div style={'background-color: #2e2e2e'}> {drawKonvaCanvas(data, mutate)} </div>
+      <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
     </>
   );
 };
