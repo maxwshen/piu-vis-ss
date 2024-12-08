@@ -8,6 +8,7 @@ import { getImage } from '../../lib/images';
 import { checkEnvironment, fetchData } from '../../lib/data';
 import { getLevel, getSinglesOrDoubles, computeLastTime } from '../../lib/canvas_art';
 import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '../../lib/types';
+import { JSX } from "solid-js/h/jsx-runtime";
 
 
 const panelPxInterval = 43;
@@ -124,7 +125,7 @@ function drawKonvaCanvas(
           text: `${secondsToTimeStr(i*seconds_per_timestamp)}`,
           x: 0,
           y: y,
-          fontSize: 24,
+          fontSize: 20,
           fontFamily: 'Helvetica',
           fill: '#AAAAAA',
           align: 'right',
@@ -493,6 +494,124 @@ function drawKonvaCanvas(
 };
 
 
+
+function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
+  let timelineContainerRef: HTMLDivElement;
+
+  onMount(() => {
+    // Skip initialization if we're on the server or Konva isn't ready
+    if (isServer ) return;
+
+    import('konva').then((Konva) => {
+      let data = dataGet()!;
+      let metadata = data[2];
+      let timelineData = metadata['eNPS timeline data'];
+
+      console.log(timelineData);
+
+      const stageWidth = 400;
+
+      const centerX = stageWidth / 2;
+      const nPixelsPerSecond = 7;
+      const nPixelsPerENPS = 10;
+      const yStart = 0;
+
+      const stageHeight = nPixelsPerSecond * timelineData.length;
+
+      // create stage and layers
+      const PADDING = 0;
+      const stage = new Konva.default.Stage({
+        container: timelineContainerRef,
+        width: stageWidth,
+        height: stageHeight,
+      });
+      const layer1 = new Konva.default.Layer();
+
+      // draw center vertical line
+      var centerLine = new Konva.default.Line({
+        points: [centerX, 0, centerX, stageHeight],
+        stroke: 'white',
+        strokeWidth: 1,
+      })
+      layer1.add(centerLine);
+
+      // draw lines for enps
+      for (let i: number = 0; i < timelineData.length; i++) {
+        const y = yStart + nPixelsPerSecond * i;
+        const enps = timelineData[i];
+        const width = nPixelsPerENPS * enps;
+        const x_left = centerX - width / 2;
+        const x_right = centerX + width / 2;
+
+        if (width > 0) {
+          var line = new Konva.default.Line({
+            points: [x_left, y, x_right, y],
+            stroke: getENPSColor(enps),
+            strokeWidth: nPixelsPerSecond,
+          });
+          layer1.add(line);
+          // console.log(line);
+          console.log(enps, y, x_left, x_right);
+        }
+      }
+
+      // click on stage to scroll
+      stage.on('click', function (e) {
+        const y = stage.getPointerPosition()!.y
+        const time = (y - yStart) / nPixelsPerSecond;
+        console.log(y, time);
+
+        scrollContainerRef()!.scrollTo({
+          top: time * pxPerSecond(),
+          behavior: 'smooth'
+        });
+
+      });
+
+      // current scroll position tracker
+      // init at zero
+      var positionTrackerLine = new Konva.default.Line({
+        points: [0, 1, stageWidth, 1],
+        stroke: 'white',
+        strokeWidth: 1,
+        id: 'positionTrackerLine',
+      })
+      layer1.add(positionTrackerLine);
+
+      // current scroll position tracker
+      createEffect(() => {
+        let y = canvasScrollPositionMirror();
+        if (y) {
+          const time = y / pxPerSecond();
+          const node = layer1?.findOne(`#positionTrackerLine`);
+          node?.destroy();
+          
+          const plot_y = yStart + time * nPixelsPerSecond;
+          var positionTrackerLine = new Konva.default.Line({
+            points: [0, plot_y, stageWidth, plot_y],
+            stroke: 'white',
+            strokeWidth: 1,
+            id: 'positionTrackerLine',
+          })
+          layer1.add(positionTrackerLine);
+        }
+      })
+
+      stage.add(layer1);
+
+    });
+  });
+
+  return (
+    <div
+      ref={timelineContainerRef!}
+      style={'height: 100%; overflow: auto'}
+    >
+      <p>test</p>
+    </div>
+  );
+};
+
 function SaveJsonButton(id: string, data: ChartArt): JSXElement {
   // Function to save JSON to file
   const saveJsonToFile = () => {
@@ -575,6 +694,19 @@ function getLevelColor(t: number): string {
   return '#e2247f'
 }
 
+function getENPSColor(enps: number): string {
+  if (enps < 1.5) {
+    return '#7cb82f'
+  } else if (enps < 4) {
+    return '#efb920'
+  } else if (enps < 8) {
+    return '#f47b16'
+  } else if (enps < 13) {
+    return '#ec4339'
+  }
+  return '#ed4795'
+}
+
 
 function getLevelText(level: number): string {
   const r = Math.round(level);
@@ -600,7 +732,8 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
     return <li><a href={link}>{linkName}, §{sectionIdx1}</a></li>
   }
 
-  return  <pre class="whitespace-pre-wrap text-sm">
+  if (similarSections.length > 0) {
+    return  <pre class="whitespace-pre-wrap text-sm">
     <p>Similar chart sections:</p>
     <ul>
       {similarSections.map((section: any) =>
@@ -609,6 +742,10 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
     </ul>
     {/* {JSON.stringify(data, null, 2)} */}
   </pre>
+  } else {
+    return <p></p>
+  }
+  
 }
 
 
@@ -766,7 +903,7 @@ export default function DynamicPage(): JSXElement {
   console.log('env: ', checkEnvironment());
   return (
     <>
-      <div style={'position: fixed; height: 100%; background-color: #3e3e3e'}>
+      <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
         <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
           {params.id}
           {/* {params.id.replace(/_/g," ")} */}
@@ -787,7 +924,25 @@ export default function DynamicPage(): JSXElement {
         </div>
         <br></br>
         </div>
+
+        <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>
+
+          <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
+            <p>eNPS timeline data</p>
+            {/* {params.id.replace(/_/g," ")} */}
+          </span>
+
+          <div style={'height: 100%; overflow: auto'}>
+            {/* <SegmentTimeline 
+              segments={segments} segmentData={segmentdata}
+            /> */}
+            {drawENPSTimeline(data)}
+          </div>
+
+        </div>
+
       <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
+
     </>
   );
 };
