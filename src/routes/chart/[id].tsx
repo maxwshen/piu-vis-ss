@@ -503,23 +503,25 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
     if (isServer ) return;
 
     import('konva').then((Konva) => {
-      let data = dataGet()!;
-      let metadata = data[2];
-      let timelineData = metadata['eNPS timeline data'];
+      const data = dataGet()!;
+      const metadata = data[2];
+      const timelineData: number[] = metadata['eNPS timeline data'];
+      const segments: Segment[] = metadata['Segments'];
+      const segmentMetadata: strToAny[] = metadata['Segment metadata'];
+      const rangesOfInterest = metadata['eNPS ranges of interest'];
 
-      console.log(timelineData);
+      const nSeconds = timelineData.length;
 
       const stageWidth = 400;
-
-      const centerX = stageWidth / 2;
-      const nPixelsPerSecond = 7;
-      const nPixelsPerENPS = 10;
+      const enpsPlotHeight = 900;
+      const enpsPlotColumnX = 150;
+      // const enpsTimeline_pxPerSecond = 7;
+      const enpsTimeline_pxPerSecond = enpsPlotHeight / nSeconds;
+      const enpsBarMaxWidth = 70;
       const yStart = 0;
-
-      const stageHeight = nPixelsPerSecond * timelineData.length;
+      const stageHeight = enpsTimeline_pxPerSecond * timelineData.length;
 
       // create stage and layers
-      const PADDING = 0;
       const stage = new Konva.default.Stage({
         container: timelineContainerRef,
         width: stageWidth,
@@ -527,39 +529,186 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       });
       const layer1 = new Konva.default.Layer();
 
+      function timeToDrawingY(time: number): number {
+        return yStart + time * enpsTimeline_pxPerSecond;
+      }
+
       // draw center vertical line
       var centerLine = new Konva.default.Line({
-        points: [centerX, 0, centerX, stageHeight],
-        stroke: 'white',
+        points: [enpsPlotColumnX, 0, enpsPlotColumnX, stageHeight],
+        stroke: '#888',
         strokeWidth: 1,
       })
       layer1.add(centerLine);
 
-      // draw lines for enps
+      // draw enps plot
+      const maxENPS = Math.max(...timelineData);
       for (let i: number = 0; i < timelineData.length; i++) {
-        const y = yStart + nPixelsPerSecond * i;
+        const y = timeToDrawingY(i);
         const enps = timelineData[i];
-        const width = nPixelsPerENPS * enps;
-        const x_left = centerX - width / 2;
-        const x_right = centerX + width / 2;
+        const width = (enps / maxENPS) * enpsBarMaxWidth;
+        const x_left = enpsPlotColumnX;
 
         if (width > 0) {
-          var line = new Konva.default.Line({
-            points: [x_left, y, x_right, y],
-            stroke: getENPSColor(enps),
-            strokeWidth: nPixelsPerSecond,
+          var rect = new Konva.default.Rect({
+            x: x_left,
+            y: y,
+            width: width,
+            height: enpsTimeline_pxPerSecond,
+            fill: getENPSColor(enps),
           });
-          layer1.add(line);
-          // console.log(line);
-          console.log(enps, y, x_left, x_right);
+          layer1.add(rect);
         }
       }
 
+      // draw high eNPS sections of interest
+      const roiPlotColumnX = enpsPlotColumnX + enpsBarMaxWidth + 5;
+      const roiBracketWidth = 5;
+      const roiBracketColor = '#bbb';
+      const roiBracketStrokeWidth = 2;
+      for (let i: number = 0; i < rangesOfInterest.length; i++) {
+        const startTime = rangesOfInterest[i][0];
+        const endTime = rangesOfInterest[i][1];
+        const startTimeY = timeToDrawingY(startTime);
+        const endTimeY = timeToDrawingY(endTime);
+
+        // draw text
+        const timeText = new Konva.default.Text({
+          text: `${endTime - startTime} s`,
+          x: roiPlotColumnX + roiBracketWidth + 10,
+          y: startTimeY,
+          fontSize: 14,
+          fill: '#bbb',
+        });
+        layer1.add(timeText);
+
+        // draw lines
+        var roiLine = new Konva.default.Line({
+          points: [
+            roiPlotColumnX,
+            startTimeY, 
+            roiPlotColumnX + roiBracketWidth, 
+            startTimeY
+          ],
+          stroke: roiBracketColor,
+          strokeWidth: roiBracketStrokeWidth,
+        })
+        layer1.add(roiLine);
+
+        var roiLine = new Konva.default.Line({
+          points: [
+            roiPlotColumnX + roiBracketWidth,
+            startTimeY, 
+            roiPlotColumnX + roiBracketWidth, 
+            endTimeY
+          ],
+          stroke: roiBracketColor,
+          strokeWidth: roiBracketStrokeWidth,
+        })
+        layer1.add(roiLine);
+
+        var roiLine = new Konva.default.Line({
+          points: [
+            roiPlotColumnX,
+            endTimeY, 
+            roiPlotColumnX + roiBracketWidth, 
+            endTimeY
+          ],
+          stroke: roiBracketColor,
+          strokeWidth: roiBracketStrokeWidth,
+        })
+        layer1.add(roiLine);
+
+      }
+
+      // draw segments
+      const levels = segmentMetadata.map((d) => Number(d['level']));
+      const minSegmentLevel = Math.min(...levels);
+      const maxSegmentLevel = Math.max(...levels);
+      const segmentSeparatorWidth = 15;
+
+      function drawTimeStamp(time: number) {
+        const y = timeToDrawingY(time);
+        var segmentStartLine = new Konva.default.Line({
+          points: [enpsPlotColumnX - segmentSeparatorWidth, y, enpsPlotColumnX, y],
+          stroke: '#ddd',
+          strokeWidth: 1,
+        })
+        layer1.add(segmentStartLine);
+
+        // timestamp text
+        const tt = secondsToTimeStr(time);
+        const timeText = new Konva.default.Text({
+          text: `${tt}`,
+          x: enpsPlotColumnX - segmentSeparatorWidth - 30,
+          y: y - 5,
+          fontSize: 14,
+          fill: '#bbb',
+          align: 'right',
+        });
+        layer1.add(timeText);
+      }
+
+      for (let i: number = 0; i < segments.length; i++) {
+        const segmentStartTime = segments[i][0];
+        drawTimeStamp(segmentStartTime);
+
+        // draw timestamp line and text for end of last section
+        if (i == segments.length - 1) {
+          drawTimeStamp(segments[i][1]);
+        }
+
+        let levelFontStyle = '';
+        const segmentLevel = segmentMetadata[i]['level'];
+        const relativeSegmentLevel = (segmentLevel - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
+        const levelText = getLevelText(segmentLevel);
+        if (segmentLevel > 0.95 * maxSegmentLevel) {
+          levelFontStyle = 'bold';
+        }
+
+        const rareSkills = segmentMetadata[i]['rare skills'];
+        let rareSkillText = '';
+        if (rareSkills.length > 0) {
+          rareSkillText = '⚠️';
+          levelFontStyle = 'bold';
+        }
+
+        // difficulty text
+        const y = timeToDrawingY(segmentStartTime);
+        const text = new Konva.default.Text({
+          text: `lv.${levelText}${rareSkillText}`,
+          x: enpsPlotColumnX - segmentSeparatorWidth - 80,
+          // x: enpsPlotColumnX - segmentSeparatorWidth - 40,
+          y: y - 5,
+          // y: y + 9,
+          fontSize: 14,
+          fill: getLevelColor(relativeSegmentLevel),
+          align: 'right',
+          fontStyle: levelFontStyle,
+        });
+        layer1.add(text);
+      }
+
+      // current scroll position tracker
+      const viewportHeight = (800 / pxPerSecond()) * enpsTimeline_pxPerSecond;
+      function drawPositionTracker(currTime: number) {
+        var positionTracker = new Konva.default.Rect({
+          x: 0,
+          y: timeToDrawingY(currTime),
+          width: stageWidth,
+          height: viewportHeight,
+          fill: 'white',
+          opacity: 0.15,
+          id: 'positionTracker',
+        });
+        layer1.add(positionTracker);
+      };
+
+      // Interactivity
       // click on stage to scroll
       stage.on('click', function (e) {
         const y = stage.getPointerPosition()!.y
-        const time = (y - yStart) / nPixelsPerSecond;
-        console.log(y, time);
+        const time = (y - yStart) / enpsTimeline_pxPerSecond;
 
         scrollContainerRef()!.scrollTo({
           top: time * pxPerSecond(),
@@ -569,36 +718,24 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       });
 
       // current scroll position tracker
-      // init at zero
-      var positionTrackerLine = new Konva.default.Line({
-        points: [0, 1, stageWidth, 1],
-        stroke: 'white',
-        strokeWidth: 1,
-        id: 'positionTrackerLine',
-      })
-      layer1.add(positionTrackerLine);
-
-      // current scroll position tracker
+      drawPositionTracker(0);
       createEffect(() => {
         let y = canvasScrollPositionMirror();
         if (y) {
           const time = y / pxPerSecond();
-          const node = layer1?.findOne(`#positionTrackerLine`);
+          const node = layer1?.findOne(`#positionTracker`);
           node?.destroy();
           
-          const plot_y = yStart + time * nPixelsPerSecond;
-          var positionTrackerLine = new Konva.default.Line({
-            points: [0, plot_y, stageWidth, plot_y],
-            stroke: 'white',
-            strokeWidth: 1,
-            id: 'positionTrackerLine',
-          })
-          layer1.add(positionTrackerLine);
+          drawPositionTracker(time);
         }
       })
 
-      stage.add(layer1);
+      // scroll enps timeline stage to scroll chart
+      stage.container().addEventListener('wheel', function (e: WheelEvent) {
+        scrollContainerRef()!.scrollBy({left: 0, top: 3 * e.deltaY});
+      });
 
+      stage.add(layer1);
     });
   });
 
@@ -749,7 +886,8 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
 }
 
 
-function secondsToTimeStr(time: number): string {
+function secondsToTimeStr(inputTime: number): string {
+  const time = Math.round(inputTime);
   const min = Math.floor(time / 60);
   const sec = time - min * 60;
   function str_pad_left(string: string, pad: string, length: number) {
@@ -848,9 +986,6 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
 
   return (
     <div class="flex flex-col gap-2 p-4">
-      {/* <For each={props.segments}>
-        {(segment) => SegmentButton(segment)}
-      </For> */}
       {props.segments.map((segment, index) =>
         SegmentCollapsible(segment, props.segmentData[index], index)
       )}
@@ -903,45 +1038,53 @@ export default function DynamicPage(): JSXElement {
   console.log('env: ', checkEnvironment());
   return (
     <>
-      <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
-        <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-          {params.id}
-          {/* {params.id.replace(/_/g," ")} */}
-        </span>
-        <span> {manuallyAnnotatedFlag} </span>
-        <span> {data.loading && "Loading..."} </span>
-        <span> {data.error && "Error"} </span>
-        <div style={'display: flex'}>
-          {SaveJsonButton(params.id, data()!)}
-          {SetClickToEitherButton()}
-          {SetClickToMissButton()}
-          {SetClickToLRButton()}
-        </div>
-        <div style={'height: 100%; overflow: auto'}>
-          <SegmentTimeline 
-            segments={segments} segmentData={segmentdata}
-          />
-        </div>
-        <br></br>
-        </div>
-
-        <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>
+      <div style={'width: 100%; overflow: hidden; margin: 0; padding: 0; background-color: #2e2e2e'}>
+        <div style={'float: left; width: 25%; background-color: #2e2e2e'}>
+          
+          {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
+          </div> */}
 
           <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-            <p>eNPS timeline data</p>
-            {/* {params.id.replace(/_/g," ")} */}
+              {params.id}
+              {/* {params.id.replace(/_/g," ")} */}
           </span>
-
+          <span> {manuallyAnnotatedFlag} </span>
+          <span> {data.loading && "Loading..."} </span>
+          <span> {data.error && "Error"} </span>
+          <div style={'display: flex'}>
+            {SaveJsonButton(params.id, data()!)}
+            {SetClickToEitherButton()}
+            {SetClickToMissButton()}
+            {SetClickToLRButton()}
+          </div>
           <div style={'height: 100%; overflow: auto'}>
-            {/* <SegmentTimeline 
+            <SegmentTimeline 
               segments={segments} segmentData={segmentdata}
-            /> */}
-            {drawENPSTimeline(data)}
+            />
           </div>
 
         </div>
 
-      <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
+        <div style={'float: left; width 50%'}>
+
+          <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
+
+        </div>
+
+        <div style={'float: left; width 25%; background-color: #2e2e2e'}>
+
+          <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
+            <p>eNPS timeline data</p>
+          </span>
+          <div style={'height: 100%; overflow: auto'}>
+            {drawENPSTimeline(data)}
+          </div>
+
+          {/* <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>
+          </div> */}
+
+        </div>
+      </div>
 
     </>
   );

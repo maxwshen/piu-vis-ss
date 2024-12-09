@@ -68,7 +68,7 @@ function searchTable(): JSXElement {
   });
 
   return (
-    <div style={'margin-left: 50px; margin-top: 50px'}>
+    <div style={'margin-left: 50px; margin-top: 0px'}>
       <input
         id='searchbar'
         type="text"
@@ -94,8 +94,10 @@ function searchTable(): JSXElement {
 
 export default function Page(): JSXElement {
   return (
-    <div style={'background-color: #2e2e2e'}>
-      {searchTable()}
+    <div style={'background-color: #2e2e2e; height: 100%'}>      
+      <div style={'background-color: #2e2e2e; height: 100%'}>
+        {searchTable()}
+      </div>
     </div>
   );
 };
