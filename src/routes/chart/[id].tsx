@@ -513,16 +513,19 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       const nSeconds = timelineData.length;
 
       const stageWidth = 290;
-      const enpsPlotHeight = 900;
+      const enpsPlotHeight = 850;
+      const enpsBarMaxWidth = 70;
       const enpsPlotColumnX = 150;
       const difficultyLineColumnX = 100;
+      const roiPlotColumnX = enpsPlotColumnX + enpsBarMaxWidth + 5;
       // const enpsTimeline_pxPerSecond = 7;
       const enpsTimeline_pxPerSecond = enpsPlotHeight / nSeconds;
-      const enpsBarMaxWidth = 70;
-      const yStart = 0;
+      const headerHeight = 40;
       const fontSize = 14;
       const timeFontSize = 14;
-      const stageHeight = enpsTimeline_pxPerSecond * timelineData.length;
+      const stageHeight = headerHeight + enpsTimeline_pxPerSecond * timelineData.length;
+
+      const maxENPS = Math.max(...timelineData);
 
       // create stage and layers
       const stage = new Konva.default.Stage({
@@ -533,19 +536,71 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       const layer1 = new Konva.default.Layer();
 
       function timeToDrawingY(time: number): number {
-        return yStart + time * enpsTimeline_pxPerSecond;
+        return headerHeight + time * enpsTimeline_pxPerSecond;
       }
 
-      // draw center vertical line
-      var centerLine = new Konva.default.Line({
-        points: [enpsPlotColumnX, 0, enpsPlotColumnX, stageHeight],
+      // draw header
+      function drawHeader() {
+        var text = new Konva.default.Text({
+          text: `Notes per second`,
+          x: enpsPlotColumnX,
+          y: 0,
+          fontSize: timeFontSize,
+          fill: '#bbb',
+        });
+        layer1.add(text);
+  
+        var text = new Konva.default.Text({
+          text: `Difficulty`,
+          x: 50,
+          y: 0,
+          fontSize: timeFontSize,
+          fill: '#bbb',
+        });
+        layer1.add(text);
+      }
+      drawHeader();
+
+      // draw enps plot
+
+      // draw axis
+      var yAxisLine = new Konva.default.Line({
+        points: [enpsPlotColumnX, headerHeight, enpsPlotColumnX, headerHeight + stageHeight],
         stroke: '#888',
         strokeWidth: 1,
       })
-      layer1.add(centerLine);
+      layer1.add(yAxisLine);
+      var xAxisLine = new Konva.default.Line({
+        points: [enpsPlotColumnX, headerHeight, enpsPlotColumnX + enpsBarMaxWidth, headerHeight],
+        stroke: '#888',
+        strokeWidth: 1,
+      })
+      layer1.add(xAxisLine);
+      const enpsThresholds = [1.5, 4, 8, 13]
+      for (let i: number = 0; i < enpsThresholds.length; i++) {
+        const et = enpsThresholds[i];
+        if (et <= maxENPS) {
+          const x = enpsPlotColumnX + (et / maxENPS) * enpsBarMaxWidth;
+          var tick = new Konva.default.Line({
+            points: [x, headerHeight - 3, x, headerHeight + 3],
+            stroke: '#888',
+            strokeWidth: 1,
+          })
+          layer1.add(tick);
+
+          const tickText = new Konva.default.Text({
+            text: `${Math.round(et)}`,
+            x: x - 5,
+            y: headerHeight - 18,
+            fontSize: timeFontSize,
+            fill: '#bbb',
+            align: 'right',
+          });
+          layer1.add(tickText);
+        }
+      }
 
       // draw enps plot
-      const maxENPS = Math.max(...timelineData);
       const enpsBarAlpha = 0.7;
       for (let i: number = 0; i < timelineData.length; i++) {
         const y = timeToDrawingY(i);
@@ -567,7 +622,6 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       }
 
       // draw high eNPS sections of interest
-      const roiPlotColumnX = enpsPlotColumnX + enpsBarMaxWidth + 5;
       const roiBracketWidth = 5;
       const roiBracketColor = '#bbb';
       const roiBracketStrokeWidth = 2;
@@ -752,7 +806,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       // click on stage to scroll
       stage.on('click', function (e) {
         const y = stage.getPointerPosition()!.y
-        const time = (y - yStart) / enpsTimeline_pxPerSecond;
+        const time = (y - headerHeight) / enpsTimeline_pxPerSecond;
 
         scrollContainerRef()!.scrollTo({
           top: time * pxPerSecond(),
@@ -916,28 +970,38 @@ function getLevelText(level: number): string {
 
 
 function segmentContent(segment: Segment, data: strToAny): JSXElement {
-  let similarSections = data['Closest sections'];
+  const similarSections = data['Closest sections'];
+
 
   let baseUrl = checkEnvironment();
   function makeUrlBullets(section: any): JSXElement {
     let [chartName, sectionIdx] = section;
     const sectionIdx1 = sectionIdx + 1;
     let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
-    let linkName = section[0].split('_').join(' ');
     const displayName = chartnameToDisplayName(chartName);
     return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
-    // return <li><a href={link}>{linkName}, §{sectionIdx1}</a></li>
+  }
+
+  function makeRareSkillText(): JSXElement {
+    const rareSkills = data['rare skills'];
+    if (rareSkills.length > 0) {
+      return <div>
+        <p>Rare skills:</p>
+        {rareSkills}
+      </div>
+    }
+    return <></>
   }
 
   if (similarSections.length > 0) {
     return  <pre class="whitespace-pre-wrap text-sm">
-    <p>Similar chart sections:</p>
+    {makeRareSkillText()}
+    <p>Similar chart sections:</p>    
     <ul>
       {similarSections.map((section: any) =>
         makeUrlBullets(section)
       )}
     </ul>
-    {/* {JSON.stringify(data, null, 2)} */}
   </pre>
   } else {
     return <p></p>

@@ -13,7 +13,7 @@ export function checkEnvironment(): string {
   } else if (viteEnv == 'prod') {
     return "https://piucenterv2.netlify.app"
   }
-  return '';
+  return 'https://piucenterv2.netlify.app';
 };
 
 
