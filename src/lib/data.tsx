@@ -10,7 +10,7 @@ export function checkEnvironment(): string {
   let base_url =
     import.meta.env.VITE_ENV === "dev"
       ? "http://localhost:3000"
-      : "https://piucenter.netlify.app"; // https://v2ds.netlify.app
+      : "https://piucenterv2.netlify.app"; // https://v2ds.netlify.app
   return base_url;
 };
 
