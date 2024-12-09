@@ -512,13 +512,16 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
 
       const nSeconds = timelineData.length;
 
-      const stageWidth = 400;
+      const stageWidth = 290;
       const enpsPlotHeight = 900;
       const enpsPlotColumnX = 150;
+      const difficultyLineColumnX = 100;
       // const enpsTimeline_pxPerSecond = 7;
       const enpsTimeline_pxPerSecond = enpsPlotHeight / nSeconds;
       const enpsBarMaxWidth = 70;
       const yStart = 0;
+      const fontSize = 14;
+      const timeFontSize = 14;
       const stageHeight = enpsTimeline_pxPerSecond * timelineData.length;
 
       // create stage and layers
@@ -543,6 +546,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
 
       // draw enps plot
       const maxENPS = Math.max(...timelineData);
+      const enpsBarAlpha = 0.7;
       for (let i: number = 0; i < timelineData.length; i++) {
         const y = timeToDrawingY(i);
         const enps = timelineData[i];
@@ -556,6 +560,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
             width: width,
             height: enpsTimeline_pxPerSecond,
             fill: getENPSColor(enps),
+            opacity: enpsBarAlpha,
           });
           layer1.add(rect);
         }
@@ -577,7 +582,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
           text: `${endTime - startTime} s`,
           x: roiPlotColumnX + roiBracketWidth + 10,
           y: startTimeY,
-          fontSize: 14,
+          fontSize: fontSize,
           fill: '#bbb',
         });
         layer1.add(timeText);
@@ -621,16 +626,31 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
 
       }
 
-      // draw segments
+      // draw segment timestamps and levels
       const levels = segmentMetadata.map((d) => Number(d['level']));
       const minSegmentLevel = Math.min(...levels);
       const maxSegmentLevel = Math.max(...levels);
-      const segmentSeparatorWidth = 15;
+      const segmentSeparatorWidth = 10;
 
       function drawTimeStamp(time: number) {
         const y = timeToDrawingY(time);
+        // lines
         var segmentStartLine = new Konva.default.Line({
-          points: [enpsPlotColumnX - segmentSeparatorWidth, y, enpsPlotColumnX, y],
+          points: [
+            enpsPlotColumnX - segmentSeparatorWidth / 2, y, 
+            enpsPlotColumnX, y
+          ],
+          stroke: '#ddd',
+          strokeWidth: 1,
+        })
+        layer1.add(segmentStartLine);
+
+        const leftLineX = difficultyLineColumnX;
+        var segmentStartLine = new Konva.default.Line({
+          points: [
+            leftLineX - segmentSeparatorWidth / 2, y,
+            leftLineX + segmentSeparatorWidth / 2, y
+          ],
           stroke: '#ddd',
           strokeWidth: 1,
         })
@@ -642,7 +662,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
           text: `${tt}`,
           x: enpsPlotColumnX - segmentSeparatorWidth - 30,
           y: y - 5,
-          fontSize: 14,
+          fontSize: timeFontSize,
           fill: '#bbb',
           align: 'right',
         });
@@ -651,11 +671,12 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
 
       for (let i: number = 0; i < segments.length; i++) {
         const segmentStartTime = segments[i][0];
+        const segmentEndTime = segments[i][1];
         drawTimeStamp(segmentStartTime);
 
         // draw timestamp line and text for end of last section
         if (i == segments.length - 1) {
-          drawTimeStamp(segments[i][1]);
+          drawTimeStamp(segmentEndTime);
         }
 
         let levelFontStyle = '';
@@ -663,30 +684,53 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
         const relativeSegmentLevel = (segmentLevel - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
         const levelText = getLevelText(segmentLevel);
         if (segmentLevel > 0.95 * maxSegmentLevel) {
-          levelFontStyle = 'bold';
-        }
-
-        const rareSkills = segmentMetadata[i]['rare skills'];
-        let rareSkillText = '';
-        if (rareSkills.length > 0) {
-          rareSkillText = '⚠️';
-          levelFontStyle = 'bold';
         }
 
         // difficulty text
         const y = timeToDrawingY(segmentStartTime);
+        const levelColor = getLevelColor(relativeSegmentLevel);
         const text = new Konva.default.Text({
-          text: `lv.${levelText}${rareSkillText}`,
-          x: enpsPlotColumnX - segmentSeparatorWidth - 80,
+          text: `lv.${levelText}`,
+          x: difficultyLineColumnX - 45,
           // x: enpsPlotColumnX - segmentSeparatorWidth - 40,
           y: y - 5,
-          // y: y + 9,
-          fontSize: 14,
-          fill: getLevelColor(relativeSegmentLevel),
+          // y: y + 5,
+          fontSize: fontSize,
+          fill: levelColor,
           align: 'right',
           fontStyle: levelFontStyle,
         });
         layer1.add(text);
+
+        // difficulty line
+        var difficultyLine = new Konva.default.Line({
+          points: [
+            difficultyLineColumnX, 
+            y, 
+            difficultyLineColumnX,
+            timeToDrawingY(segmentEndTime)
+          ],
+          stroke: levelColor,
+          strokeWidth: getLevelLineThickness(relativeSegmentLevel),
+        })
+        layer1.add(difficultyLine);
+
+        // rare skill text
+        const rareSkills = segmentMetadata[i]['rare skills'];
+        let rareSkillText = '';
+        if (rareSkills.length > 0) {
+          rareSkillText = '⚠️';
+          const rsText = new Konva.default.Text({
+            text: `${rareSkillText}`,
+            x: difficultyLineColumnX - 70,
+            y: y - 5 - 2,
+            fontSize: fontSize,
+            fill: levelColor,
+            align: 'right',
+            fontStyle: levelFontStyle,
+          });
+          layer1.add(rsText);
+        }
       }
 
       // current scroll position tracker
@@ -818,6 +862,20 @@ interface SegmentTimelineProps {
 }
 
 
+function getLevelLineThickness(t: number): number {
+  if (t < 0.6) {
+    return 0.5
+  } else if (t < 0.75) {
+    return 1
+  } else if (t < 0.875) {
+    return 2
+  } else if (t < 0.97) {
+    return 3
+  }
+  return 5
+}
+
+
 function getLevelColor(t: number): string {
   if (t < 0.6) {
     return '#aed677'
@@ -866,7 +924,9 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
     const sectionIdx1 = sectionIdx + 1;
     let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
     let linkName = section[0].split('_').join(' ');
-    return <li><a href={link}>{linkName}, §{sectionIdx1}</a></li>
+    const displayName = chartnameToDisplayName(chartName);
+    return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
+    // return <li><a href={link}>{linkName}, §{sectionIdx1}</a></li>
   }
 
   if (similarSections.length > 0) {
@@ -895,6 +955,15 @@ function secondsToTimeStr(inputTime: number): string {
   }
   const finalTime = str_pad_left(String(min), '0', 1) + ':' + str_pad_left(String(sec), '0', 2);
   return finalTime;
+}
+
+
+function chartnameToDisplayName(chartname: string): string {
+  var n = chartname.replace('_INFOBAR_TITLE', '_').replace('_HALFDOUBLE_', '_');
+  const nsplit = n.split('_');
+  const sordlevel = nsplit[nsplit.length - 2];
+  const songname = n.split('_-_')[0].replace('_', ' ');
+  return songname + ' ' + sordlevel;
 }
 
 
@@ -952,10 +1021,10 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     })
 
     return (
-      <div class="border rounded-lg mb-2 overflow-hidden">
+      <div class="rounded-lg mb-2 overflow-hidden">
         {/* Header - Always visible */}
         <div 
-          class="p-3 bg-gray-900 hover:bg-gray-500 cursor-pointer flex justify-between items-center transition-colors"
+          class="p-3 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors"
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
@@ -975,7 +1044,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
         <div 
           class={`overflow-hidden transition-all ${isOpen() ? 'max-h-96' : 'max-h-0'}`}
         >
-          <div class="p-3 bg-white">
+          <div class="p-3" style="background-color: #444">
             {/* Add your SegmentData display here */}
             {segmentContent(segment, data)};
           </div>
@@ -1038,7 +1107,7 @@ export default function DynamicPage(): JSXElement {
   console.log('env: ', checkEnvironment());
   return (
     <>
-      <div style={'width: 100%; overflow: hidden; margin: 0; padding: 0; background-color: #2e2e2e'}>
+      <div style={'overflow: hidden; margin: auto; padding: 0; background-color: #2e2e2e'}>
         <div style={'float: left; width: 25%; background-color: #2e2e2e'}>
           
           {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
@@ -1074,9 +1143,9 @@ export default function DynamicPage(): JSXElement {
         <div style={'float: left; width 25%; background-color: #2e2e2e'}>
 
           <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-            <p>eNPS timeline data</p>
+            {/* <p>eNPS timeline data</p> */}
           </span>
-          <div style={'height: 100%; overflow: auto'}>
+          <div style={'height: 100%; margin-top: 10px; overflow: auto'}>
             {drawENPSTimeline(data)}
           </div>
 
