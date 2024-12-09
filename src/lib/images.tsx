@@ -4,11 +4,11 @@ import { checkEnvironment } from './data';
 
 
 const arrowImagePathsLeft = [
-  '/public/images/arrows-hint/arrow_downleft_left.png',
-  '/public/images/arrows-hint/arrow_upleft_left.png',
-  '/public/images/arrows-hint/arrow_center_left.png',
-  '/public/images/arrows-hint/arrow_upright_left.png',
-  '/public/images/arrows-hint/arrow_downright_left.png',
+  '/images/arrows-hint/arrow_downleft_left.png',
+  '/images/arrows-hint/arrow_upleft_left.png',
+  '/images/arrows-hint/arrow_center_left.png',
+  '/images/arrows-hint/arrow_upright_left.png',
+  '/images/arrows-hint/arrow_downright_left.png',
 ];
 const arrowImgSignalsLeft = Array.from(
   { length: arrowImagePathsLeft.length }, 
@@ -17,11 +17,11 @@ const arrowImgSignalsLeft = Array.from(
   )
 );
 const trailImagePathsLeft = [
-  '/public/images/arrows-hint/trail_downleft_left.png',
-  '/public/images/arrows-hint/trail_upleft_left.png',
-  '/public/images/arrows-hint/trail_center_left.png',
-  '/public/images/arrows-hint/trail_upright_left.png',
-  '/public/images/arrows-hint/trail_downright_left.png',
+  '/images/arrows-hint/trail_downleft_left.png',
+  '/images/arrows-hint/trail_upleft_left.png',
+  '/images/arrows-hint/trail_center_left.png',
+  '/images/arrows-hint/trail_upright_left.png',
+  '/images/arrows-hint/trail_downright_left.png',
 ];
 const trailImageSignalsLeft = Array.from(
   { length: trailImagePathsLeft.length }, 
@@ -30,11 +30,11 @@ const trailImageSignalsLeft = Array.from(
   )
 );
 const capImagePathsLeft = [
-  '/public/images/arrows-hint/holdcap_downleft_left.png',
-  '/public/images/arrows-hint/holdcap_upleft_left.png',
-  '/public/images/arrows-hint/holdcap_center_left.png',
-  '/public/images/arrows-hint/holdcap_upright_left.png',
-  '/public/images/arrows-hint/holdcap_downright_left.png',
+  '/images/arrows-hint/holdcap_downleft_left.png',
+  '/images/arrows-hint/holdcap_upleft_left.png',
+  '/images/arrows-hint/holdcap_center_left.png',
+  '/images/arrows-hint/holdcap_upright_left.png',
+  '/images/arrows-hint/holdcap_downright_left.png',
 ];
 const capImgSignalsLeft = Array.from(
   { length: capImagePathsLeft.length }, 
@@ -43,11 +43,11 @@ const capImgSignalsLeft = Array.from(
   )
 );
 const arrowImagePathsRight = [
-  '/public/images/arrows-hint/arrow_downleft_right.png',
-  '/public/images/arrows-hint/arrow_upleft_right.png',
-  '/public/images/arrows-hint/arrow_center_right.png',
-  '/public/images/arrows-hint/arrow_upright_right.png',
-  '/public/images/arrows-hint/arrow_downright_right.png',
+  '/images/arrows-hint/arrow_downleft_right.png',
+  '/images/arrows-hint/arrow_upleft_right.png',
+  '/images/arrows-hint/arrow_center_right.png',
+  '/images/arrows-hint/arrow_upright_right.png',
+  '/images/arrows-hint/arrow_downright_right.png',
 ];
 const arrowImgSignalsRight = Array.from(
   { length: arrowImagePathsRight.length }, 
@@ -56,11 +56,11 @@ const arrowImgSignalsRight = Array.from(
   )
 );
 const trailImagePathsRight = [
-  '/public/images/arrows-hint/trail_downleft_right.png',
-  '/public/images/arrows-hint/trail_upleft_right.png',
-  '/public/images/arrows-hint/trail_center_right.png',
-  '/public/images/arrows-hint/trail_upright_right.png',
-  '/public/images/arrows-hint/trail_downright_right.png',
+  '/images/arrows-hint/trail_downleft_right.png',
+  '/images/arrows-hint/trail_upleft_right.png',
+  '/images/arrows-hint/trail_center_right.png',
+  '/images/arrows-hint/trail_upright_right.png',
+  '/images/arrows-hint/trail_downright_right.png',
 ];
 const trailImageSignalsRight = Array.from(
   { length: trailImagePathsRight.length }, 
@@ -69,11 +69,11 @@ const trailImageSignalsRight = Array.from(
   )
 );
 const capImagePathsRight = [
-  '/public/images/arrows-hint/holdcap_downleft_right.png',
-  '/public/images/arrows-hint/holdcap_upleft_right.png',
-  '/public/images/arrows-hint/holdcap_center_right.png',
-  '/public/images/arrows-hint/holdcap_upright_right.png',
-  '/public/images/arrows-hint/holdcap_downright_right.png',
+  '/images/arrows-hint/holdcap_downleft_right.png',
+  '/images/arrows-hint/holdcap_upleft_right.png',
+  '/images/arrows-hint/holdcap_center_right.png',
+  '/images/arrows-hint/holdcap_upright_right.png',
+  '/images/arrows-hint/holdcap_downright_right.png',
 ];
 const capImgSignalsRight = Array.from(
   { length: capImagePathsRight.length }, 
@@ -82,11 +82,11 @@ const capImgSignalsRight = Array.from(
   )
 );
 const arrowImagePathsEither = [
-  '/public/images/arrows-hint/arrow_downleft_either.png',
-  '/public/images/arrows-hint/arrow_upleft_either.png',
-  '/public/images/arrows-hint/arrow_center_either.png',
-  '/public/images/arrows-hint/arrow_upright_either.png',
-  '/public/images/arrows-hint/arrow_downright_either.png',
+  '/images/arrows-hint/arrow_downleft_either.png',
+  '/images/arrows-hint/arrow_upleft_either.png',
+  '/images/arrows-hint/arrow_center_either.png',
+  '/images/arrows-hint/arrow_upright_either.png',
+  '/images/arrows-hint/arrow_downright_either.png',
 ];
 const arrowImgSignalsEither = Array.from(
   { length: arrowImagePathsEither.length }, 
@@ -95,11 +95,11 @@ const arrowImgSignalsEither = Array.from(
   )
 );
 const trailImagePathsEither = [
-  '/public/images/arrows-hint/trail_downleft_either.png',
-  '/public/images/arrows-hint/trail_upleft_either.png',
-  '/public/images/arrows-hint/trail_center_either.png',
-  '/public/images/arrows-hint/trail_upright_either.png',
-  '/public/images/arrows-hint/trail_downright_either.png',
+  '/images/arrows-hint/trail_downleft_either.png',
+  '/images/arrows-hint/trail_upleft_either.png',
+  '/images/arrows-hint/trail_center_either.png',
+  '/images/arrows-hint/trail_upright_either.png',
+  '/images/arrows-hint/trail_downright_either.png',
 ];
 const trailImageSignalsEither = Array.from(
   { length: trailImagePathsEither.length }, 
@@ -108,11 +108,11 @@ const trailImageSignalsEither = Array.from(
   )
 );
 const capImagePathsEither = [
-  '/public/images/arrows-hint/holdcap_downleft_either.png',
-  '/public/images/arrows-hint/holdcap_upleft_either.png',
-  '/public/images/arrows-hint/holdcap_center_either.png',
-  '/public/images/arrows-hint/holdcap_upright_either.png',
-  '/public/images/arrows-hint/holdcap_downright_either.png',
+  '/images/arrows-hint/holdcap_downleft_either.png',
+  '/images/arrows-hint/holdcap_upleft_either.png',
+  '/images/arrows-hint/holdcap_center_either.png',
+  '/images/arrows-hint/holdcap_upright_either.png',
+  '/images/arrows-hint/holdcap_downright_either.png',
 ];
 const capImgSignalsEither = Array.from(
   { length: capImagePathsEither.length }, 
@@ -121,11 +121,11 @@ const capImgSignalsEither = Array.from(
   )
 );
 const arrowImagePathsHand = [
-  '/public/images/arrows-hint/arrow_downleft_hand.png',
-  '/public/images/arrows-hint/arrow_upleft_hand.png',
-  '/public/images/arrows-hint/arrow_center_hand.png',
-  '/public/images/arrows-hint/arrow_upright_hand.png',
-  '/public/images/arrows-hint/arrow_downright_hand.png',
+  '/images/arrows-hint/arrow_downleft_hand.png',
+  '/images/arrows-hint/arrow_upleft_hand.png',
+  '/images/arrows-hint/arrow_center_hand.png',
+  '/images/arrows-hint/arrow_upright_hand.png',
+  '/images/arrows-hint/arrow_downright_hand.png',
 ];
 const arrowImgSignalsHand = Array.from(
   { length: arrowImagePathsHand.length }, 
@@ -134,11 +134,11 @@ const arrowImgSignalsHand = Array.from(
   )
 );
 const trailImagePathsHand = [
-  '/public/images/arrows-hint/trail_downleft_hand.png',
-  '/public/images/arrows-hint/trail_upleft_hand.png',
-  '/public/images/arrows-hint/trail_center_hand.png',
-  '/public/images/arrows-hint/trail_upright_hand.png',
-  '/public/images/arrows-hint/trail_downright_hand.png',
+  '/images/arrows-hint/trail_downleft_hand.png',
+  '/images/arrows-hint/trail_upleft_hand.png',
+  '/images/arrows-hint/trail_center_hand.png',
+  '/images/arrows-hint/trail_upright_hand.png',
+  '/images/arrows-hint/trail_downright_hand.png',
 ];
 const trailImageSignalsHand = Array.from(
   { length: trailImagePathsHand.length }, 
@@ -147,11 +147,11 @@ const trailImageSignalsHand = Array.from(
   )
 );
 const capImagePathsHand = [
-  '/public/images/arrows-hint/holdcap_downleft_hand.png',
-  '/public/images/arrows-hint/holdcap_upleft_hand.png',
-  '/public/images/arrows-hint/holdcap_center_hand.png',
-  '/public/images/arrows-hint/holdcap_upright_hand.png',
-  '/public/images/arrows-hint/holdcap_downright_hand.png',
+  '/images/arrows-hint/holdcap_downleft_hand.png',
+  '/images/arrows-hint/holdcap_upleft_hand.png',
+  '/images/arrows-hint/holdcap_center_hand.png',
+  '/images/arrows-hint/holdcap_upright_hand.png',
+  '/images/arrows-hint/holdcap_downright_hand.png',
 ];
 const capImgSignalsHand = Array.from(
   { length: capImagePathsHand.length }, 

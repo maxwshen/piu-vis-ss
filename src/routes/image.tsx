@@ -16,7 +16,7 @@ export default function CanvasComponent(): JSX.Element {
 
   // Signal to hold the loaded image
   const [imageSrc, setImageSrc] = createSignal(
-    checkEnvironment().concat('/public/images/arrows-standard/arrow_1.png')
+    checkEnvironment().concat('/images/arrows-standard/arrow_1.png')
   );
 
   onMount(() => {
@@ -46,18 +46,31 @@ export default function CanvasComponent(): JSX.Element {
     image.onload = () => {
       ctx.drawImage(image, 0, 0);
     };
+    image.onerror = (error) => {
+      console.error('Image failed to load:', error);
+    };
   };
 
   console.log(imageSrc());
 
   return (
-    <canvas 
-      ref={canvasRef!} 
-      width={500} 
-      height={500} 
-      style={`border: 1px solid red;`}
-    >
-      content
-    </canvas>
+    <div>
+      <canvas 
+        ref={canvasRef!} 
+        width={500} 
+        height={500} 
+        style={`border: 1px solid red;`}
+      >
+        content
+      </canvas>
+      <img 
+        src="/images/arrows-hint/arrow_center_left.png"
+        onError={(e) => {
+          console.error('Image load error:', e);
+          console.log('Image source:', e.target);
+        }}
+      />
+    </div>
+
   )
 };
