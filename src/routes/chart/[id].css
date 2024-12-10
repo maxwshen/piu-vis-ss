@@ -44,3 +44,79 @@
 a {
   color: #00a0dc;
 }
+
+/* Desktop layout */
+.columns-container {
+  display: flex;
+  width: 100%;
+}
+
+#column1 {
+  max-width: 400px;
+  flex-shrink: 0; /* Prevents column1 from shrinking below its max-width */
+}
+
+#column2 {
+  min-width: 600px;
+  flex-grow: 1; /* Allows column2 to expand */
+  /* flex-shrink: 1; */
+}
+
+#column3 {
+  flex-grow: 1; /* Allows column3 to take remaining space */
+}
+
+.column {
+  flex: 1;
+  padding: 10px;
+  /* border: 1px solid #ddd; */
+}
+
+/* Mobile tab navigation */
+.mobile-tabs {
+  display: none;
+}
+
+/* Mobile layout */
+@media screen and (max-width: 768px) {
+  .columns-container {
+      flex-direction: column;
+  }
+
+  .mobile-tabs {
+      display: flex;
+      justify-content: space-around;
+      background-color: #aaa;
+      padding: 10px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+  }
+    
+  body {
+        padding-top: 50px; /* Space for fixed mobile tabs */
+    }
+
+  .mobile-tab {
+      cursor: pointer;
+      padding: 10px;
+      background-color: #e0e0e0;
+      text-align: center;
+      flex-grow: 1;
+      margin: 0 5px;
+  }
+
+  .mobile-tab.active {
+      background-color: #c0c0c0;
+  }
+
+  .column {
+      display: none;
+  }
+
+  .column.active {
+      display: block;
+  }
+}

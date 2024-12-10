@@ -30,6 +30,7 @@ const [canvasScrollPositionMirror, setCanvasScrollPositionMirror] = createSignal
 
 const [scrollContainerRef, setScrollContainerRef] = createSignal<HTMLDivElement>();
 
+const [activeColumn, setActiveColumn] = createSignal('column1');
 
 /**
  * Draws Konva HTML canvas of arrow arts and hold arts.
@@ -456,7 +457,7 @@ function drawKonvaCanvas(
           "overflow": "auto",
             "width": canvasWidth + 100 + "px",
           // "width": "1000px",
-          "height": "calc(100vh - 0px)",
+          "height": "calc(100vh - 20px)",
           // "height": "100%",
           "margin": "auto",
           // "border": "1px solid grey",
@@ -523,7 +524,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       const headerHeight = 40;
       const fontSize = 14;
       const timeFontSize = 14;
-      const stageHeight = headerHeight + enpsTimeline_pxPerSecond * timelineData.length;
+      const stageHeight = headerHeight + enpsTimeline_pxPerSecond * timelineData.length + 10;
 
       const maxENPS = Math.max(...timelineData);
 
@@ -1169,14 +1170,61 @@ export default function DynamicPage(): JSXElement {
     //   const paramSection = urlParams.get('section');
     //   console.log(paramSection);
     // }
+
+    // Mobile tab functionality
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabs = document.querySelectorAll('.mobile-tab');
+      const columns = document.querySelectorAll('.column');
+  
+      // Set first tab and column as active by default
+      tabs[0].classList.add('active');
+      columns[0].classList.add('active');
+      console.log(tabs);
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          console.log(tab);
+          // Remove active class from all tabs and columns
+          tabs.forEach(t => t.classList.remove('active'));
+          columns.forEach(c => c.classList.remove('active'));
+
+          // Add active class to clicked tab and corresponding column
+          tab.classList.add('active');
+          // const columnId = tab.getAttribute('data-column');
+          // document.getElementById(columnId).classList.add('active');
+        });
+      });
+    });
   });
+
 
 
   console.log('env: ', checkEnvironment());
   return (
     <>
-      <div style={'overflow: hidden; margin: auto; padding: 0; background-color: #2e2e2e'}>
-        <div style={'float: left; width: 25%; background-color: #2e2e2e'}>
+      <div class="mobile-tabs">
+        <div 
+          class={`mobile-tab ${activeColumn() === 'column1' ? 'active' : ''}`} 
+          onClick={() => setActiveColumn('column1')}
+        >
+          Summary
+        </div>
+        <div 
+          class={`mobile-tab ${activeColumn() === 'column2' ? 'active' : ''}`} 
+          onClick={() => setActiveColumn('column2')}
+        >
+          Stepchart
+        </div>
+        <div 
+          class={`mobile-tab ${activeColumn() === 'column3' ? 'active' : ''}`} 
+          onClick={() => setActiveColumn('column3')}
+        >
+          Timeline
+        </div>
+      </div>
+
+      <div class="columns-container" style={'overflow: hidden; margin: auto; padding: 0; background-color: #2e2e2e'}>
+        <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
           
           {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
           </div> */}
@@ -1202,13 +1250,13 @@ export default function DynamicPage(): JSXElement {
 
         </div>
 
-        <div style={'float: left; width 50%'}>
+        <div id="column2" class={`column ${activeColumn() === 'column2' ? 'active' : ''}`} style={'float: left'}>
 
           <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
 
         </div>
 
-        <div style={'float: left; width 25%; background-color: #2e2e2e'}>
+        <div id="column3" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
 
           <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
             {/* <p>eNPS timeline data</p> */}
