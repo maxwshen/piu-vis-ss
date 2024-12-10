@@ -86,25 +86,35 @@ a {
   .mobile-tabs {
       display: flex;
       justify-content: space-around;
-      background-color: #aaa;
-      padding: 10px;
+      background-color: #999;
+      padding: 5px;
       position: fixed;
-      width: 100%;
+      transform: translate(calc(50vw - 50%));
+      /* width: 100%; */
+      overflow: hidden;
+      margin: auto;
+      /* max-width: 100%; */
       top: 0;
       left: 0;
+      height: 50px;
       z-index: 1000;
   }
     
   body {
-        padding-top: 50px; /* Space for fixed mobile tabs */
-    }
+      padding-top: 50px; /* Space for fixed mobile tabs */
+  }
 
   .mobile-tab {
       cursor: pointer;
-      padding: 10px;
+      padding: 5px;
       background-color: #e0e0e0;
       text-align: center;
       flex-grow: 1;
+      flex-shrink: 1;
+      /* max-width: 33%; */
+      width: 100px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
       margin: 0 5px;
   }
 
@@ -113,10 +123,18 @@ a {
   }
 
   .column {
-      display: none;
+    visibility: hidden; /* Preserve layout and reactivity */
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
   }
 
   .column.active {
-      display: block;
+      visibility: visible;
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
   }
 }
