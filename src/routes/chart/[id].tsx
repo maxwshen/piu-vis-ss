@@ -9,7 +9,7 @@ import { checkEnvironment, fetchData } from '../../lib/data';
 import { getLevel, getSinglesOrDoubles, computeLastTime } from '../../lib/canvas_art';
 import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '../../lib/types';
 import { JSX } from "solid-js/h/jsx-runtime";
-
+import { useNavigate } from "@solidjs/router";
 
 const panelPxInterval = 40;
 const [pxPerSecond, setPxPerSecond] = createSignal(400);
@@ -993,14 +993,31 @@ function getLevelText(level: number): string {
 function segmentContent(segment: Segment, data: strToAny): JSXElement {
   const similarSections = data['Closest sections'];
 
-
   let baseUrl = checkEnvironment();
   function makeUrlBullets(section: any): JSXElement {
     let [chartName, sectionIdx] = section;
     const sectionIdx1 = sectionIdx + 1;
     let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
     const displayName = chartnameToDisplayName(chartName);
-    return <li><a href={link}>{displayName}</a></li>
+
+    const navigate = useNavigate();
+    const handleNavAndReload = (e: MouseEvent) => {
+      e.preventDefault();
+      
+      // Navigate to the new page
+      navigate('chart' + '/' + chartName + '?section=' + sectionIdx1, {
+        resolve: false, 
+        // Optional: you can pass state if needed
+        // state: { someData: "value" }
+      });
+  
+      // Reload the page after a short delay to ensure navigation
+      setTimeout(() => {
+        window.location.reload();
+      }, 50);
+    };
+
+    return <li><a href={link} onClick={handleNavAndReload}>{displayName}</a></li>
     // return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
   }
 
