@@ -820,18 +820,6 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       };
 
       // Interactivity
-      // click on stage to scroll
-      stage.on('click', function (e) {
-        const y = stage.getPointerPosition()!.y
-        const time = (y - headerHeight) / enpsTimeline_pxPerSecond;
-
-        scrollContainerRef()!.scrollTo({
-          top: time * pxPerSecond(),
-          behavior: 'smooth'
-        });
-
-      });
-
       // current scroll position tracker
       drawPositionTracker(0);
       createEffect(() => {
@@ -845,8 +833,22 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
         }
       })
 
+      // Interactivity on eNPS timeline, only in desktop mode. Disabled on mobile
       // scroll enps timeline stage to scroll chart
       if (window.innerWidth > 768) {
+
+        // click on stage to scroll
+        stage.on('click', function (e) {
+          const y = stage.getPointerPosition()!.y
+          const time = (y - headerHeight) / enpsTimeline_pxPerSecond;
+
+          scrollContainerRef()!.scrollTo({
+            top: time * pxPerSecond(),
+            behavior: 'smooth'
+          });
+
+        });
+
         stage.container().addEventListener('wheel', function (e: WheelEvent) {
           scrollContainerRef()!.scrollBy({left: 0, top: 3 * e.deltaY});
         });

@@ -108,6 +108,7 @@ a {
     
   body {
       padding-top: 50px; /* Space for fixed mobile tabs */
+      background-color: #2e2e2e;
   }
 
   .mobile-tab {
