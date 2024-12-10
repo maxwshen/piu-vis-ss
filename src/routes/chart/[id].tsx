@@ -494,8 +494,6 @@ function drawKonvaCanvas(
   );
 };
 
-
-
 function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
   let timelineContainerRef: HTMLDivElement;
 
@@ -984,7 +982,8 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
     const sectionIdx1 = sectionIdx + 1;
     let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
     const displayName = chartnameToDisplayName(chartName);
-    return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
+    return <li><a href={link}>{displayName}</a></li>
+    // return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
   }
 
   function makeRareSkillText(): JSXElement {
@@ -1093,7 +1092,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
       <div class="rounded-lg mb-2 overflow-hidden">
         {/* Header - Always visible */}
         <div 
-          class="p-3 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors"
+          class="p-2 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors"
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
@@ -1123,12 +1122,38 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
   };
 
   return (
-    <div class="flex flex-col gap-2 p-4">
+    <div class="flex flex-col gap-0 p-4">
       {props.segments.map((segment, index) =>
         SegmentCollapsible(segment, props.segmentData[index], index)
       )}
     </div>
   );
+};
+
+function chartDescription(metadata: strToAny): JSXElement {
+  console.log(metadata);
+
+  function parseDisplayBPM(displaybpm: string | undefined): string {
+    if (displaybpm === undefined) {
+      return 'missing';
+    }
+    if (displaybpm.includes(':')) {
+      let bpms = displaybpm.split(':');
+      return `${Math.round(Number(bpms[0]))}~${Math.round(Number(bpms[1]))}`
+    }
+    return `${Math.round(Number(displaybpm))}`
+  }
+
+  return (
+    <span class="font-small" style="color:#ddd">
+      <p>Pack: {metadata['pack']}</p>
+      <p>info: {metadata['CHARTNAME']}</p>
+      <p>Song type: {metadata['SONGTYPE']}</p>
+      <p>Song category: {metadata['SONGCATEGORY']}</p>
+      <p>Display BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}</p>
+      <p>Step artist: {metadata['CREDIT']}</p>
+    </span>
+);
 };
 
 
@@ -1143,11 +1168,12 @@ export default function DynamicPage(): JSXElement {
   // Refetches data whenever params.id changes
   const [data, { mutate, refetch }] = createResource(params.id, fetchData);
 
+  let metadata: strToAny = {};
   let segments: Segment[] = [];
   let segmentdata: strToAny[] = [];
   let manuallyAnnotatedFlag: string = '';
   if ( data() ) {
-    let metadata = data()![2];
+    metadata = data()![2];
     segments = metadata['Segments'];
     segmentdata = metadata['Segment metadata'];
 
@@ -1230,8 +1256,8 @@ export default function DynamicPage(): JSXElement {
           </div> */}
 
           <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-              {params.id}
-              {/* {params.id.replace(/_/g," ")} */}
+              {/* {params.id} */}
+              {params.id.replace(/_/g," ")}
           </span>
           <span> {manuallyAnnotatedFlag} </span>
           <span> {data.loading && "Loading..."} </span>
@@ -1242,6 +1268,7 @@ export default function DynamicPage(): JSXElement {
             {SetClickToMissButton()}
             {SetClickToLRButton()}
           </div>
+          {chartDescription(metadata)}
           <div style={'height: 100%; overflow: auto'}>
             <SegmentTimeline 
               segments={segments} segmentData={segmentdata}
@@ -1251,9 +1278,7 @@ export default function DynamicPage(): JSXElement {
         </div>
 
         <div id="column2" class={`column ${activeColumn() === 'column2' ? 'active' : ''}`} style={'float: left'}>
-
           <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
-
         </div>
 
         <div id="column3" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
