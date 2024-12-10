@@ -48,17 +48,22 @@ a {
 /* Desktop layout */
 .columns-container {
   display: flex;
-  width: 100%;
+  /* justify-content: center; */
+  /* width: 100%; */
+  width: fit-content;
+  /* margin-left: 15%; */
+  margin: auto;
+  /* margin-inline: auto; */
 }
 
 #column1 {
-  max-width: 400px;
+  max-width: 500px;
   flex-shrink: 0; /* Prevents column1 from shrinking below its max-width */
 }
 
 #column2 {
-  min-width: 600px;
-  flex-grow: 1; /* Allows column2 to expand */
+  min-width: 260px;
+  flex-grow: 2; /* Allows column2 to expand */
   /* flex-shrink: 1; */
 }
 
@@ -81,7 +86,8 @@ a {
 @media screen and (max-width: 768px) {
   .columns-container {
       flex-direction: column;
-  }
+      margin: auto; 
+    }
 
   .mobile-tabs {
       display: flex;

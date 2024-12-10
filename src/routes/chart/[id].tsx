@@ -11,10 +11,9 @@ import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '../../lib/types'
 import { JSX } from "solid-js/h/jsx-runtime";
 
 
-const panelPxInterval = 43;
+const panelPxInterval = 40;
 const [pxPerSecond, setPxPerSecond] = createSignal(400);
-// arrow imgs are square
-const canvasWidth = 530;
+const [canvasWidth, setCanvasWidth] = createSignal(530);
 const arrowImgWidth = 40;
 const arrowImgHeight = arrowImgWidth;
 
@@ -62,22 +61,31 @@ function drawKonvaCanvas(
 
       // compute canvas height and width
       const numPanels = getSinglesOrDoubles(data);
-      var canvasWidth = panelPxInterval * numPanels + 100;
+      setCanvasWidth(panelPxInterval * numPanels + 50);
 
       const level = getLevel(data);
       if (level < 11) {
         setPxPerSecond(250);
       } else if (level <= 14) {
         setPxPerSecond(300);
-      } else {
+      } else if (level <= 25) {
         setPxPerSecond(400);
+      } else {
+        setPxPerSecond(450);
       }
 
       let lastTime = computeLastTime(data);
       var canvas_height = lastTime * pxPerSecond() + 100;
+      const timeFontSize = 15;
+      const enpsAnnotFontSize = 15;
+      const timeColX = 0;
+      const arrowsColX = 40;
+      const arrowsColXRight = arrowsColX + panelPxInterval * numPanels;
+      const holdTicksColX = arrowsColXRight + 5;
+      const enpsAnnotColX = holdTicksColX + 12;
 
       largeContainerRef.style.height = canvas_height + 'px';
-      largeContainerRef.style.width = canvasWidth + 80 + 'px';
+      largeContainerRef.style.width = canvasWidth() + 80 + 'px';
       var PADDING = 0;
 
       // make stage & layers
@@ -102,15 +110,12 @@ function drawKonvaCanvas(
       layer1.add(background);
 
       // draw spaced lines for time
-      const lineMargin = 50;
-      const x_left = 0 + lineMargin;
-      const x_right = canvasWidth - lineMargin;
       const y_interval = 50;
       const num_lines = canvas_height / y_interval;
       for (let i: number = 0; i < num_lines; i++) {
         const y = i * y_interval;
         var line = new Konva.default.Line({
-          points: [x_left, y, x_right, y],
+          points: [arrowsColX, y, arrowsColXRight, y],
           stroke: 'gray',
           strokeWidth: 1,
         });
@@ -124,10 +129,10 @@ function drawKonvaCanvas(
         const y = i * seconds_per_timestamp * pxPerSecond();
         var text = new Konva.default.Text({
           text: `${secondsToTimeStr(i*seconds_per_timestamp)}`,
-          x: 0,
+          x: timeColX,
           y: y,
-          fontSize: 20,
-          fontFamily: 'Helvetica',
+          fontSize: timeFontSize,
+          // fontFamily: 'Helvetica',
           fill: '#AAAAAA',
           align: 'right',
         });
@@ -138,11 +143,9 @@ function drawKonvaCanvas(
       for (let i: number = 0; i < segments.length; i++) {
         let segment = segments[i];
         const startTime: number = segment[0];
-        const x_left = 0 + lineMargin / 2;
-        const x_right = canvasWidth - lineMargin / 2;
         const y = startTime * pxPerSecond();
         var line = new Konva.default.Line({
-          points: [x_left, y, x_right, y],
+          points: [arrowsColX, y, arrowsColXRight, y],
           stroke: 'white',
           strokeWidth: 1,
         });
@@ -152,25 +155,36 @@ function drawKonvaCanvas(
 
       // draw effective NPS annotations
       const enps_annots = metadata['eNPS annotations'];
-      const nps_x = canvasWidth - lineMargin + 25;
       for (let i: number = 0; i < enps_annots.length; i++) {
         const [time, nps_annot] = enps_annots[i];
+        const npsAnnotSplit = nps_annot.split('\n');
+        const npsAnnotPart1 = nps_annot.split('\n')[0];
+        const npsAnnotPart2 = nps_annot.split('\n')[1] + '\n' + nps_annot.split('\n')[2];
         // draw text
         var text = new Konva.default.Text({
-          text: `${nps_annot}`,
-          x: nps_x,
+          text: `${npsAnnotPart1}`,
+          x: enpsAnnotColX,
           y: time * pxPerSecond(),
-          fontSize: 16,
-          fontFamily: 'Helvetica',
-          fill: 'gray',
+          fontSize: enpsAnnotFontSize,
+          fill: '#aaa',
           align: 'left',
         });
         layer1.add(text);
+
+        var text = new Konva.default.Text({
+          text: `${npsAnnotPart2}`,
+          x: enpsAnnotColX,
+          y: time * pxPerSecond() + enpsAnnotFontSize,
+          fontSize: enpsAnnotFontSize,
+          fill: '#666',
+          align: 'left',
+        });
+        layer1.add(text);
+
       }
 
-      // draw holdticks
-      const holdtick_x = canvasWidth - lineMargin + 10;
-      const y_gap = 4;
+      // draw holdtick annotations
+      const y_gap = 2;
       for (let i: number = 0; i < holdticks.length; i++) {
         let holdtick = holdticks[i];
         const [startTime, endTime, nTicks] = holdtick;
@@ -178,10 +192,9 @@ function drawKonvaCanvas(
         // draw text
         var text = new Konva.default.Text({
           text: `${nTicks}`,
-          x: holdtick_x + 5,
+          x: holdTicksColX + 3,
           y: startTime * pxPerSecond() + arrowImgHeight / 2,
-          fontSize: 18,
-          fontFamily: 'Helvetica',
+          fontSize: enpsAnnotFontSize,
           fill: 'gray',
           align: 'right',
         });
@@ -189,8 +202,8 @@ function drawKonvaCanvas(
         // draw line
         var line = new Konva.default.Line({
           points: [
-            holdtick_x, startTime * pxPerSecond() + arrowImgHeight / 2, 
-            holdtick_x, endTime * pxPerSecond() - y_gap + arrowImgHeight / 2],
+            holdTicksColX, startTime * pxPerSecond() + arrowImgHeight / 2, 
+            holdTicksColX, endTime * pxPerSecond() - y_gap + arrowImgHeight / 2],
           stroke: 'gray',
           strokeWidth: 1,
         });
@@ -209,7 +222,7 @@ function drawKonvaCanvas(
           alpha = 0.5;
         }
         let konva_img = new Konva.default.Image({
-          x: lineMargin + panelPos * panelPxInterval,
+          x: arrowsColX + panelPos * panelPxInterval,
           y: time * pxPerSecond(),
           image: image,
           width: arrowImgWidth,
@@ -235,7 +248,7 @@ function drawKonvaCanvas(
         const [headImageGetter, _] = getImage(panelPos, limb, 'arrow');
         holdHead.src = headImageGetter();
         var konva_img = new Konva.default.Image({
-          x: lineMargin + panelPos * panelPxInterval,
+          x: arrowsColX + panelPos * panelPxInterval,
           y: startTime * pxPerSecond(),
           image: holdHead,
           width: arrowImgWidth,
@@ -250,7 +263,7 @@ function drawKonvaCanvas(
         const [trailImageGetter, __] = getImage(panelPos, limb, 'trail');
         holdTrail.src = trailImageGetter();
         var konva_img = new Konva.default.Image({
-          x: lineMargin + panelPos * panelPxInterval,
+          x: arrowsColX + panelPos * panelPxInterval,
           y: startTime * pxPerSecond() + arrowImgHeight / 2,
           image: holdTrail,
           width: arrowImgWidth,
@@ -265,7 +278,7 @@ function drawKonvaCanvas(
         const [capImageGetter, ___] = getImage(panelPos, limb, 'cap');
         holdCap.src = capImageGetter();
         var konva_img = new Konva.default.Image({
-          x: lineMargin + panelPos * panelPxInterval,
+          x: arrowsColX + panelPos * panelPxInterval,
           y: endTime * pxPerSecond(),
           image: holdCap,
           width: arrowImgWidth,
@@ -307,7 +320,7 @@ function drawKonvaCanvas(
         for (let i: number = 0; i < arrowarts.length; i++) {
           let arrowart = arrowarts[i];
           const [panelPos, time, limbAnnot] = arrowart;
-          const arrow_x = lineMargin + panelPos * panelPxInterval;
+          const arrow_x = arrowsColX + panelPos * panelPxInterval;
           const arrow_y = time * pxPerSecond();
           let id = String(i);
     
@@ -337,7 +350,7 @@ function drawKonvaCanvas(
         for (let i: number = 0; i < holdarts.length; i++) {
           let holdart = holdarts[i];
           const [panelPos, startTime, endTime, limbAnnot] = holdart;
-          const arrow_x = lineMargin + panelPos * panelPxInterval;
+          const arrow_x = arrowsColX + panelPos * panelPxInterval;
           const arrow_y = startTime * pxPerSecond();
     
           // clicking on head
@@ -455,7 +468,8 @@ function drawKonvaCanvas(
         id={"scrollbar1"}
         style={{
           "overflow": "auto",
-            "width": canvasWidth + 100 + "px",
+            "width": canvasWidth() + 100 + "px",
+            // "width": canvasWidth() + 100 + "px",
           // "width": "1000px",
           "height": "calc(100vh - 20px)",
           // "height": "100%",
@@ -479,7 +493,7 @@ function drawKonvaCanvas(
             style={{
               // "border": "1px solid #ccc",
               "margin": "auto",
-              "width": canvasWidth + 100 + "px",
+              "width": canvasWidth() + 100 + "px",
               // "height": "1000px",
               "height": "100%",
               // "height": "10px",
@@ -832,9 +846,11 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       })
 
       // scroll enps timeline stage to scroll chart
-      stage.container().addEventListener('wheel', function (e: WheelEvent) {
-        scrollContainerRef()!.scrollBy({left: 0, top: 3 * e.deltaY});
-      });
+      if (window.innerWidth > 768) {
+        stage.container().addEventListener('wheel', function (e: WheelEvent) {
+          scrollContainerRef()!.scrollBy({left: 0, top: 3 * e.deltaY});
+        });
+      }
 
       stage.add(layer1);
     });
@@ -1131,8 +1147,6 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
 };
 
 function chartDescription(metadata: strToAny): JSXElement {
-  console.log(metadata);
-
   function parseDisplayBPM(displaybpm: string | undefined): string {
     if (displaybpm === undefined) {
       return 'missing';
@@ -1228,71 +1242,74 @@ export default function DynamicPage(): JSXElement {
   console.log('env: ', checkEnvironment());
   return (
     <>
-      <div class="mobile-tabs">
-        <div 
-          class={`mobile-tab ${activeColumn() === 'column1' ? 'active' : ''}`} 
-          onClick={() => setActiveColumn('column1')}
-        >
-          Summary
-        </div>
-        <div 
-          class={`mobile-tab ${activeColumn() === 'column2' ? 'active' : ''}`} 
-          onClick={() => setActiveColumn('column2')}
-        >
-          Stepchart
-        </div>
-        <div 
-          class={`mobile-tab ${activeColumn() === 'column3' ? 'active' : ''}`} 
-          onClick={() => setActiveColumn('column3')}
-        >
-          Timeline
-        </div>
-      </div>
+      <div style={'background-color: #2e2e2e'}>
 
-      <div class="columns-container" style={'overflow: hidden; margin: auto; padding: 0; background-color: #2e2e2e'}>
-        <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
-          
-          {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
-          </div> */}
-
-          <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-              {/* {params.id} */}
-              {params.id.replace(/_/g," ")}
-          </span>
-          <span> {manuallyAnnotatedFlag} </span>
-          <span> {data.loading && "Loading..."} </span>
-          <span> {data.error && "Error"} </span>
-          <div style={'display: flex'}>
-            {SaveJsonButton(params.id, data()!)}
-            {SetClickToEitherButton()}
-            {SetClickToMissButton()}
-            {SetClickToLRButton()}
+        <div class="mobile-tabs">
+          <div 
+            class={`mobile-tab ${activeColumn() === 'column1' ? 'active' : ''}`} 
+            onClick={() => setActiveColumn('column1')}
+          >
+            Overview
           </div>
-          {chartDescription(metadata)}
-          <div style={'height: 100%; overflow: auto'}>
-            <SegmentTimeline 
-              segments={segments} segmentData={segmentdata}
-            />
+          <div 
+            class={`mobile-tab ${activeColumn() === 'column2' ? 'active' : ''}`} 
+            onClick={() => setActiveColumn('column2')}
+          >
+            Stepchart
           </div>
-
+          <div 
+            class={`mobile-tab ${activeColumn() === 'column3' ? 'active' : ''}`} 
+            onClick={() => setActiveColumn('column3')}
+          >
+            Timeline
+          </div>
         </div>
 
-        <div id="column2" class={`column ${activeColumn() === 'column2' ? 'active' : ''}`} style={'float: left'}>
-          <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
-        </div>
+        <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>
+          <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+            
+            {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
+            </div> */}
 
-        <div id="column3" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+            <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
+                {/* {params.id} */}
+                {params.id.replace(/_/g," ")}
+            </span>
+            <span> {manuallyAnnotatedFlag} </span>
+            <span> {data.loading && "Loading..."} </span>
+            <span> {data.error && "Error"} </span>
+            <div style={'display: flex'}>
+              {SaveJsonButton(params.id, data()!)}
+              {SetClickToEitherButton()}
+              {SetClickToMissButton()}
+              {SetClickToLRButton()}
+            </div>
+            {chartDescription(metadata)}
+            <div style={'height: 100%; overflow: auto'}>
+              <SegmentTimeline 
+                segments={segments} segmentData={segmentdata}
+              />
+            </div>
 
-          <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-            {/* <p>eNPS timeline data</p> */}
-          </span>
-          <div style={'height: 100%; margin-top: 10px; overflow: auto'}>
-            {drawENPSTimeline(data)}
           </div>
 
-          {/* <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>
-          </div> */}
+          <div id="column2" class={`column ${activeColumn() === 'column2' ? 'active' : ''}`} style={'float: left'}>
+            <div style={'background-color: #2e2e2e; height: 100%'}> {drawKonvaCanvas(data, mutate)} </div>
+          </div>
 
+          <div id="column3" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+
+            <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
+              {/* <p>eNPS timeline data</p> */}
+            </span>
+            <div style={'height: 100%; margin-top: 10px; overflow: auto'}>
+              {drawENPSTimeline(data)}
+            </div>
+
+            {/* <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>
+            </div> */}
+
+          </div>
         </div>
       </div>
 
