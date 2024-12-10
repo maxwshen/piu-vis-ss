@@ -741,10 +741,14 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
         }
 
         // difficulty text
+        var levelTextwCrux = `lv.${levelText}`
+        if (relativeSegmentLevel >= 0.97) {
+          levelTextwCrux = `lv.${levelText}\ncrux`
+        }
         const y = timeToDrawingY(segmentStartTime);
         const levelColor = getLevelColor(relativeSegmentLevel);
         const text = new Konva.default.Text({
-          text: `lv.${levelText}`,
+          text: levelTextwCrux,
           x: difficultyLineColumnX - 45,
           // x: enpsPlotColumnX - segmentSeparatorWidth - 40,
           y: y - 5,
