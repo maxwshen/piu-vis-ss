@@ -29,4 +29,8 @@ body {
   .container {
     margin-left: 10px;
   }
+
+  .legend {
+    max-width: 250px;
+  }
 }

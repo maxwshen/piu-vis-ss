@@ -54,9 +54,9 @@ function getColor(predLevel: number, chartLevel: number): string {
 
 function makeLegend() {
   return (
-    <div>
+    <div class='legend'>
       <span style={"color: #ddd"}> Legend: &emsp;</span>
-      <span style={`color:#e2247f`}>■ Very Hard &emsp;</span>
+      <span style={`color:#e2247f`}>■ Very hard &emsp;</span>
       <span style={`color:#ec4339`}>■ Hard &emsp;</span>
       <span style={`color:#efb920`}>■ Moderate &emsp;</span>
       <span style={`color:#7cb82f`}>■ Easier &emsp;</span>
