@@ -1218,17 +1218,7 @@ export default function DynamicPage(): JSXElement {
   onMount(() => {
     if (typeof document !== 'undefined') {
       document.title = params.id;
-
     }
-
-    // if (typeof window !== 'undefined') {
-    //   // Code that uses the window object
-    //   console.log(window.location);
-    //   console.log(window.location.search);
-    //   const urlParams = new URLSearchParams(window.location.search);
-    //   const paramSection = urlParams.get('section');
-    //   console.log(paramSection);
-    // }
 
     // Mobile tab functionality
     document.addEventListener('DOMContentLoaded', () => {
@@ -1255,8 +1245,6 @@ export default function DynamicPage(): JSXElement {
       });
     });
   });
-
-
 
   console.log('env: ', checkEnvironment());
   return (

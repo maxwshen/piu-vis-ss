@@ -34,3 +34,21 @@ export async function fetchData(id: string): Promise<ChartArt | null> {
   }
   return null;
 }
+
+/**
+ * Fetches JSON data
+ * @param id: json filename
+ * @returns 
+ */
+export async function fetchPageContent(id: string): Promise< | null> {
+  try {
+    const response = await fetch(
+      checkEnvironment().concat(`/chart-jsons/120524/page-content/${id}.json`)
+  );
+    const obj = await response.json();
+    return obj;
+  } catch (error) {
+    console.error(error);
+  }
+  return null;
+}

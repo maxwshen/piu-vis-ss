@@ -49,7 +49,6 @@ async function fetchSearchItems(): Promise<searchItemType[] | null> {
 }
 
 
-
 /**
  * 
  * @returns 
@@ -95,9 +94,7 @@ function searchTable(): JSXElement {
 export default function Page(): JSXElement {
   return (
     <div style={'background-color: #2e2e2e; height: 100%'}>      
-      <div style={'background-color: #2e2e2e; height: 100%'}>
-        {searchTable()}
-      </div>
+      {searchTable()}
     </div>
   );
 };

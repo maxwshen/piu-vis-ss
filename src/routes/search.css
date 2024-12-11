@@ -26,3 +26,7 @@ ul {
   list-style-type: disc; /* Default bullet point */
   padding-left: 20px; /* Space between bullets and text */
 }
+
+body {
+  background-color: #2e2e2e
+}
