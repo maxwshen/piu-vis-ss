@@ -5,10 +5,28 @@ a:hover {
   text-decoration: underline; /* Underline on hover */
 }
 
+.difficulty-link {
+  text-decoration: underline;
+}
+
 
 /* Lists */
 
 
 body {
   background-color: #2e2e2e;
+}
+
+
+.container {
+  margin-left: 15%;
+  margin-top: 50px;
+  max-width: 1000px;
+}
+
+/* Mobile layout */
+@media screen and (max-width: 768px) {
+  .container {
+    margin-left: 10px;
+  }
 }

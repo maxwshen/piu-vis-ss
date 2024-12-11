@@ -4,6 +4,7 @@ import { isServer } from 'solid-js/web';
 import { useParams } from "@solidjs/router";
 import { checkEnvironment, fetchPageContent } from '../../lib/data';
 import "./[sordlevel].css"
+import { Show } from 'solid-js';
 
 interface searchItemType {
   name: string,
@@ -13,6 +14,8 @@ interface searchItemType {
 interface StrToAny {
   [key: string]: any;
 };
+
+const [chartLevel, setChartLevel] = createSignal<number>(13);
 
 
 /**
@@ -76,10 +79,81 @@ function getShortChartName(name: string) {
 }
 
 
+function makeDifficultyNavigatorWheel() {
+  const radius = 3;
+  const chart_level = chartLevel();
+
+  // Function to generate URL for a specific difficulty
+  function makeURL(sord: string, level: number) {
+    var lower = 1;
+    var upper = 28;
+    if (sord == 'S') {
+      upper = 26;
+    } else if (sord == 'D') {
+      lower = 4;
+    }
+
+    const opacity = 1 - (Math.abs(chart_level - level) / 6);
+
+    return (
+      <Show 
+        when={(level >= lower) && (level <= upper)} 
+        fallback={
+          <span style={`width:40px;display:inline-block;text-align:center`}>
+          </span>
+        }
+      >
+        <span style={`width:40px;display:inline-block;text-align:center`}>
+          <a 
+            href={`/difficulty/${sord}${level}`} 
+            class="difficulty-link"
+            style={`color:#ddd;opacity:${opacity}`}
+          >
+            {sord}{level}
+          </a>
+        </span>
+      </Show>
+    );
+  }
+
+  // Generate difficulty navigation links
+  const difficultyLinks = () => {
+    const links = [];
+
+    // Add numerical difficulty links
+    for (
+      let level = chart_level - radius; 
+      level <= chart_level + radius; 
+      level++
+    ) {
+      links.push(makeURL('S', level));
+    }
+    links.push(<br></br>)
+    for (
+      let level = chart_level - radius; 
+      level <= chart_level + radius; 
+      level++
+    ) {
+      links.push(makeURL('D', level));
+    }
+
+    return links;
+  };
+
+  return (
+    <div class="difficulty-navigator">
+      <p style={`color:#ddd`}>Navigation</p>
+      {difficultyLinks()}
+    </div>
+  );
+}
+
+
 function DifficultyTierList(props: { sordlevel: string }) {
   // Create resource for tier list data
   const [tierListData] = createResource(fetchTierListData);
-  const chartLevel = Number(props.sordlevel.slice(1));
+  // const chartLevel = ;
+  setChartLevel(Number(props.sordlevel.slice(1)));
 
   // Type definition for your dictionary
   type TierListDict = {
@@ -91,7 +165,7 @@ function DifficultyTierList(props: { sordlevel: string }) {
     const url = '/chart/' + chart;
     return (
       <span>
-        <a href={url} style={`color:${getColor(predLevel, chartLevel)}`}>
+        <a href={url} style={`color:${getColor(predLevel, chartLevel())}`}>
           {shortName}
         </a>
         <span style={`color: #ddd`}>&emsp;</span>
@@ -128,7 +202,7 @@ function DifficultyTierList(props: { sordlevel: string }) {
   });
 
   return (
-    <div style="margin-left:15%; margin-top: 50px;max-width:1000px">
+    <div class="container">
       <div>
         <span class='font-medium' style={"color: #ddd;font-size:24px"}>
           Difficulty tier list: {props.sordlevel}
@@ -136,6 +210,9 @@ function DifficultyTierList(props: { sordlevel: string }) {
         <span>
           {makeLegend()}
         </span>
+        <div>
+          {makeDifficultyNavigatorWheel()}
+        </div>
       </div>
       <div style="margin-top: 50px">
         {/* Conditional rendering */}
@@ -153,6 +230,18 @@ function DifficultyTierList(props: { sordlevel: string }) {
 export default function Page(): JSXElement {
   // Stores current route path; /chart/:id = params.id = [id].tsx
   const params = useParams();
+
+  const [currentParams, setCurrentParams] = createSignal(params);
+
+  // Optional: React to param changes
+  createEffect(() => {
+    // This will run whenever the params change    
+    setChartLevel(Number(currentParams().sordlevel.slice(1)));
+
+    if (typeof document !== 'undefined') {
+      document.title = params.sordlevel;
+    }
+  });
 
   return (
     <div style="background-color: #2e2e2e; height: 100%">
