@@ -57,18 +57,19 @@ a {
 }
 
 #column1 {
-  max-width: 500px;
-  flex-shrink: 0; /* Prevents column1 from shrinking below its max-width */
+  max-width: 450px;
+  flex-shrink: 1;
 }
 
 #column2 {
-  min-width: 260px;
-  flex-grow: 2; /* Allows column2 to expand */
+  min-width: 600px;
+  /* flex-grow: 2; */
   /* flex-shrink: 1; */
 }
 
 #column3 {
-  flex-grow: 1; /* Allows column3 to take remaining space */
+  /* flex-grow: 1; */
+  flex-shrink: 1;
 }
 
 .column {
@@ -135,6 +136,10 @@ a {
     width: 0;
     height: 0;
     overflow: hidden;
+  }
+
+  #column2 {
+    max-width: 100%;
   }
 
   .column.active {

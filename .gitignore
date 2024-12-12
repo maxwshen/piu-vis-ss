@@ -1,8 +1,4 @@
 node_modules
-public/chart-jsons/
-node_modules
-
-# Local Netlify folder
 .netlify
 .output
 .vinxi

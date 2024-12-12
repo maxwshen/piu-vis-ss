@@ -176,9 +176,13 @@ function DifficultyTierList(props: { sordlevel: string }) {
   function makeRow(key: string, charts: string[], predLevels: number[]): JSXElement {
     const zipped = charts.map((chart, i) => [chart, predLevels[i]]);
     
+    const key1 = key.split('\n')[0];
+    const key2 = key.split('\n')[1];
+
     return (
       <li style={`margin-bottom: 20px`}>
-        <span style={"text-style: bold; color: #ddd"}> {key}: </span> 
+        <span style={"text-style: bold; color: #ddd"}>{key1}</span> 
+        <span style={"text-style: bold; color: #888"}> ({key2})<br></br></span> 
         {zipped.map(([chart, predLevel]) => (
           makeColoredURL(String(chart), Number(predLevel))
         ))}
@@ -189,7 +193,7 @@ function DifficultyTierList(props: { sordlevel: string }) {
   // Use createMemo to reactively compute the specific tier list
   const tierlist = createMemo(() => {
     const data = tierListData();
-    const indentSize = 100;
+    const indentSize = 50;
     if (data) {
       const tierListDict: TierListDict = data[props.sordlevel];
       return (
