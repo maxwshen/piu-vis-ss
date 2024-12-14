@@ -1,6 +1,5 @@
 
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
-import { isServer } from 'solid-js/web';
 import { useParams } from "@solidjs/router";
 import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
 import "./[skillname].css"
@@ -36,7 +35,7 @@ function SkillList(props: { skillname: string }) {
     const url = '/chart/' + chart;
     return (
       <span>
-        <a href={url}>
+        <a href={url} style={`color:#00a0dc`}>
           {shortName}
         </a>
         <span style={`color: #ddd`}>&emsp;</span>

@@ -1,7 +1,5 @@
 
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
-import { isServer } from 'solid-js/web';
-import { useParams } from "@solidjs/router";
 import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
 import "./[skillname].css"
 import { Show } from 'solid-js';
@@ -20,7 +18,7 @@ function SkillLinks(props: { }) {
     const url = '/skill/' + skillname;
     return (
       <p>
-        <a href={url}>
+        <a href={url} style={`color:#00a0dc`}>
           {skillname}
         </a>
       </p>
