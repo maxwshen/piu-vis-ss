@@ -2,7 +2,7 @@
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
 import { isServer } from 'solid-js/web';
 import { useParams } from "@solidjs/router";
-import { checkEnvironment, fetchPageContent } from '../../lib/data';
+import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
 import "./[sordlevel].css"
 import { Show } from 'solid-js';
 

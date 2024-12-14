@@ -1,6 +1,7 @@
 import { useParams } from "@solidjs/router";
 import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For } from "solid-js";
 import type { Signal, Accessor, Resource, Setter, JSXElement, Component } from 'solid-js';
+import { Show } from 'solid-js';
 import "./[id].css"
 import Konva from 'konva';
 import { isServer } from 'solid-js/web';
@@ -1180,7 +1181,9 @@ function chartDescription(metadata: strToAny): JSXElement {
   return (
     <span class="font-small" style="color:#ddd">
       <p>Pack: {metadata['pack']}</p>
-      <p>info: {metadata['CHARTNAME']}</p>
+      <Show when={'CHARTNAME' in metadata} fallback={<></>}>
+        <p>info: {metadata['CHARTNAME']}</p>
+      </Show>
       <p>Song type: {metadata['SONGTYPE']}</p>
       <p>Song category: {metadata['SONGCATEGORY']}</p>
       <p>Display BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}</p>

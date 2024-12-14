@@ -11,3 +11,7 @@ export type HoldArt = [number, number, number, string];
 export type ChartArt = [ArrowArt[], HoldArt[], any];
 
 export type Segment = [number, number, number, number];
+
+export interface StrToAny {
+  [key: string]: any;
+};

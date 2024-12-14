@@ -1,4 +1,4 @@
-import { ArrowArt, HoldArt, ChartArt } from './types';
+import { ArrowArt, HoldArt, ChartArt, StrToAny } from './types';
 
 
 /**
@@ -51,4 +51,25 @@ export async function fetchPageContent(id: string): Promise< | null> {
     console.error(error);
   }
   return null;
+}
+
+/**
+ * Fetches search struct data
+ * @param id: json filename
+ * @returns 
+ */
+export async function fetchSkillData(): Promise<StrToAny | null> {
+  try {
+    const response = await fetch(
+      checkEnvironment() + `/chart-jsons/120524/page-content/stepchart-skills.json`
+    );
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const skillData: StrToAny = await response.json();
+    return skillData;
+  } catch (error) {
+    console.error('Error fetching tier list data:', error);
+    return null;
+  }
 }
