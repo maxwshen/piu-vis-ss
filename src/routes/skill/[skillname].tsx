@@ -73,7 +73,7 @@ function SkillList(props: { skillname: string }) {
     <div class="container">
       <div>
         <span class='font-medium' style={"color: #ddd;font-size:24px"}>
-          Skill: {props.skillname}
+          Skill: {props.skillname.replace('_', ' ')}
         </span>
       </div>
       <div style="margin-top: 50px">
