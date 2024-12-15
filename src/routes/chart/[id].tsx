@@ -11,6 +11,7 @@ import { getLevel, getSinglesOrDoubles, computeLastTime } from '../../lib/canvas
 import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '../../lib/types';
 import { JSX } from "solid-js/h/jsx-runtime";
 import { useNavigate } from "@solidjs/router";
+import Nav from '../../components/Nav';
 
 const panelPxInterval = 40;
 const [pxPerSecond, setPxPerSecond] = createSignal(400);
@@ -472,7 +473,8 @@ function drawKonvaCanvas(
             "width": canvasWidth() + 100 + "px",
             // "width": canvasWidth() + 100 + "px",
           // "width": "1000px",
-          "height": "calc(100vh - 20px)",
+          // "height": "calc(100vh - 20px)",
+          "height": "calc(100vh - 80px)",
           // "height": "100%",
           "margin": "auto",
           // "border": "1px solid grey",
@@ -1252,6 +1254,7 @@ export default function DynamicPage(): JSXElement {
   console.log('env: ', checkEnvironment());
   return (
     <>
+      <div>{Nav()}</div>
       <div style={'background-color: #2e2e2e'}>
 
         <div class="mobile-tabs">

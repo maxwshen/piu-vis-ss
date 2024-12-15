@@ -3,7 +3,8 @@ import { createSignal, createResource, createMemo, onMount, onCleanup, createEff
 import { isServer } from 'solid-js/web';
 import { useParams } from "@solidjs/router";
 import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
-import "./[sordlevel].css"
+import Nav from '../../components/Nav';
+// import "./[sordlevel].css"
 import { Show } from 'solid-js';
 
 interface searchItemType {
@@ -248,8 +249,11 @@ export default function Page(): JSXElement {
   });
 
   return (
-    <div style="background-color: #2e2e2e; height: 100%">
-      <DifficultyTierList sordlevel={params.sordlevel} />
+    <div>
+      <div>{Nav()}</div>
+      <div style="background-color: #2e2e2e; height: 100%">
+        <DifficultyTierList sordlevel={params.sordlevel} />
+      </div>
     </div>
   );
 }

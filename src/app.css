@@ -1,3 +1,44 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.a {
+  color: '#00a0dc';
+  text-decoration: underline;  
+}
+
+/* Visited state */
+/* a:visited {
+  color: #8c68cb;
+} */
+
+.nava {
+  color: '#ccc';
+  text-decoration: underline;
+}
+
+.nava:visited {
+  color: '#ccc';
+}
+
+body {
+  background-color: #2e2e2e;
+}
+
+
+.container {
+  margin-left: 15%;
+  max-width: 1000px;
+}
+
+
+/* Mobile layout */
+@media screen and (max-width: 768px) {
+  .container {
+    margin-left: 10px;
+  }
+
+  .legend {
+    max-width: 250px;
+  }
+}
