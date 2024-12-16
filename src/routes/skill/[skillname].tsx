@@ -4,22 +4,8 @@ import { useParams } from "@solidjs/router";
 import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
 // import "./[skillname].css"
 import { Show } from 'solid-js';
-import Nav from '../../components/Nav';
-
-
-function getShortChartName(name: string) {
-  var n = name.replace('_INFOBAR_TITLE', '_').replace('_HALFDOUBLE_', '_');
-  const nsplit = n.split('_');
-  const songtype = nsplit[nsplit.length - 1];
-  const songname = n.split('_-_')[0].replace('_', ' ').replace('\_', ' ');
-  
-  var shortname = songname;
-  if (songtype != 'ARCADE') {
-    shortname = shortname + ' ' + songtype.toLowerCase();
-  }
-  return shortname;
-}
-
+import Nav from '~/components/Nav';
+import { getShortChartName } from '~/lib/util';
 
 
 function SkillList(props: { skillname: string }) {

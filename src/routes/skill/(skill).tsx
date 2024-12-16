@@ -19,7 +19,7 @@ function SkillLinks(props: { }) {
     const url = '/skill/' + skillname;
     return (
       <p>
-        <a href={url} style={`color:#00a0dc`}>
+        <a href={url} style={`color:#00a0dc; text-decoration: underline`}>
           {skillname.replace('_', ' ')}
         </a>
       </p>

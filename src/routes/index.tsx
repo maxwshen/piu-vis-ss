@@ -1,25 +1,23 @@
-import { A } from "@solidjs/router";
-import Counter from "~/components/Counter";
+import Nav from '~/components/Nav';
+import { createSignal, createMemo, For, createEffect, JSXElement, createResource } from "solid-js";
+
 
 export default function Home() {
+  createEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.title = 'piucenter';
+    }
+  });
+
   return (
-    <main class="text-center mx-auto text-gray-700 p-4">
-      <h1 class="max-6-xs text-6xl text-sky-700 font-thin uppercase my-16">Hello world!</h1>
-      <Counter />
-      <p class="mt-8">
-        Visit{" "}
-        <a href="https://solidjs.com" target="_blank" class="text-sky-600 hover:underline">
-          solidjs.com
-        </a>{" "}
-        to learn how to build Solid apps.
-      </p>
-      <p class="my-4">
-        <span>Home</span>
-        {" - "}
-        <A href="/about" class="text-sky-600 hover:underline">
-          About Page
-        </A>{" "}
-      </p>
-    </main>
+    <div>
+      <div>{Nav()}</div>
+      <main class="text-center mx-auto text-gray-700 p-4">
+        <img src="/favicon.ico"></img>
+        <h1 class="max-6-xs text-5xl font-thin" style={`color:#ddd`}>
+          piucenter
+        </h1>
+      </main>
+    </div>
   );
 }

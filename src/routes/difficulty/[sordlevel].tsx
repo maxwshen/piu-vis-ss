@@ -6,6 +6,8 @@ import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/da
 import Nav from '../../components/Nav';
 // import "./[sordlevel].css"
 import { Show } from 'solid-js';
+import { getShortChartName } from '~/lib/util';
+
 
 interface searchItemType {
   name: string,
@@ -66,20 +68,6 @@ function makeLegend() {
 }
 
 
-function getShortChartName(name: string) {
-  var n = name.replace('_INFOBAR_TITLE', '_').replace('_HALFDOUBLE_', '_');
-  const nsplit = n.split('_');
-  const songtype = nsplit[nsplit.length - 1];
-  const songname = n.split('_-_')[0].replace('_', ' ').replace('\_', ' ');
-  
-  var shortname = songname;
-  if (songtype != 'ARCADE') {
-    shortname = shortname + ' ' + songtype.toLowerCase();
-  }
-  return shortname;
-}
-
-
 function makeDifficultyNavigatorWheel() {
   const radius = 3;
   const chart_level = chartLevel();
@@ -94,7 +82,7 @@ function makeDifficultyNavigatorWheel() {
       lower = 4;
     }
 
-    const opacity = 1 - (Math.abs(chart_level - level) / 6);
+    const opacity = 0.8 - (Math.abs(chart_level - level) / 5);
 
     return (
       <Show 
@@ -108,7 +96,7 @@ function makeDifficultyNavigatorWheel() {
           <a 
             href={`/difficulty/${sord}${level}`} 
             class="difficulty-link"
-            style={`color:#ddd;opacity:${opacity}`}
+            style={`color:#ddd;opacity:${opacity};text-decoration: underline`}
           >
             {sord}{level}
           </a>
@@ -166,7 +154,10 @@ function DifficultyTierList(props: { sordlevel: string }) {
     const url = '/chart/' + chart;
     return (
       <span>
-        <a href={url} style={`color:${getColor(predLevel, chartLevel())}`}>
+        <a
+          href={url}
+          style={`color:${getColor(predLevel, chartLevel())};text-decoration: underline`}
+        >
           {shortName}
         </a>
         <span style={`color: #ddd`}>&emsp;</span>
