@@ -447,7 +447,10 @@ function drawKonvaCanvas(
       const paramSection = urlParams.get('section');
       if (paramSection) {
         // Adjust from 1-indexed to 0-indexing
-        const sectionIdx = Number(paramSection) - 1;
+        var sectionIdx = Number(paramSection) - 1;
+        if (sectionIdx >= segments.length) {
+          sectionIdx = segments.length - 1
+        }
         const sectionStartTime = segments[sectionIdx][0];
         scrollContainerRef()!.scrollTo({
           top: sectionStartTime * pxPerSecond(),
@@ -1035,7 +1038,7 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
     const formattedSkills = rareSkills.map((skill) => skill.split('-')[0]);
     if (rareSkills.length > 0) {
       return <div style={`color:#ddd`}>
-        <p style={`color:#ddd`}>⚠️ Rare skills (at chart's level)</p>
+        <p style={`color:#ddd`}>⚠️ Skill warning</p>
         <p>{formattedSkills.join(', ')}</p>
         <br></br>
       </div>
@@ -1045,7 +1048,11 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
 
   function copyToClipboard() {
     // note - not compatible with editor mode
-    const sectionURL = window.location + '/section=' + String(segmentNumberP1);
+    let loc = String(window.location);
+    if (loc.includes('?')) {
+      loc = loc.split('?')[0];
+    }
+    const sectionURL = loc + '?section=' + String(segmentNumberP1);
     navigator.clipboard.writeText(sectionURL);
   }
 

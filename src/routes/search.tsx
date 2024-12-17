@@ -125,7 +125,7 @@ function SearchTable() {
       const searchItems: SearchItemType[] = names.map(name => {
         // modify chart name to show in search
         var modName = manualAnnotated.includes(name) ? `${name} ✅` : name;
-        modName = modName.replace('_ARCADE', '');
+        modName = modName.replace('_ARCADE', '').replace('_INFOBAR_TITLE_', '_');
         modName = modName.replace(/_+/g, ' ');
         return {
           name: modName,
