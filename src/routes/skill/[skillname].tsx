@@ -22,7 +22,7 @@ function SkillList(props: { skillname: string }) {
     const url = '/chart/' + chart;
     return (
       <span>
-        <a href={url} style={`color:#00a0dc`}>
+        <a href={url} style={`color:#00a0dc; text-decoration: underline`}>
           {shortName}
         </a>
         <span style={`color: #ddd`}>&emsp;</span>

@@ -1,17 +1,17 @@
 import { useParams } from "@solidjs/router";
-import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For } from "solid-js";
+import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, createMemo } from "solid-js";
 import type { Signal, Accessor, Resource, Setter, JSXElement, Component } from 'solid-js';
 import { Show } from 'solid-js';
-import "./[id].css"
-import Konva from 'konva';
 import { isServer } from 'solid-js/web';
-import { getImage } from '../../lib/images';
-import { checkEnvironment, fetchData } from '../../lib/data';
-import { getLevel, getSinglesOrDoubles, computeLastTime } from '../../lib/canvas_art';
-import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '../../lib/types';
-import { JSX } from "solid-js/h/jsx-runtime";
 import { useNavigate } from "@solidjs/router";
-import Nav from '../../components/Nav';
+import Konva from 'konva';
+import { getImage } from '~/lib/images';
+import { checkEnvironment, fetchData } from '~/lib/data';
+import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art';
+import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '~/lib/types';
+import { getShortChartNameWithLevel } from '~/lib/util';
+import Nav from '~/components/Nav';
+import "./[id].css"
 
 const panelPxInterval = 40;
 const [pxPerSecond, setPxPerSecond] = createSignal(400);
@@ -25,13 +25,13 @@ interface strToStr {
 interface strToAny {
   [key: string]: any;
 };
+
 const [clickTo, setClickTo] = createSignal<strToStr>({'l': 'r', 'r': 'l'});
-
 const [canvasScrollPositionMirror, setCanvasScrollPositionMirror] = createSignal<number>();
-
 const [scrollContainerRef, setScrollContainerRef] = createSignal<HTMLDivElement>();
-
 const [activeColumn, setActiveColumn] = createSignal('column1');
+const [editorMode, setEditorMode] = createSignal(false);
+
 
 /**
  * Draws Konva HTML canvas of arrow arts and hold arts.
@@ -63,7 +63,7 @@ function drawKonvaCanvas(
 
       // compute canvas height and width
       const numPanels = getSinglesOrDoubles(data);
-      setCanvasWidth(panelPxInterval * numPanels + 50);
+      setCanvasWidth(panelPxInterval * numPanels + 55);
 
       const level = getLevel(data);
       if (level < 11) {
@@ -84,7 +84,7 @@ function drawKonvaCanvas(
       const arrowsColX = 40;
       const arrowsColXRight = arrowsColX + panelPxInterval * numPanels;
       const holdTicksColX = arrowsColXRight + 5;
-      const enpsAnnotColX = holdTicksColX + 12;
+      const enpsAnnotColX = holdTicksColX + 20;
 
       largeContainerRef.style.height = canvas_height + 'px';
       largeContainerRef.style.width = canvasWidth() + 80 + 'px';
@@ -161,7 +161,7 @@ function drawKonvaCanvas(
         const [time, nps_annot] = enps_annots[i];
         const npsAnnotSplit = nps_annot.split('\n');
         const npsAnnotPart1 = nps_annot.split('\n')[0];
-        const npsAnnotPart2 = nps_annot.split('\n')[1] + '\n' + nps_annot.split('\n')[2];
+        const npsAnnotPart2 = nps_annot.split('\n')[1].replace('Quarter notes', 'Quarter\nnotes') + '\n' + nps_annot.split('\n')[2];
         // draw text
         var text = new Konva.default.Text({
           text: `${npsAnnotPart1}`,
@@ -309,6 +309,7 @@ function drawKonvaCanvas(
 
       // interactivity on stage
       stage.on('click', function (e) {
+        if (!editorMode()) { return }
         let data = dataGet()!;
         let arrowarts = data[0];
         let holdarts = data[1];
@@ -511,6 +512,7 @@ function drawKonvaCanvas(
   );
 };
 
+
 function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
   let timelineContainerRef: HTMLDivElement;
 
@@ -529,7 +531,8 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
       const nSeconds = timelineData.length;
 
       const stageWidth = 290;
-      const enpsPlotHeight = 850;
+      // const enpsPlotHeight = 820;
+      const enpsPlotHeight = window.innerHeight - 150;
       const enpsBarMaxWidth = 70;
       const enpsPlotColumnX = 150;
       const difficultyLineColumnX = 100;
@@ -871,6 +874,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
   );
 };
 
+
 function SaveJsonButton(id: string, data: ChartArt): JSXElement {
   // Function to save JSON to file
   const saveJsonToFile = () => {
@@ -934,12 +938,6 @@ function SetClickToLRButton(): JSXElement {
 };
 
 
-interface SegmentTimelineProps {
-  segments: Segment[];
-  segmentData: strToAny[];
-}
-
-
 function getLevelLineThickness(t: number): number {
   if (t < 0.6) {
     return 0.5
@@ -993,7 +991,8 @@ function getLevelText(level: number): string {
 }
 
 
-function segmentContent(segment: Segment, data: strToAny): JSXElement {
+function segmentCollapsibleContent(segment: Segment, data: strToAny): JSXElement {
+  // provides content inside of segment collapsible
   const similarSections = data['Closest sections'];
 
   let baseUrl = checkEnvironment();
@@ -1001,7 +1000,7 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
     let [chartName, sectionIdx] = section;
     const sectionIdx1 = sectionIdx + 1;
     let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
-    const displayName = chartnameToDisplayName(chartName);
+    const displayName = getShortChartNameWithLevel(chartName);
 
     const navigate = useNavigate();
     const handleNavAndReload = (e: MouseEvent) => {
@@ -1020,35 +1019,45 @@ function segmentContent(segment: Segment, data: strToAny): JSXElement {
       }, 50);
     };
 
-    return <li><a href={link} onClick={handleNavAndReload}>{displayName}</a></li>
+    return (
+      <li>
+        <a href={link}
+          onClick={handleNavAndReload}
+          style={`text-decoration: underline`}
+        >{displayName}</a>
+      </li>
+    );
     // return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
   }
 
   function makeRareSkillText(): JSXElement {
-    const rareSkills = data['rare skills'];
+    const rareSkills: string[] = data['rare skills'];
+    const formattedSkills = rareSkills.map((skill) => skill.split('-')[0]);
     if (rareSkills.length > 0) {
-      return <div>
-        <p>Rare skills:</p>
-        {rareSkills}
+      return <div style={`color:#ddd`}>
+        <p style={`color:#ddd`}>⚠️ Rare skills (at chart's level)</p>
+        <p>{formattedSkills.join(', ')}</p>
+        <br></br>
       </div>
     }
     return <></>
   }
 
-  if (similarSections.length > 0) {
-    return  <pre class="whitespace-pre-wrap text-sm">
-    {makeRareSkillText()}
-    <p>Similar chart sections:</p>    
-    <ul>
-      {similarSections.map((section: any) =>
-        makeUrlBullets(section)
-      )}
-    </ul>
-  </pre>
-  } else {
-    return <p></p>
-  }
-  
+  return (
+    <div class="text-md">
+      {makeRareSkillText()}
+      <Show when={similarSections.length > 0}>
+        {/* <pre class="whitespace-pre-wrap text-base"> */}
+        <p style={`color:#ddd`}>Similar chart sections:</p>    
+        <ul>
+          {similarSections.map((section: any) =>
+            makeUrlBullets(section)
+          )}
+        </ul>
+      {/* </pre> */}
+      </Show>
+    </div>
+  );
 }
 
 
@@ -1064,12 +1073,9 @@ function secondsToTimeStr(inputTime: number): string {
 }
 
 
-function chartnameToDisplayName(chartname: string): string {
-  var n = chartname.replace('_INFOBAR_TITLE', '_').replace('_HALFDOUBLE_', '_');
-  const nsplit = n.split('_');
-  const sordlevel = nsplit[nsplit.length - 2];
-  const songname = n.split('_-_')[0].replace('_', ' ');
-  return songname + ' ' + sordlevel;
+interface SegmentTimelineProps {
+  segments: Segment[];
+  segmentData: strToAny[];
 }
 
 
@@ -1092,10 +1098,16 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     const fmtTimeStart = secondsToTimeStr(Math.round(segment[0]));
     const fmtTimeEnd = secondsToTimeStr(Math.round(segment[1]));
     const level = Number(data['level']);
-    const n = (level - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
-    const levelColor = getLevelColor(n);
+    const relativeSegmentLevel = (level - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
+    const levelColor = getLevelColor(relativeSegmentLevel);
     const styleColor = `color:${levelColor};`;
+    
+    // difficulty text
     const levelText = getLevelText(level);
+    var levelTextwCrux = `lv.${levelText}`
+    if (relativeSegmentLevel >= 0.97) {
+      levelTextwCrux = `lv.${levelText}\ncrux`
+    }
 
     const rareSkills = data['rare skills'];
     let rareSkillText = '';
@@ -1127,19 +1139,19 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     })
 
     return (
-      <div class="rounded-lg mb-2 overflow-hidden">
+      <div class="rounded-md mb-1 overflow-hidden">
         {/* Header - Always visible */}
         <div 
-          class="p-2 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors"
+          class={`p-1.5 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors transform transition-colors ${isOpen() ? 'bg-gray-800' : ''}`}
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
-          <span class="font-medium" style="color:#ddd">
+          <span class="font-medium" style="color:#bbb">
             {/* §{sectionNumberP1} */}
-            {sectionNumberP1}.
+            {sectionNumberP1}
           </span>
-          <span class="font-small" style="color:#777"> {fmtTimeStart}-{fmtTimeEnd} </span>
-          <span class="font-medium" style={styleColor}>lv.{levelText} {rareSkillText}</span>
+          <span class="font-small" style="color:#555"> {fmtTimeStart}-{fmtTimeEnd} </span>
+          <span class="font-medium" style={styleColor}>{levelTextwCrux} {rareSkillText}</span>
           </div>
           <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
             ▼
@@ -1150,9 +1162,9 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
         <div 
           class={`overflow-hidden transition-all ${isOpen() ? 'max-h-96' : 'max-h-0'}`}
         >
-          <div class="p-3" style="background-color: #444">
+          <div class="p-2" style="background-color: #3e3e3e">
             {/* Add your SegmentData display here */}
-            {segmentContent(segment, data)};
+            {segmentCollapsibleContent(segment, data)}
           </div>
         </div>
       </div>
@@ -1160,10 +1172,19 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
   };
 
   return (
-    <div class="flex flex-col gap-0 p-4">
-      {props.segments.map((segment, index) =>
-        SegmentCollapsible(segment, props.segmentData[index], index)
-      )}
+    <div>
+      <hr style={`border-color:#666`}></hr>
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
+      > Sections</span>
+      <div
+        // class="flex flex-col gap-0 p-4"
+        class="scrollbar"
+        style = {`height: calc(100vh - 270px); overflow-y: auto`}
+      >
+        {props.segments.map((segment, index) =>
+          SegmentCollapsible(segment, props.segmentData[index], index)
+        )}
+      </div>
     </div>
   );
 };
@@ -1179,18 +1200,24 @@ function chartDescription(metadata: strToAny): JSXElement {
     }
     return `${Math.round(Number(displaybpm))}`
   }
+  const sordChartLevel = metadata['sord_chartlevel'];
+  const pack = String(metadata['pack']).toLowerCase()
+  const songtype = String(metadata['SONGTYPE']).toLowerCase()
+  const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
 
   return (
-    <span class="font-small" style="color:#ddd">
-      <p>Pack: {metadata['pack']}</p>
+    <div class="font-small" style="color:#aaa">
+      <span>{pack}&emsp;</span>
+      <a href={"/difficulty/"+sordChartLevel}
+        style={`text-decoration:underline`}
+        >{sordChartLevel}</a>
+      <span>&emsp;{songtype}&emsp;{songcategory}</span>
       <Show when={'CHARTNAME' in metadata} fallback={<></>}>
-        <p>info: {metadata['CHARTNAME']}</p>
+        <p>{metadata['CHARTNAME']}</p>
       </Show>
-      <p>Song type: {metadata['SONGTYPE']}</p>
-      <p>Song category: {metadata['SONGCATEGORY']}</p>
-      <p>Display BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}</p>
+      <p>BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}</p>
       <p>Step artist: {metadata['CREDIT']}</p>
-    </span>
+    </div>
 );
 };
 
@@ -1202,9 +1229,25 @@ function chartDescription(metadata: strToAny): JSXElement {
 export default function DynamicPage(): JSXElement {
   // Stores current route path; /chart/:id = params.id = [id].tsx
   const params = useParams();
+  const [currentParams, setCurrentParams] = createSignal(params.id);
 
   // Refetches data whenever params.id changes
-  const [data, { mutate, refetch }] = createResource(params.id, fetchData);
+  const [data, { mutate, refetch }] = createResource(currentParams, fetchData);
+
+  // Add an effect to update currentParams when route changes
+  createEffect(() => {
+    // Ensure we're updating the signal to trigger a re-fetch
+    if (params.id !== currentParams()) {
+      setCurrentParams(params.id);
+    }
+  });
+
+  // Use createEffect to update document title
+  createEffect(() => {
+    if (typeof document !== 'undefined' && currentParams()) {
+      document.title = getShortChartNameWithLevel(currentParams());
+    }
+  });
 
   let metadata: strToAny = {};
   let segments: Segment[] = [];
@@ -1221,10 +1264,6 @@ export default function DynamicPage(): JSXElement {
   }
 
   onMount(() => {
-    if (typeof document !== 'undefined') {
-      document.title = params.id;
-    }
-
     // Mobile tab functionality
     document.addEventListener('DOMContentLoaded', () => {
       const tabs = document.querySelectorAll('.mobile-tab');
@@ -1249,6 +1288,52 @@ export default function DynamicPage(): JSXElement {
         });
       });
     });
+
+
+    // handle back/forward buttons: kinda scuffed currently
+    const navigate = useNavigate();
+    // Create a signal to track current path
+    const [currentPath, setCurrentPath] = createSignal(window.location.pathname);
+    // Handle browser navigation events
+    const handlePopState = (event: PopStateEvent) => {
+      const newPath = window.location.pathname;
+      
+      // Only navigate if the path has actually changed
+      if (newPath !== currentPath()) {
+        window.history.pushState(null, '', currentPath());
+        setCurrentPath(newPath);
+        // navigate(newPath, { replace: true });
+
+        // Navigate to the new page
+        navigate(newPath, {
+          resolve: false, 
+          // Optional: you can pass state if needed
+          // state: { someData: "value" }
+        });
+    
+        // Reload the page after a short delay to ensure navigation
+        setTimeout(() => {
+          window.location.reload();
+        }, 50);
+
+      }
+    };
+
+    // Add event listener when component mounts
+    window.addEventListener('popstate', handlePopState);
+
+    // Clean up event listener when component unmounts
+    onCleanup(() => {
+      window.removeEventListener('popstate', handlePopState);
+    });
+
+    // handle editor mode
+    const urlParams = new URLSearchParams(window.location.search);
+    const editFlag = urlParams.get('edit');
+    if (editFlag) {
+      setEditorMode(Boolean(editFlag));
+    };
+
   });
 
   console.log('env: ', checkEnvironment());
@@ -1285,18 +1370,19 @@ export default function DynamicPage(): JSXElement {
             </div> */}
 
             <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                {/* {params.id} */}
-                {params.id.replace(/_/g," ")}
+                {currentParams().replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ") + manuallyAnnotatedFlag}
+                <hr style={`border-color:#666`}></hr>
             </span>
-            <span> {manuallyAnnotatedFlag} </span>
             <span> {data.loading && "Loading..."} </span>
             <span> {data.error && "Error"} </span>
-            <div style={'display: flex'}>
-              {SaveJsonButton(params.id, data()!)}
-              {SetClickToEitherButton()}
-              {SetClickToMissButton()}
-              {SetClickToLRButton()}
-            </div>
+            <Show when={editorMode()} fallback = {<></>}>
+              <div style={'display: flex'}>
+                {SaveJsonButton(currentParams(), data()!)}
+                {SetClickToEitherButton()}
+                {SetClickToMissButton()}
+                {SetClickToLRButton()}
+              </div>
+            </Show>
             {chartDescription(metadata)}
             <div style={'height: 100%; overflow: auto'}>
               <SegmentTimeline 

@@ -123,8 +123,10 @@ function SearchTable() {
       const manualAnnotated = await manualAnnotatedList.json();
 
       const searchItems: SearchItemType[] = names.map(name => {
+        // modify chart name to show in search
         var modName = manualAnnotated.includes(name) ? `${name} ✅` : name;
-        var modName = modName.replace(/_+/g, ' ');
+        modName = modName.replace('_ARCADE', '');
+        modName = modName.replace(/_+/g, ' ');
         return {
           name: modName,
           url: checkEnvironment().concat(`/chart/${name}`)
@@ -145,7 +147,7 @@ function SearchTable() {
   });
 
   return (
-    <div style={'margin-left: 50px; margin-top: 0px'}>
+    <div style={'margin-left: 0px; margin-top: 0px'}>
       <input
         id='searchbar'
         type="text"
