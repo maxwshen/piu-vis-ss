@@ -991,7 +991,7 @@ function getLevelText(level: number): string {
 }
 
 
-function segmentCollapsibleContent(segment: Segment, data: strToAny): JSXElement {
+function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, data: strToAny): JSXElement {
   // provides content inside of segment collapsible
   const similarSections = data['Closest sections'];
 
@@ -1043,8 +1043,18 @@ function segmentCollapsibleContent(segment: Segment, data: strToAny): JSXElement
     return <></>
   }
 
+  function copyToClipboard() {
+    // note - not compatible with editor mode
+    const sectionURL = window.location + '/section=' + String(segmentNumberP1);
+    navigator.clipboard.writeText(sectionURL);
+  }
+
   return (
     <div class="text-md">
+      <p class="hover:gray-900 cursor-pointer"
+        style={`color:#888;text-decoration:underline`}
+        onClick={(e) => copyToClipboard()}
+      >copy link to section</p>
       {makeRareSkillText()}
       <Show when={similarSections.length > 0}>
         {/* <pre class="whitespace-pre-wrap text-base"> */}
@@ -1164,7 +1174,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
         >
           <div class="p-2" style="background-color: #3e3e3e">
             {/* Add your SegmentData display here */}
-            {segmentCollapsibleContent(segment, data)}
+            {segmentCollapsibleContent(sectionNumberP1, segment, data)}
           </div>
         </div>
       </div>
@@ -1209,7 +1219,7 @@ function chartDescription(metadata: strToAny): JSXElement {
     <div class="font-small" style="color:#aaa">
       <span>{pack}&emsp;</span>
       <a href={"/difficulty/"+sordChartLevel}
-        style={`text-decoration:underline`}
+        style={`color:#aaa;text-decoration:underline`}
         >{sordChartLevel}</a>
       <span>&emsp;{songtype}&emsp;{songcategory}</span>
       <Show when={'CHARTNAME' in metadata} fallback={<></>}>
