@@ -11,6 +11,7 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-bottom: 20px;
+  color: #888;
 }
 
 .filter-input {
@@ -27,7 +28,7 @@
   padding: 8px;
   background-color: #3e3e3e;
   border: 1px solid #555;
-  color: #ffffff;
+  color: #333;
   border-radius: 4px;
 }
 

@@ -3,12 +3,46 @@ import { checkEnvironment } from '~/lib/data';
 import Nav from '~/components/Nav';
 import "./search.css"
 import { StrToAny } from "~/lib/types";
-import { getShortChartNameWithLevel, getENPSColor, skillBadge } from "~/lib/util";
+import { getShortChartNameWithLevel, getENPSColor, skillBadge, skillToColor } from "~/lib/util";
 
 // Enhanced interface to allow more flexible data handling
 interface SearchItem {
-  [key: string]: string | number | boolean;
-}
+  [key: string]: string | number | boolean | string[];
+  level: number;
+  NPS: number;
+  'Sustain time': number;
+  sord: 'singles' | 'doubles';
+  skills: string[],
+};
+
+
+// skills to support in filter
+const displaySkills = [
+  'jump',
+  'drill',
+  'run',
+  'anchor_run',
+  'run_without_twists',
+  'twists',
+  'side3_singles',
+  'mid6_doubles',
+  'mid4_doubles',
+  'doublestep',
+  'jack',
+  'footswitch',
+  'bracket',
+  'staggered_bracket',
+  'bracket_run',
+  'bracket_drill',
+  'bracket_jump',
+  'bracket_twist',
+  'split',
+  'hold_footswitch',
+  'hands',
+  'bursty',
+  'sustained',
+];
+
 
 // draw individual cells in table, conditional logic using column
 function displayCell(item: StrToAny, column: string) {
@@ -72,9 +106,31 @@ function SearchTable() {
   const [currentPage, setCurrentPage] = createSignal(1);
   const [itemsPerPage, setItemsPerPage] = createSignal(100);
 
+  // Sorting state
+  const [sortColumn, setSortColumn] = createSignal<keyof SearchItem | null>(null);
+  const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc'>('asc');
+
   // Filters object to track multiple column filters
-  const [filters, setFilters] = createSignal<{[key: string]: string}>({
-    name: '' // Default filter on name column
+  const [filters, setFilters] = createSignal<{
+    name: string;
+    sord: 'singles' | 'doubles' | '';
+    levelMin: number | '';
+    levelMax: number | '';
+    NPSMin: number | '';
+    NPSMax: number | '';
+    skills: string[];
+    sustainMin: number | '';
+    sustainMax: number | '';
+  }>({
+    name: '',
+    sord: '',
+    levelMin: '',
+    levelMax: '',
+    NPSMin: '',
+    NPSMax: '',
+    skills: [],
+    sustainMin: '',
+    sustainMax: '',
   });
 
   // Columns in table, set from first item
@@ -84,6 +140,14 @@ function SearchTable() {
   const displayColumns = [
     'name', 'skills', 'BPM info', 'NPS', 'Sustain time',
   ]
+
+  // Numeric range validation
+  const isInRange = (value: number, min: number | '', max: number | '') => {
+    if (min === '' && max === '') return true;
+    if (min !== '' && value < min) return false;
+    if (max !== '' && value > max) return false;
+    return true;
+  };
 
   onMount(async () => {
     try {
@@ -108,72 +172,245 @@ function SearchTable() {
   // Dynamic filtering logic
   const filteredItems = createMemo(() => {
     return items().filter(item => {
-      // Check all active filters
-      return Object.entries(filters()).every(([column, filterValue]) => {
-        // Skip empty filter values
-        if (!filterValue) return true;
-        
-        // Convert both to lowercase for case-insensitive comparison
-        const itemValue = String(item[column]).toLowerCase();
-        const filterVal = filterValue.toLowerCase();
-        
-        return itemValue.includes(filterVal);
-      });
+      const f = filters();
+      
+      // Name filter (case-insensitive)
+      if (f.name && !String(item.name).toLowerCase().includes(f.name.toLowerCase())) 
+        return false;
+      
+      // Sord filter (exact match)
+      if (f.sord && item.sord !== f.sord) 
+        return false;
+      
+      // Level range filter
+      if (!isInRange(item.level, f.levelMin, f.levelMax)) 
+        return false;
+      
+      // NPS range filter
+      if (!isInRange(item.NPS, f.NPSMin, f.NPSMax)) 
+        return false;
+      
+      // Sustain time filter
+      if (!isInRange(item['Sustain time'], f.sustainMin, f.sustainMax)) 
+        return false;
+
+      // Skills filter - check if all selected skills are in the item's skills
+      if (f.skills.length > 0) {
+        const hasAllSkills = f.skills.every(skill => 
+          item.skills.includes(skill)
+        );
+        if (!hasAllSkills) return false;
+      }
+      
+      return true;
+    });
+  });
+
+  // Sorting logic
+  const sortedFilteredItems = createMemo(() => {
+    const filtered = filteredItems();
+    
+    // If no sort column is selected, return filtered items
+    if (!sortColumn()) return filtered;
+    
+    return [...filtered].sort((a, b) => {
+      const columnToSort = sortColumn() as keyof SearchItem;
+      const aValue = a[columnToSort];
+      const bValue = b[columnToSort];
+      
+      // Handle string and number comparisons
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortDirection() === 'asc' 
+          ? aValue.localeCompare(bValue) 
+          : bValue.localeCompare(aValue);
+      }
+      
+      if (typeof aValue === 'number' && typeof bValue === 'number') {
+        return sortDirection() === 'asc' 
+          ? aValue - bValue 
+          : bValue - aValue;
+      }
+      
+      return 0;
     });
   });
 
   // Dynamic filter input generator
-  const FilterInput = (column: string) => {
+  const FilterInput = () => {
+    const f = filters();
+    
     return (
-      <div class="filter-input">
-        <label for={`filter-${column}`}>{column} filter:</label>
-        <input
-          id={`filter-${column}`}
-          type="text"
-          value={filters()[column] || ''}
-          onInput={(e) => {
-            setCurrentPage(1);
-            setFilters(prev => ({
-              ...prev,
-              [column]: e.currentTarget.value
-            }));
-          }}
-          placeholder={`Filter by ${column}...`}
-        />
+      <div class="filters grid grid-cols-3 gap-4">
+        {/* Text Filters */}
+        <div class="text-filters">
+          <label class="block">Name filter:</label>
+          <input
+            type="text"
+            value={f.name}
+            onInput={(e) => setFilters(prev => ({...prev, name: e.currentTarget.value}))}
+            placeholder="Filter by name..."
+            class="w-full p-1"
+            style={`background-color:#555;color:#fff`}
+          />
+        </div>
+
+        {/* Sord Filter */}
+        <div class="sord-filter">
+          <label class="block">singles/doubles</label>
+          <select
+            value={f.sord}
+            onChange={(e) => setFilters(prev => ({...prev, sord: e.currentTarget.value as 'singles' | 'doubles' | ''}))}
+            class="w-full p-1"
+            style={`background-color:#555;color:#fff`}
+          >
+            <option value="">All</option>
+            <option value="singles">Singles</option>
+            <option value="doubles">Doubles</option>
+          </select>
+        </div>
+
+        {/* Level Range Filters */}
+        <div class="level-filters" style={`max-width:150px`}>
+          <label class="block">Level range:</label>
+          <div class="flex gap-2">
+            <input
+              type="number"
+              value={f.levelMin}
+              onInput={(e) => setFilters(prev => ({...prev, levelMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              class="w-full p-1"
+              style={`background-color:#555;color:#fff`}
+              placeholder="min"
+            />
+            <input
+              type="number"
+              value={f.levelMax}
+              onInput={(e) => setFilters(prev => ({...prev, levelMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              class="w-full p-1"
+              style={`background-color:#555;color:#fff`}
+              placeholder="max"
+            />
+          </div>
+        </div>
+
+        {/* NPS Range Filters */}
+        <div class="nps-filters" style={`max-width:150px`}>
+          <label class="block">Notes per second</label>
+          <div class="flex gap-2">
+            <input
+              type="number"
+              value={f.NPSMin}
+              onInput={(e) => setFilters(prev => ({...prev, NPSMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              class="w-full p-1"
+              style={`background-color:#555;color:#fff`}
+              placeholder="min"
+            />
+            <input
+              type="number"
+              value={f.NPSMax}
+              onInput={(e) => setFilters(prev => ({...prev, NPSMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              class="w-full p-1"
+              style={`background-color:#555;color:#fff`}
+              placeholder="max"
+            />
+          </div>
+        </div>
+
+        {/* Level Range Filters */}
+        <div class="sustain-filters" style={`max-width:150px`}>
+          <label class="block">Sustain time</label>
+          <div class="flex gap-2">
+            <input
+              type="number"
+              value={f.sustainMin}
+              onInput={(e) => setFilters(prev => ({...prev, sustainMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              class="w-full p-1"
+              style={`background-color:#555;color:#fff`}
+              placeholder="min"
+            />
+            <input
+              type="number"
+              value={f.sustainMax}
+              onInput={(e) => setFilters(prev => ({...prev, sustainMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              class="w-full p-1"
+              style={`background-color:#555;color:#fff`}
+              placeholder="max"
+            />
+          </div>
+        </div>
+
+        {/* Skills Multi-Select Filter */}
+        <div class="skill-filter">
+          <label class="block">Skill filter: select one or more</label>
+          <div 
+            class="w-full p-1"
+            style={`display:flex;flex-direction:row;flex-wrap:wrap`}
+          >
+            {displaySkills.map((skill) => (
+              <label class="flex items-center">
+                <input
+                  type="checkbox"
+                  checked={f.skills.includes(skill)}
+                  onChange={(e) => {
+                    setFilters(prev => {
+                      const skills = [...prev.skills];
+                      if (e.currentTarget.checked) {
+                        skills.push(skill);
+                      } else {
+                        const index = skills.indexOf(skill);
+                        if (index > -1) {
+                          skills.splice(index, 1);
+                        }
+                      }
+                      return {...prev, skills};
+                    });
+                  }}
+                  class="mr-1"
+                />
+                <span 
+                  style={`color:${skillToColor[skill]}`}
+                >
+                  {skill.replace(/_/g, ' ')}&emsp;
+                </span>
+              </label>
+            ))}
+          </div>
+        </div>
+
       </div>
     );
   };
 
+
   // Paginated items
   const paginatedItems = createMemo(() => {
-    const filtered = filteredItems();
+    const filtered = sortedFilteredItems();
     const startIndex = (currentPage() - 1) * itemsPerPage();
     return filtered.slice(startIndex, startIndex + itemsPerPage());
   });
 
   // Total pages calculation
   const totalPages = createMemo(() => 
-    Math.ceil(filteredItems().length / itemsPerPage())
+    Math.ceil(sortedFilteredItems().length / itemsPerPage())
   );
+
+  // Sort column handler
+  const handleSort = (column: keyof SearchItem) => {
+    if (sortColumn() === column) {
+      // Toggle sort direction if same column
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new sort column and default to ascending
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+    // Reset to first page when sorting changes
+    setCurrentPage(1);
+  };
 
   // Pagination controls
   const PaginationControls = () => {
     return (
       <div class="pagination-controls">
-        {/* Items per page selector */}
-        <select 
-          value={itemsPerPage()}
-          onChange={(e) => {
-            setItemsPerPage(Number(e.currentTarget.value));
-            // Reset to first page when changing items per page
-            setCurrentPage(1);
-          }}
-        >
-          {[5, 10, 20, 50].map(num => (
-            <option value={num}>{num} per page</option>
-          ))}
-        </select>
-
         {/* Page navigation */}
         <div class="page-navigation">
           <button 
@@ -184,7 +421,7 @@ function SearchTable() {
           </button>
           
           <span>
-            Page {currentPage()} of {totalPages()}
+            &ensp;Page {currentPage()} of {totalPages()} ({sortedFilteredItems().length} stepcharts)&ensp;
           </span>
           
           <button 
@@ -201,26 +438,45 @@ function SearchTable() {
   return (
     <div class="search-container">
       {/* Dynamic filter inputs */}
-      <div class="filters">
-        <For each={columns()}>
-          {(column) => FilterInput(column)}
-        </For>
-      </div>
+      <FilterInput />
 
       {/* Pagination controls */}
+      <div></div>
       <PaginationControls />
+
+      <span style={`color:#888`}>* click to sort</span>
 
       {/* Loading and empty states */}
       {isLoading() ? (
         <div>Loading...</div>
-      ) : items().length === 0 ? (
+      ) : sortedFilteredItems().length === 0 ? (
         <div>No items found</div>
       ) : (
         <table class="search-results">
           <thead>
             <tr>
               <For each={displayColumns}>
-                {(column) => <th>{column}</th>}
+                {(column) => (
+                  <th 
+                    class="p-2 cursor-pointer hover:bg-gray-500"
+                    onClick={() => {
+                      // Only enable sorting for numeric columns and name
+                      if (['level', 'NPS', 'Sustain time'].includes(column)) {
+                        handleSort(column as keyof SearchItem);
+                      }
+                    }}
+                  >
+                    {/* {column} */}
+                    {
+                      (['level', 'NPS', 'Sustain time'].includes(column)) ? column + ' *': column 
+                    }
+                    {sortColumn() === column && (
+                      <span class="ml-2">
+                        {sortDirection() === 'asc' ? '▲' : '▼'}
+                      </span>
+                    )}
+                  </th>
+                )}
               </For>
             </tr>
           </thead>

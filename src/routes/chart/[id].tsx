@@ -1183,7 +1183,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
       <div
         // class="flex flex-col gap-0 p-4"
         class="scrollbar"
-        style = {`height: calc(100vh - 270px); overflow-y: auto`}
+        style = {`height: calc(100vh - 550px); overflow-y: auto`}
       >
         {props.segments.map((segment, index) =>
           SegmentCollapsible(segment, props.segmentData[index], index)

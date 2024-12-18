@@ -44,7 +44,7 @@ export function getENPSColor(enps: number): string {
 }
 
 
-const skillToColor: StrToAny = {
+export const skillToColor: StrToAny = {
   'jump': '#efb92080',
   'drill': '#ec433980',
   'run': '#ec433980',
