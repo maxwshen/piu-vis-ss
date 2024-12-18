@@ -77,9 +77,13 @@ const defaultColor = '#ed479580';
 
 export function skillBadge(skill: string) {
   const color = skillToColor[skill] || defaultColor;
+  let link = `/skill/${skill}`
+  if (skill == 'twists') {
+    link = `/skill/`
+  }
   return (
     <span>
-      <a href={`/skill/${skill}`}
+      <a href={link}
         style={`color:#eee;text-decoration:underline;background:${color};border-radius:8px;padding:2px;margin-left:3px;margin-right:3px`}
       >
         {skill.replace(/_/g, ' ')}

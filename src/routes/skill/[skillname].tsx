@@ -5,7 +5,7 @@ import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/da
 // import "./[skillname].css"
 import { Show } from 'solid-js';
 import Nav from '~/components/Nav';
-import { getShortChartName } from '~/lib/util';
+import { getShortChartName, skillBadge } from '~/lib/util';
 
 
 function SkillList(props: { skillname: string }) {
@@ -69,7 +69,7 @@ function SkillList(props: { skillname: string }) {
     <div class="container">
       <div>
         <span class='font-medium' style={"color: #ddd;font-size:24px"}>
-          Skill: {props.skillname.replace('_', ' ')}
+          Skill: {skillBadge(props.skillname)}
         </span>
       </div>
       <div style="margin-top: 20px">
@@ -94,7 +94,7 @@ export default function Page(): JSXElement {
   createEffect(() => {
     // This will run whenever the params change
     if (typeof document !== 'undefined') {
-      document.title = params.skillname;
+      document.title = params.skillname.replace(/_/g, ' ');
     }
   });
 

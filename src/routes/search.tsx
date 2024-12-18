@@ -133,9 +133,6 @@ function SearchTable() {
     sustainMax: '',
   });
 
-  // Columns in table, set from first item
-  const [columns, setColumns] = createSignal<string[]>([]);
-
   // display columns
   const displayColumns = [
     'name', 'skills', 'BPM info', 'NPS', 'Sustain time',
@@ -155,14 +152,14 @@ function SearchTable() {
       const searchData: SearchItem[] = await searchDict.json();
 
       // Set items and extract columns dynamically
-      setItems(searchData);
-      
-      // Extract columns from the first item if data exists
-      if (searchData.length > 0) {
-        setColumns(Object.keys(searchData[0]));
-      }
-      
+      setItems(searchData);      
       setIsLoading(false);
+
+      const queryString = window.location.search;
+      if (queryString) {
+        decodeFilters(queryString);
+      }
+
     } catch (error) {
       console.error("Error fetching search items:", error);
       setIsLoading(false);
@@ -237,7 +234,7 @@ function SearchTable() {
 
   // Dynamic filter input generator
   const FilterInput = () => {
-    const f = filters();
+    // const f = filters();
     
     return (
       <div class="filters grid grid-cols-3 gap-4">
@@ -246,7 +243,7 @@ function SearchTable() {
           <label class="block">Name filter:</label>
           <input
             type="text"
-            value={f.name}
+            value={filters().name}
             onInput={(e) => setFilters(prev => ({...prev, name: e.currentTarget.value}))}
             placeholder="Filter by name..."
             class="w-full p-1"
@@ -258,7 +255,7 @@ function SearchTable() {
         <div class="sord-filter">
           <label class="block">singles/doubles</label>
           <select
-            value={f.sord}
+            value={filters().sord}
             onChange={(e) => setFilters(prev => ({...prev, sord: e.currentTarget.value as 'singles' | 'doubles' | ''}))}
             class="w-full p-1"
             style={`background-color:#555;color:#fff`}
@@ -275,7 +272,7 @@ function SearchTable() {
           <div class="flex gap-2">
             <input
               type="number"
-              value={f.levelMin}
+              value={filters().levelMin}
               onInput={(e) => setFilters(prev => ({...prev, levelMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
@@ -283,7 +280,7 @@ function SearchTable() {
             />
             <input
               type="number"
-              value={f.levelMax}
+              value={filters().levelMax}
               onInput={(e) => setFilters(prev => ({...prev, levelMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
@@ -298,7 +295,7 @@ function SearchTable() {
           <div class="flex gap-2">
             <input
               type="number"
-              value={f.NPSMin}
+              value={filters().NPSMin}
               onInput={(e) => setFilters(prev => ({...prev, NPSMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
@@ -306,7 +303,7 @@ function SearchTable() {
             />
             <input
               type="number"
-              value={f.NPSMax}
+              value={filters().NPSMax}
               onInput={(e) => setFilters(prev => ({...prev, NPSMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
@@ -321,7 +318,7 @@ function SearchTable() {
           <div class="flex gap-2">
             <input
               type="number"
-              value={f.sustainMin}
+              value={filters().sustainMin}
               onInput={(e) => setFilters(prev => ({...prev, sustainMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
@@ -329,7 +326,7 @@ function SearchTable() {
             />
             <input
               type="number"
-              value={f.sustainMax}
+              value={filters().sustainMax}
               onInput={(e) => setFilters(prev => ({...prev, sustainMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
@@ -349,7 +346,7 @@ function SearchTable() {
               <label class="flex items-center">
                 <input
                   type="checkbox"
-                  checked={f.skills.includes(skill)}
+                  checked={filters().skills.includes(skill)}
                   onChange={(e) => {
                     setFilters(prev => {
                       const skills = [...prev.skills];
@@ -379,7 +376,6 @@ function SearchTable() {
       </div>
     );
   };
-
 
   // Paginated items
   const paginatedItems = createMemo(() => {
@@ -412,7 +408,7 @@ function SearchTable() {
     return (
       <div class="pagination-controls">
         {/* Page navigation */}
-        <div class="page-navigation">
+        <div class="page-navigation" style={`color:#ddd;text-align:center`}>
           <button 
             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage() === 1}
@@ -435,6 +431,56 @@ function SearchTable() {
     );
   };
 
+  // URL handling
+  const encodeFilters = (currentFilters: StrToAny) => {
+    const params = new URLSearchParams();
+    Object.entries(currentFilters).forEach(([key, value]) => {
+      if (value !== '' && (!Array.isArray(value) || value.length > 0)) {
+        if (Array.isArray(value)) {
+          // Handle arrays (skills)
+          params.set(key, value.join(','));
+        } else {
+          params.set(key, String(value));
+        }
+      }
+    });
+    return params.toString();
+  };
+
+  const decodeFilters = (queryString: string) => {
+    const params = new URLSearchParams(queryString);
+
+    params.forEach((value, key) => {
+      if (key === 'skills') {
+        setFilters(prev => ({...prev, [key]: value.split(',')}))
+      } else if (['levelMin', 'levelMax', 'NPSMin', 'NPSMax'].includes(key)) {
+        setFilters(prev => ({...prev, [key]: value === '' ? '' : Number(value)}))
+      } else {
+        setFilters(prev => ({...prev, [key]: value}))
+      }
+    });
+    return;
+  };
+
+  // Copy URL button component
+  const CopyUrlButton = () => {
+    const handleCopy = () => {
+      const queryString = encodeFilters(filters());
+      const url = `${window.location.origin}${window.location.pathname}?${queryString}`;
+      navigator.clipboard.writeText(url);
+      // Optional: Add some visual feedback that URL was copied
+    };
+
+    return (
+      <button
+        onClick={handleCopy}
+        style={`color:#ddd;text-decoration:underline`}
+      >
+        Copy URL to filtered results
+      </button>
+    );
+  };
+
   return (
     <div class="search-container">
       {/* Dynamic filter inputs */}
@@ -444,7 +490,8 @@ function SearchTable() {
       <div></div>
       <PaginationControls />
 
-      <span style={`color:#888`}>* click to sort</span>
+      <CopyUrlButton />
+      <span style={`color:#888;float:right`}>* click to sort</span>
 
       {/* Loading and empty states */}
       {isLoading() ? (
