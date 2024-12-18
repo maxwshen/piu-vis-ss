@@ -4,6 +4,7 @@ import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/da
 // import "./[skillname].css"
 import { Show } from 'solid-js';
 import Nav from '../../components/Nav';
+import { skillBadge } from "~/lib/util";
 
 
 function SkillLinks(props: { }) {
@@ -35,7 +36,9 @@ function SkillLinks(props: { }) {
       const skillChartDict: SkillDict = data;
       return (
         <ul style={`text-indent: -${indentSize}px; margin-left: ${indentSize}px`}>
-          { Object.keys(skillChartDict).map((key) => ( makeSkillURL(key) )) }
+          { Object.keys(skillChartDict).map((key) => ( 
+            <p style={`margin-bottom:5px`}>{skillBadge(key)}</p> 
+          )) }
         </ul>
       );
     }

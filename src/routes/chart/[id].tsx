@@ -9,7 +9,7 @@ import { getImage } from '~/lib/images';
 import { checkEnvironment, fetchData } from '~/lib/data';
 import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art';
 import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '~/lib/types';
-import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
+import { getShortChartName, getShortChartNameWithLevel, getENPSColor, skillBadge } from '~/lib/util';
 import Nav from '~/components/Nav';
 import "./[id].css"
 
@@ -764,7 +764,7 @@ function drawENPSTimeline(dataGet: Resource<ChartArt | null>) {
 
         // difficulty text
         var levelTextwCrux = `lv.${levelText}`
-        if (relativeSegmentLevel >= 0.97) {
+        if (relativeSegmentLevel >= 0.97 && segmentLevel >= 7) {
           levelTextwCrux = `lv.${levelText}\ncrux`
         }
         const y = timeToDrawingY(segmentStartTime);
@@ -968,19 +968,6 @@ function getLevelColor(t: number): string {
   return '#e2247f'
 }
 
-function getENPSColor(enps: number): string {
-  if (enps < 1.5) {
-    return '#7cb82f'
-  } else if (enps < 4) {
-    return '#efb920'
-  } else if (enps < 8) {
-    return '#f47b16'
-  } else if (enps < 13) {
-    return '#ec4339'
-  }
-  return '#ed4795'
-}
-
 
 function getLevelText(level: number): string {
   const r = Math.round(level);
@@ -1122,7 +1109,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
     // difficulty text
     const levelText = getLevelText(level);
     var levelTextwCrux = `lv.${levelText}`
-    if (relativeSegmentLevel >= 0.97) {
+    if (relativeSegmentLevel >= 0.97 && level >= 7) {
       levelTextwCrux = `lv.${levelText}\ncrux`
     }
 
@@ -1225,19 +1212,6 @@ function chartDescription(metadata: strToAny): JSXElement {
   const songtype = String(metadata['SONGTYPE']).toLowerCase()
   const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
 
-  function makeSkillSummary(skill: string) {
-    return (
-      <span>
-        <a href={`/skill/${skill}`}
-          style={`color:#aaa;text-decoration:underline`}
-        >
-          {skill.replace(/_/g, ' ')}
-        </a>
-        &emsp;
-      </span>
-    );
-  }
-
   function makeSimilarChartsList(level: any, chartList: any) {
     return (
       <p>{level}: 
@@ -1289,7 +1263,7 @@ function chartDescription(metadata: strToAny): JSXElement {
       >
         <div style={`justify-content:center;text-align:center`}>
           <For each={metadata['chart_skill_summary']}>
-            {(skill: string) => makeSkillSummary(skill)}
+            {(skill: string) => skillBadge(skill)}
           </For>
         </div>
       </Show>

@@ -1,0 +1,36 @@
+/* Links */
+a {
+  color: #00a0dc; /* Blue color */
+  text-decoration: underline;
+}
+
+/* Hover state */
+a:hover {
+  color: #0c47a1; /* Darker blue on hover */
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Active state */
+a:active {
+  color: #0a3785; /* Even darker blue when active (clicked) */
+}
+
+/* Visited state */
+a:visited {
+  color: #8c68cb; /* Purple color for visited links */
+}
+
+.searchItemResult {
+  list-style-type: circle; /* Default bullet point */
+  padding-left: 20px; /* Space between bullets and text */  
+}
+
+/* Lists */
+/* ul { */
+  /* list-style-type: disc; */
+  /* padding-left: 20px; */
+/* } */
+
+body {
+  background-color: #2e2e2e
+}

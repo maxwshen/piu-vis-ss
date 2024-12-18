@@ -1,36 +1,71 @@
-/* Links */
-a {
-  color: #00a0dc; /* Blue color */
+/* Search Table Styles */
+.search-container {
+  width: 100%;
+  padding: 20px;
+  background-color: #2e2e2e;
+  color: #ffffff;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filter-input {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-input label {
+  margin-bottom: 5px;
+  color: #cccccc;
+}
+
+.filter-input input {
+  padding: 8px;
+  background-color: #3e3e3e;
+  border: 1px solid #555;
+  color: #ffffff;
+  border-radius: 4px;
+}
+
+.search-results {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.search-results thead {
+  background-color: #3e3e3e;
+}
+
+.search-results th, 
+.search-results td {
+  /* border: 1px solid #555; */
+  /* padding: 0px; */
+  text-align: left;
+  max-width: 200px;
+}
+
+.search-results tbody tr:nth-child(even) {
+  background-color: #383838;
+}
+
+.search-results a {
+  color: #4da6ff;
+  text-decoration: none;
+}
+
+.search-results a:hover {
   text-decoration: underline;
 }
 
-/* Hover state */
-a:hover {
-  color: #0c47a1; /* Darker blue on hover */
-  text-decoration: underline; /* Underline on hover */
-}
-
-/* Active state */
-a:active {
-  color: #0a3785; /* Even darker blue when active (clicked) */
-}
-
-/* Visited state */
-a:visited {
-  color: #8c68cb; /* Purple color for visited links */
-}
-
-.searchItemResult {
-  list-style-type: circle; /* Default bullet point */
-  padding-left: 20px; /* Space between bullets and text */  
-}
-
-/* Lists */
-/* ul { */
-  /* list-style-type: disc; */
-  /* padding-left: 20px; */
-/* } */
-
-body {
-  background-color: #2e2e2e
+.error-message {
+  color: #ff4444;
+  background-color: #3e2e2e;
+  padding: 15px;
+  border: 1px solid #ff4444;
+  border-radius: 4px;
+  margin-bottom: 20px;
 }
