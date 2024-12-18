@@ -9,7 +9,7 @@ import { getImage } from '~/lib/images';
 import { checkEnvironment, fetchData } from '~/lib/data';
 import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art';
 import { ArrowArt, HoldArt, HoldTick, ChartArt, Segment } from '~/lib/types';
-import { getShortChartNameWithLevel } from '~/lib/util';
+import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
 import Nav from '~/components/Nav';
 import "./[id].css"
 
@@ -1159,7 +1159,7 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
       <div class="rounded-md mb-1 overflow-hidden">
         {/* Header - Always visible */}
         <div 
-          class={`p-1.5 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors transform transition-colors ${isOpen() ? 'bg-gray-800' : ''}`}
+          class={`p-1.5 bg-gray-900 hover:bg-gray-800 cursor-pointer flex justify-between items-center transition-colors transform transition-colors ${isOpen() ? 'bg-gray-700' : ''}`}
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
@@ -1207,6 +1207,9 @@ const SegmentTimeline: Component<SegmentTimelineProps> = (props) => {
 };
 
 function chartDescription(metadata: strToAny): JSXElement {
+  if (metadata === undefined) {
+    return null;
+  }
   function parseDisplayBPM(displaybpm: string | undefined): string {
     if (displaybpm === undefined) {
       return 'missing';
@@ -1222,6 +1225,36 @@ function chartDescription(metadata: strToAny): JSXElement {
   const songtype = String(metadata['SONGTYPE']).toLowerCase()
   const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
 
+  function makeSkillSummary(skill: string) {
+    return (
+      <span>
+        <a href={`/skill/${skill}`}
+          style={`color:#aaa;text-decoration:underline`}
+        >
+          {skill.replace(/_/g, ' ')}
+        </a>
+        &emsp;
+      </span>
+    );
+  }
+
+  function makeSimilarChartsList(level: any, chartList: any) {
+    return (
+      <p>{level}: 
+        <For each={chartList}>
+            {(chart: string) => (
+              <span>
+                <a href={`/chart/${chart}`} 
+                  style={`color:#aaa;text-decoration:underline`}
+                >{getShortChartName(chart)}</a>
+                &ensp;
+              </span>
+            )}
+          </For>
+      </p>
+    );
+  }
+
   return (
     <div class="font-small" style="color:#aaa">
       <span>{pack}&emsp;</span>
@@ -1232,8 +1265,53 @@ function chartDescription(metadata: strToAny): JSXElement {
       <Show when={'CHARTNAME' in metadata} fallback={<></>}>
         <p>{metadata['CHARTNAME']}</p>
       </Show>
-      <p>BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}</p>
-      <p>Step artist: {metadata['CREDIT']}</p>
+      <p>BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}&emsp;
+      Step artist: {metadata['CREDIT']}
+      </p>
+
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
+      >
+        <Show when={metadata['notetype_bpm_summary']}>
+          <span>
+            {metadata['notetype_bpm_summary']}
+            <br></br>
+            {metadata['nps_summary']} notes per second
+          </span>
+        </Show>
+      </span>
+
+      <hr style={`border-color:#666`}></hr>
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
+      > Skills</span>
+      <Show 
+        when={metadata['chart_skill_summary'] && metadata['chart_skill_summary'].length > 0}
+        fallback={<></>}
+      >
+        <div style={`justify-content:center;text-align:center`}>
+          <For each={metadata['chart_skill_summary']}>
+            {(skill: string) => makeSkillSummary(skill)}
+          </For>
+        </div>
+      </Show>
+
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
+      > Similar charts</span>
+      <Show 
+        when={metadata['Similar charts'] && Object.keys(metadata['Similar charts']).length > 0}
+        fallback={<></>}
+      >
+        <div>
+          {/* <For each={Object.entries(metadata['Similar charts'])}>
+            {([level: any, chartList: any]) => (makeSimilarChartsList(level, chartList))}
+          </For> */}
+          <For each={Object.entries(metadata['Similar charts'])}>
+            {([key, valueList]) => (
+              makeSimilarChartsList(key, valueList)
+            )}
+          </For>
+        </div>
+      </Show>
+
     </div>
 );
 };
