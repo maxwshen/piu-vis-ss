@@ -9,7 +9,7 @@ import { useChartContext } from "~/components/Chart/ChartContext";
 
 const [showOverflow, setShowOverflow] = createSignal(true);
 const [minHealth, setMinHealth] = createSignal(500);
-const [chartLevel, setChartLevel] = createSignal(13);
+const [freezeLifePct, setFreezeLifePct] = createSignal<number | string>('');
 
 
 function getLevelLineThickness(t: number): number {
@@ -43,7 +43,7 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
   const allUniqueTimes = [...new Set([...uniqueSortedArrowTimes, ...holdTickEndTimes])].sort((a, b) => a - b);
 
   const chartLevel = Number(metadata['METER']);
-  const lifeMax = 1000 + 3 * chartLevel * chartLevel;
+  var lifeMax = 1000 + 3 * chartLevel * chartLevel;
 
   let healFactor = 100;
   const healFactorMax = 800;
@@ -72,6 +72,13 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
       for (let ct = 0; ct < counts; ct++) {
         currLife = Math.min(currLife + 12 * healFactor / 1000, lifeMax);
         healFactor = Math.min(healFactor + 20, healFactorMax);
+      }
+    }
+
+    // handle freeze life before first miss
+    if (freezeLifePct() != '') {
+      if (t < Math.min(...missTimes) ) {
+        currLife = Math.min(10 * Number(freezeLifePct()), lifeMax);
       }
     }
 
@@ -122,7 +129,7 @@ export default function LifebarPlot(props: Props) {
       const timelineData: number[] = metadata['eNPS timeline data'];
       const nSeconds = timelineData.length;
       const chartLevel = Number(metadata['METER']);
-      const lifeMax = 1000 + 3 * chartLevel * chartLevel;
+      var lifeMax = 1000 + 3 * chartLevel * chartLevel;
 
       // plot using data structure
       const headerHeight = 40;
@@ -151,14 +158,23 @@ export default function LifebarPlot(props: Props) {
       const layer1 = new Konva.default.Layer();
       // layerPlot holds the actual plot, to be re-rendered when missTimes changes
       const layerPlot = new Konva.default.Layer();
-
-      const [perfectPlayTimes, perfectPlayHealths] = calcHealths(data, []);
-
+      
       // plot lifebar, reactive to missTimes updating
       createEffect(() => {
         let misses = missTimes();
         let [times, healths] = calcHealths(data, misses);
         setMinHealth(Math.min(...healths));
+
+        let perfectPlayHealths: number[] = [];
+        if (freezeLifePct() != '') {
+          let [perfectPlayTimes, pph] = calcHealths(
+            data, [Math.min(...misses)]
+          );
+          perfectPlayHealths = pph;
+        } else {
+          let [perfectPlayTimes, pph] = calcHealths(data, []);
+          perfectPlayHealths = pph;
+        }
 
         layerPlot.destroyChildren();
 
@@ -166,7 +182,7 @@ export default function LifebarPlot(props: Props) {
           if (!showOverflow()) {
             return Math.min(1, health / 1000) * plotWidth;
           } else {
-            return (health / lifeMax) * plotWidth;
+            return Math.min(1, health / lifeMax) * plotWidth;
           }
         }
 
@@ -194,7 +210,7 @@ export default function LifebarPlot(props: Props) {
           layerPlot.add(tick);
 
           const tickText = new Konva.default.Text({
-            text: `${Math.round(health)}`,
+            text: `${Math.round(health / 10)}%`,
             x: x - 5,
             y: headerHeight - 18,
             fontSize: 14,
@@ -469,12 +485,24 @@ export default function LifebarPlot(props: Props) {
         <span style={`color:#ddd`}>Life bar calculator</span>
       </div>
       <div style={`color:#888`}>
+
         <input type="checkbox" checked={!showOverflow()}
           onChange={(e) => setShowOverflow(!e.target.checked)}
           class="mr-1"
         />
         <span> Hide life overflow</span>
-        <p>Min. life: {Math.round(minHealth())}</p>
+
+        <p>Lowest life: {Math.round(minHealth() / 10)}%</p>
+
+        <span> Freeze life % until first miss: </span>
+        <input type="number" 
+          value={freezeLifePct()}
+          onBlur={(e) => setFreezeLifePct(e.currentTarget.value === '' ? '' : (Number(e.currentTarget.value)))}
+          placeholder="none"
+          style={`width:70px;background-color:#555;color:#fff`}
+          class="mr-1"
+        />
+
       </div>
       <div
         ref={plotContainerRef!}
