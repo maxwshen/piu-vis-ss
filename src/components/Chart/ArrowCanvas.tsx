@@ -331,20 +331,20 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
           ) {
             // detect if click-to-miss
             if (clickTo()['l'] == 'h') {
-              
-              setMissTimes([...missTimes(), time]);
-              // return;
+              let misses = missTimes(); 
+              if (!misses.includes(time)) {
+                setMissTimes([...misses, time]);
+              } else {
+                // remove 
+                // todo - incorrect with multiple arrows on same line
+                setMissTimes(misses.filter(item => item !== time));
+              }
+              return;
             }
             // if (Object.keys(clickTo()).includes('click')) {
               // setMissTimes(prev => [...prev, time]);
               // return;
             // }
-
-            // edit foot annotation
-            let editedArrowArts = arrowarts.slice(0, i).concat(
-              [[panelPos, time, clickTo()[limbAnnot]]],
-            ).concat(arrowarts.slice(i + 1, arrowarts.length));
-            mutate([editedArrowArts, holdarts, metadata]);
 
             // remove prev arrow
             const node = layer1?.findOne(`#${id}`);
@@ -353,6 +353,12 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
             // draw new arrow
             let newLimb = clickTo()[limbAnnot];
             drawArrowArt(arrowart, newLimb, i); 
+
+            // edit foot annotation
+            let editedArrowArts = arrowarts.slice(0, i).concat(
+              [[panelPos, time, clickTo()[limbAnnot]]],
+            ).concat(arrowarts.slice(i + 1, arrowarts.length));
+            mutate([editedArrowArts, holdarts, metadata]);
             return;
           }
         };

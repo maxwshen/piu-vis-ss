@@ -179,12 +179,14 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
           onClick={() => (setIsOpen(!isOpen()), scrollToTime(segment[0]))}
         >
           <div class="flex-1">
-          <span class="font-medium" style="color:#bbb">
+          <span class="font-medium" style={`${isOpen() ? 'color:#bbb' : 'color:#333'}`}>
             {/* §{sectionNumberP1} */}
             {sectionNumberP1}
           </span>
           <span class="font-small" style="color:#555"> {fmtTimeStart}-{fmtTimeEnd} </span>
-          <span class="font-medium" style={styleColor}>{levelTextwCrux} {rareSkillText}</span>
+          <span class="font-medium" style={`${styleColor};${isOpen() ? 'opacity:100%' : 'opacity:40%'}`}>
+            {levelTextwCrux} {rareSkillText}
+          </span>
           </div>
           <span class={`transform transition-transform ${isOpen() ? 'rotate-180' : ''}`}>
             ▼

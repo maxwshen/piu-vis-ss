@@ -258,7 +258,7 @@ export default function DynamicPage(): JSXElement {
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
                 {/* <p>eNPS timeline data</p> */}
               </span>
-              <div style={'height: 100%; margin-top: 10px; overflow: auto'}>
+              <div style={'height: 100%; overflow: auto'}>
                 {/* <ENPSTimeline dataGet={data} /> */}
                 <LifebarPlot dataGet={data}/>
               </div>

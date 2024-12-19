@@ -1,10 +1,15 @@
-import { onMount, createEffect, onCleanup } from "solid-js";
+import { onMount, createSignal, createEffect, onCleanup } from "solid-js";
 import type { Resource } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import { ChartArt, Segment, HoldTick, StrToAny } from '~/lib/types';
 import { getLevelColor, getLevelText } from "./util";
 import { getENPSColor, secondsToTimeStr } from '~/lib/util';
 import { useChartContext } from "~/components/Chart/ChartContext";
+
+
+const [showOverflow, setShowOverflow] = createSignal(true);
+const [minHealth, setMinHealth] = createSignal(500);
+const [chartLevel, setChartLevel] = createSignal(13);
 
 
 function getLevelLineThickness(t: number): number {
@@ -27,11 +32,15 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
   const metadata = data[2];
 
   let arrowTimes = arrowArts.map((aa) => aa[1]);
-  const uniqueArrowTimes = new Set(arrowTimes);
-
+  let uniqueArrowTimes = new Set(arrowTimes);
   const uniqueSortedArrowTimes = [...uniqueArrowTimes].sort((a, b) => a - b);
-  // todo - use holdticks
+
   let holdticks: Array<HoldTick> = metadata['Hold ticks'];
+  let holdTickStartTimes = holdticks.map((ht) => ht[0]);
+  let holdTickEndTimes = holdticks.map((ht) => ht[1]);
+  let holdTickCounts = holdticks.map((ht) => ht[2]);
+
+  const allUniqueTimes = [...new Set([...uniqueSortedArrowTimes, ...holdTickEndTimes])].sort((a, b) => a - b);
 
   const chartLevel = Number(metadata['METER']);
   const lifeMax = 1000 + 3 * chartLevel * chartLevel;
@@ -43,8 +52,8 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
   let times: number[] = [0];
   let currLife = 500;
   let healths: number[] = [currLife];
-  for (let i = 0; i < uniqueSortedArrowTimes.length; i++) {
-    const t = uniqueSortedArrowTimes[i];
+  for (let i = 0; i < allUniqueTimes.length; i++) {
+    const t = allUniqueTimes[i];
 
     if (missTimes.includes(t)) {
       // handle miss
@@ -55,6 +64,15 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
       // handle perfect
       currLife = Math.min(currLife + 12 * healFactor / 1000, lifeMax);
       healFactor = Math.min(healFactor + 20, healFactorMax);
+    }
+
+    // holds: increase life at end of hold
+    if (holdTickEndTimes.includes(t)) {
+      let counts = holdTickCounts[i];
+      for (let ct = 0; ct < counts; ct++) {
+        currLife = Math.min(currLife + 12 * healFactor / 1000, lifeMax);
+        healFactor = Math.min(healFactor + 20, healFactorMax);
+      }
     }
 
     times = [...times, t];
@@ -109,7 +127,8 @@ export default function LifebarPlot(props: Props) {
       // plot using data structure
       const headerHeight = 40;
       const stageWidth = 290;
-      const plotHeight = window.innerHeight - 150;
+      const plotHeight = window.innerHeight - 220;
+      // console.log(plotContainerRef.clientHeight);
       const plotLeftX = 120;
       const plotWidth = 140;
       const stageHeight = headerHeight + plotHeight + 10;
@@ -121,10 +140,6 @@ export default function LifebarPlot(props: Props) {
 
       function timeToDrawingY(time: number): number {
         return headerHeight + time * plotPxPerSecond;
-      }
-
-      function healthToDrawWidth(health: number): number {
-        return (health / lifeMax) * plotWidth;
       }
 
       // create stage and layers
@@ -139,14 +154,55 @@ export default function LifebarPlot(props: Props) {
 
       const [perfectPlayTimes, perfectPlayHealths] = calcHealths(data, []);
 
-      // 
+      // plot lifebar, reactive to missTimes updating
       createEffect(() => {
         let misses = missTimes();
-        // let misses = [16.9231, 18.4615];
         let [times, healths] = calcHealths(data, misses);
-        // console.log(times);
+        setMinHealth(Math.min(...healths));
 
         layerPlot.destroyChildren();
+
+        function healthToDrawWidth(health: number): number {
+          if (!showOverflow()) {
+            return Math.min(1, health / 1000) * plotWidth;
+          } else {
+            return (health / lifeMax) * plotWidth;
+          }
+        }
+
+        // draw x-axis
+        var xAxisLine = new Konva.default.Line({
+          points: [plotLeftX, headerHeight, plotLeftX + plotWidth, headerHeight],
+          stroke: '#888',
+          strokeWidth: 1,
+        })
+        layerPlot.add(xAxisLine);
+
+        // draw x-axis ticks
+        let lifeThresholds = [500, 1000, lifeMax];
+        if (!showOverflow()) {
+          lifeThresholds = [100, 500, 1000];
+        }
+        for (let i: number = 0; i < lifeThresholds.length; i++) {
+          const health = lifeThresholds[i];
+          const x = plotLeftX + healthToDrawWidth(health);
+          var tick = new Konva.default.Line({
+            points: [x, headerHeight - 3, x, headerHeight + 3],
+            stroke: '#888',
+            strokeWidth: 1,
+          })
+          layerPlot.add(tick);
+
+          const tickText = new Konva.default.Text({
+            text: `${Math.round(health)}`,
+            x: x - 5,
+            y: headerHeight - 18,
+            fontSize: 14,
+            fill: '#bbb',
+            align: 'right',
+          });
+          layerPlot.add(tickText);
+        }
 
         // plot life
         for (let i = 0; i < times.length; i++) {
@@ -155,44 +211,55 @@ export default function LifebarPlot(props: Props) {
           const perfectHealth = perfectPlayHealths[i];
 
           // draw rectangle to next health update time
-          let nextTime = 0
+          let nextTime = 0;
+          let nextHealth = 0;
           if (i < times.length - 1) {
             nextTime = times[i + 1];
+            nextHealth = healths[i + 1];
           } else {
             nextTime = nSeconds;
+            nextHealth = health;
           }
 
-
-          // var rect = new Konva.default.Rect({
-          //   x: plotLeftX,
-          //   y: timeToDrawingY(time),
-          //   width: healthToDrawWidth(health),
-          //   height: timeToDrawingY(nextTime) - timeToDrawingY(time),
-          //   fill: color,
-          // })
-          const x = plotLeftX + healthToDrawWidth(health) - 1
-          const remWidth = Math.max(healthToDrawWidth(perfectHealth) - healthToDrawWidth(health), 1)
-          let color = '#888';
-          if (health <= 0) {
-            color = '#fff'
-          } else if (health < 100 || remWidth > 1) {
-            color = '#ec4339aa'
-          }
-          var rect = new Konva.default.Rect({
-            x: x,
-            y: timeToDrawingY(time),
-            width: remWidth,
-            height: timeToDrawingY(nextTime) - timeToDrawingY(time),
-            fill: color,
+          // draw line connecting curr time/health to next time health
+          var line = new Konva.default.Line({
+            points: [
+              plotLeftX + healthToDrawWidth(health), timeToDrawingY(time), 
+              plotLeftX + healthToDrawWidth(nextHealth), timeToDrawingY(nextTime)
+            ],
+            stroke: '#888',
+            strokeWidth: 1,
           })
-          layerPlot.add(rect);
+          layerPlot.add(line);
+
+          // draw bleed
+          const x = plotLeftX + healthToDrawWidth(health);
+          if (health < perfectHealth) {
+            const remWidth = Math.max(healthToDrawWidth(perfectHealth) - healthToDrawWidth(health), 1);
+            let color = '#888';
+            if (health <= 0) {
+              color = '#fff'
+            } else if (health <= 50) {
+              color = '#ec4339'
+            } else if (remWidth > 1) {
+              color = '#ec433980'
+            }
+            var rect = new Konva.default.Rect({
+              x: x,
+              y: timeToDrawingY(time),
+              width: remWidth,
+              height: Math.max(1, timeToDrawingY(nextTime) - timeToDrawingY(time)),
+              fill: color,
+            })
+            layerPlot.add(rect);
+          }
 
           if (health <= 0) {
             var text = new Konva.default.Text({
-              text: `you died`,
-              x: x,
+              text: `death`,
+              x: x - 50,
               y: timeToDrawingY(time),
-              fontSize: 24,
+              fontSize: 18,
               fill: '#fff',
             });
             layerPlot.add(text);
@@ -202,48 +269,19 @@ export default function LifebarPlot(props: Props) {
         layerPlot.batchDraw();
       });
 
-      // draw axis
+      // draw y-axis
       var yAxisLine = new Konva.default.Line({
         points: [plotLeftX, headerHeight, plotLeftX, headerHeight + plotHeight],
         stroke: '#888',
         strokeWidth: 1,
       })
       layer1.add(yAxisLine);
-      var xAxisLine = new Konva.default.Line({
-        points: [plotLeftX, headerHeight, plotLeftX + plotWidth, headerHeight],
-        stroke: '#888',
-        strokeWidth: 1,
-      })
-      layer1.add(xAxisLine);
-
-      // draw ticks
-      const lifeThresholds = [500, 1000, lifeMax]
-      for (let i: number = 0; i < lifeThresholds.length; i++) {
-        const et = lifeThresholds[i];
-        const x = plotLeftX + (et / lifeMax) * plotWidth;
-        var tick = new Konva.default.Line({
-          points: [x, headerHeight - 3, x, headerHeight + 3],
-          stroke: '#888',
-          strokeWidth: 1,
-        })
-        layer1.add(tick);
-
-        const tickText = new Konva.default.Text({
-          text: `${Math.round(et)}`,
-          x: x - 5,
-          y: headerHeight - 18,
-          fontSize: 14,
-          fill: '#bbb',
-          align: 'right',
-        });
-        layer1.add(tickText);
-      }
 
       // draw header
       function drawHeader() {
         var text = new Konva.default.Text({
-          text: `Life bar`,
-          x: plotLeftX,
+          text: `Life`,
+          x: plotLeftX + plotWidth / 2,
           y: 0,
           fontSize: 14,
           fill: '#bbb',
@@ -426,11 +464,24 @@ export default function LifebarPlot(props: Props) {
   });
 
   return (
-    <div
-      ref={plotContainerRef!}
-      style={'height: 100%; overflow: auto'}
-    >
-      <p style={`color:#888`}>Loading ...</p>
+    <div>
+      <div>
+        <span style={`color:#ddd`}>Life bar calculator</span>
+      </div>
+      <div style={`color:#888`}>
+        <input type="checkbox" checked={!showOverflow()}
+          onChange={(e) => setShowOverflow(!e.target.checked)}
+          class="mr-1"
+        />
+        <span> Hide life overflow</span>
+        <p>Min. life: {Math.round(minHealth())}</p>
+      </div>
+      <div
+        ref={plotContainerRef!}
+        style={'height: 100%; overflow: auto'}
+      >
+        <p style={`color:#888`}>Loading ...</p>
+      </div>
     </div>
   );
 }
