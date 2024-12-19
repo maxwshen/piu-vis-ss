@@ -17,6 +17,8 @@ interface ChartContextType {
   setClickTo: (mapping: StrToStr) => void;
   pxPerSecond: Accessor<number>;
   setPxPerSecond: (px: number) => void;
+  missTimes: Accessor<number[]>;
+  setMissTimes: (mapping: number[]) => void;
 }
 
 // Create the context
@@ -28,6 +30,7 @@ export function ChartProvider(props: { children: JSX.Element }) {
   const [canvasScrollPositionMirror, setCanvasScrollPositionMirror] = createSignal<number>();
   const [clickTo, setClickTo] = createSignal<StrToStr>({'l': 'l', 'r': 'r'});
   const [pxPerSecond, setPxPerSecond] = createSignal(400);
+  const [missTimes, setMissTimes] = createSignal<number[]>([]);
 
   const value = {
     scrollContainerRef,
@@ -38,6 +41,8 @@ export function ChartProvider(props: { children: JSX.Element }) {
     setClickTo,
     pxPerSecond,
     setPxPerSecond,
+    missTimes,
+    setMissTimes,
   };
 
   return (

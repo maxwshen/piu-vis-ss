@@ -49,6 +49,8 @@ export default function EditorPanel(props: EditorProps) {
     setClickTo,
     pxPerSecond,
     setPxPerSecond,
+    missTimes,
+    setMissTimes,
   } = useChartContext(); 
 
   function SetClickToEitherButton(): JSXElement {

@@ -13,6 +13,7 @@ import ENPSTimeline from "~/components/Chart/NPSTimeline";
 import SegmentTimeline from "~/components/Chart/SegmentTimeline";
 import { ChartProvider } from "~/components/Chart/ChartContext";
 import EditorPanel from "~/components/Chart/Editor";
+import LifebarPlot from "~/components/Chart/Lifebar";
 
 
 const [activeColumn, setActiveColumn] = createSignal('column1');
@@ -37,23 +38,6 @@ function chartDescription(metadata: StrToAny): JSXElement {
   const pack = String(metadata['pack']).toLowerCase()
   const songtype = String(metadata['SONGTYPE']).toLowerCase()
   const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
-
-  function makeSimilarChartsList(level: any, chartList: any) {
-    return (
-      <p>{level}: 
-        <For each={chartList}>
-            {(chart: string) => (
-              <span>
-                <a href={`/chart/${chart}`} 
-                  style={`color:#aaa;text-decoration:underline`}
-                >{getShortChartName(chart)}</a>
-                &ensp;
-              </span>
-            )}
-          </For>
-      </p>
-    );
-  }
 
   return (
     <div class="font-small" style="color:#aaa">
@@ -90,24 +74,6 @@ function chartDescription(metadata: StrToAny): JSXElement {
         <div style={`justify-content:center;text-align:center`}>
           <For each={metadata['chart_skill_summary']}>
             {(skill: string) => skillBadge(skill)}
-          </For>
-        </div>
-      </Show>
-
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
-      > Similar charts</span>
-      <Show 
-        when={metadata['Similar charts'] && Object.keys(metadata['Similar charts']).length > 0}
-        fallback={<></>}
-      >
-        <div>
-          {/* <For each={Object.entries(metadata['Similar charts'])}>
-            {([level: any, chartList: any]) => (makeSimilarChartsList(level, chartList))}
-          </For> */}
-          <For each={Object.entries(metadata['Similar charts'])}>
-            {([key, valueList]) => (
-              makeSimilarChartsList(key, valueList)
-            )}
           </For>
         </div>
       </Show>
@@ -261,10 +227,6 @@ export default function DynamicPage(): JSXElement {
         <ChartProvider>
           <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>
             <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
-              
-              {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
-              </div> */}
-
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
                   {currentParams().replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ") + manuallyAnnotatedFlag}
                   <hr style={`border-color:#666`}></hr>
@@ -297,7 +259,8 @@ export default function DynamicPage(): JSXElement {
                 {/* <p>eNPS timeline data</p> */}
               </span>
               <div style={'height: 100%; margin-top: 10px; overflow: auto'}>
-                <ENPSTimeline dataGet={data} />
+                {/* <ENPSTimeline dataGet={data} /> */}
+                <LifebarPlot dataGet={data}/>
               </div>
 
               {/* <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>

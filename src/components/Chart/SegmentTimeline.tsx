@@ -3,7 +3,7 @@ import type { JSXElement } from 'solid-js';
 import { useNavigate } from "@solidjs/router";
 import { checkEnvironment } from '~/lib/data';
 import { Segment } from '~/lib/types';
-import { getShortChartName, getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
+import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
 
@@ -109,6 +109,8 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
     setClickTo,
     pxPerSecond,
     setPxPerSecond,
+    missTimes,
+    setMissTimes,
   } = useChartContext();
 
   const scrollToTime = (startTime: number) => {

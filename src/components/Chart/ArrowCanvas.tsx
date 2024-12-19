@@ -31,6 +31,8 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
     setClickTo,
     pxPerSecond,
     setPxPerSecond,
+    missTimes,
+    setMissTimes,
   } = useChartContext();
 
   const panelPxInterval = 40;
@@ -327,6 +329,18 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
             y >= arrow_y &&
             y <= arrow_y + arrowImgHeight
           ) {
+            // detect if click-to-miss
+            if (clickTo()['l'] == 'h') {
+              
+              setMissTimes([...missTimes(), time]);
+              // return;
+            }
+            // if (Object.keys(clickTo()).includes('click')) {
+              // setMissTimes(prev => [...prev, time]);
+              // return;
+            // }
+
+            // edit foot annotation
             let editedArrowArts = arrowarts.slice(0, i).concat(
               [[panelPos, time, clickTo()[limbAnnot]]],
             ).concat(arrowarts.slice(i + 1, arrowarts.length));

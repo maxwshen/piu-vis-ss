@@ -1,15 +1,10 @@
-import { onMount, createEffect, onCleanup, Accessor } from "solid-js";
+import { onMount, createEffect, onCleanup } from "solid-js";
 import type { Resource } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { ChartArt, Segment } from '~/lib/types';
+import { ChartArt, Segment, HoldTick, StrToAny } from '~/lib/types';
+import { getLevelColor, getLevelText } from "./util";
 import { getENPSColor, secondsToTimeStr } from '~/lib/util';
-import { getLevelColor, getLevelText, StrToAny } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
-
-
-interface NPSTimelineProps {
-  dataGet: Resource<ChartArt | null>;
-}
 
 
 function getLevelLineThickness(t: number): number {
@@ -26,10 +21,65 @@ function getLevelLineThickness(t: number): number {
 }
 
 
-export default function ENPSTimeline(props: NPSTimelineProps) {
-  let dataGet = props.dataGet;
+function calcHealths(data: ChartArt, missTimes: number[]) {
+  // based on https://github.com/Team-Infinitesimal/Infinitesimal/blob/lts/Modules/PIU/Gameplay.Life.lua
+  const arrowArts = data[0];
+  const metadata = data[2];
 
-  let timelineContainerRef: HTMLDivElement;
+  let arrowTimes = arrowArts.map((aa) => aa[1]);
+  const uniqueArrowTimes = new Set(arrowTimes);
+
+  const uniqueSortedArrowTimes = [...uniqueArrowTimes].sort((a, b) => a - b);
+  // todo - use holdticks
+  let holdticks: Array<HoldTick> = metadata['Hold ticks'];
+
+  const chartLevel = Number(metadata['METER']);
+  const lifeMax = 1000 + 3 * chartLevel * chartLevel;
+
+  let healFactor = 100;
+  const healFactorMax = 800;
+  const healFactorMiss = -700;
+
+  let times: number[] = [0];
+  let currLife = 500;
+  let healths: number[] = [currLife];
+  for (let i = 0; i < uniqueSortedArrowTimes.length; i++) {
+    const t = uniqueSortedArrowTimes[i];
+
+    if (missTimes.includes(t)) {
+      // handle miss
+      currLife = currLife - 500 * Math.min(currLife, 1000) / 2000 - 20
+      currLife = Math.max(0, currLife);
+      healFactor = Math.max(0, healFactor + healFactorMiss)
+    } else {
+      // handle perfect
+      currLife = Math.min(currLife + 12 * healFactor / 1000, lifeMax);
+      healFactor = Math.min(healFactor + 20, healFactorMax);
+    }
+
+    times = [...times, t];
+    healths = [...healths, currLife];
+
+    // if no more misses and already at max life, break
+    // plotter will draw continued rectangle to end of chart
+    // this is nice, but incompatible with drawing difference from perfect play
+    // if (Math.max(...missTimes) < t && currLife === lifeMax) {
+    //   break;
+    // }
+  }
+  return [times, healths];
+}
+
+
+interface Props {
+  dataGet: Resource<ChartArt | null>;
+
+}
+
+
+export default function LifebarPlot(props: Props) {
+  let dataGet = props.dataGet;
+  let plotContainerRef: HTMLDivElement;
 
   const {
     scrollContainerRef,
@@ -52,182 +102,159 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
       const data = dataGet()!;
       const metadata = data[2];
       const timelineData: number[] = metadata['eNPS timeline data'];
-      const segments: Segment[] = metadata['Segments'];
-      const segmentMetadata: StrToAny[] = metadata['Segment metadata'];
-      const rangesOfInterest = metadata['eNPS ranges of interest'];
-
       const nSeconds = timelineData.length;
+      const chartLevel = Number(metadata['METER']);
+      const lifeMax = 1000 + 3 * chartLevel * chartLevel;
 
-      const stageWidth = 290;
-      // const enpsPlotHeight = 820;
-      const enpsPlotHeight = window.innerHeight - 150;
-      const enpsBarMaxWidth = 70;
-      const enpsPlotColumnX = 150;
-      const difficultyLineColumnX = 100;
-      const roiPlotColumnX = enpsPlotColumnX + enpsBarMaxWidth + 5;
-      // const enpsTimeline_pxPerSecond = 7;
-      const enpsTimeline_pxPerSecond = enpsPlotHeight / nSeconds;
+      // plot using data structure
       const headerHeight = 40;
-      const fontSize = 14;
-      const timeFontSize = 14;
-      const stageHeight = headerHeight + enpsTimeline_pxPerSecond * timelineData.length + 10;
+      const stageWidth = 290;
+      const plotHeight = window.innerHeight - 150;
+      const plotLeftX = 120;
+      const plotWidth = 140;
+      const stageHeight = headerHeight + plotHeight + 10;
 
-      const maxENPS = Math.max(...timelineData);
+      const difficultyLineColumnX = 70;
+      const fontSize = 14;
+
+      const plotPxPerSecond = plotHeight / nSeconds;
+
+      function timeToDrawingY(time: number): number {
+        return headerHeight + time * plotPxPerSecond;
+      }
+
+      function healthToDrawWidth(health: number): number {
+        return (health / lifeMax) * plotWidth;
+      }
 
       // create stage and layers
       const stage = new Konva.default.Stage({
-        container: timelineContainerRef,
+        container: plotContainerRef,
         width: stageWidth,
         height: stageHeight,
       });
       const layer1 = new Konva.default.Layer();
+      // layerPlot holds the actual plot, to be re-rendered when missTimes changes
+      const layerPlot = new Konva.default.Layer();
 
-      function timeToDrawingY(time: number): number {
-        return headerHeight + time * enpsTimeline_pxPerSecond;
-      }
+      const [perfectPlayTimes, perfectPlayHealths] = calcHealths(data, []);
 
-      // draw header
-      function drawHeader() {
-        var text = new Konva.default.Text({
-          text: `Notes per second`,
-          x: enpsPlotColumnX,
-          y: 0,
-          fontSize: timeFontSize,
-          fill: '#bbb',
-        });
-        layer1.add(text);
-  
-        var text = new Konva.default.Text({
-          text: `Difficulty`,
-          x: 50,
-          y: 0,
-          fontSize: timeFontSize,
-          fill: '#bbb',
-        });
-        layer1.add(text);
-      }
-      drawHeader();
+      // 
+      createEffect(() => {
+        let misses = missTimes();
+        // let misses = [16.9231, 18.4615];
+        let [times, healths] = calcHealths(data, misses);
+        // console.log(times);
 
-      // draw enps plot
+        layerPlot.destroyChildren();
+
+        // plot life
+        for (let i = 0; i < times.length; i++) {
+          const time = times[i];
+          const health = healths[i];
+          const perfectHealth = perfectPlayHealths[i];
+
+          // draw rectangle to next health update time
+          let nextTime = 0
+          if (i < times.length - 1) {
+            nextTime = times[i + 1];
+          } else {
+            nextTime = nSeconds;
+          }
+
+
+          // var rect = new Konva.default.Rect({
+          //   x: plotLeftX,
+          //   y: timeToDrawingY(time),
+          //   width: healthToDrawWidth(health),
+          //   height: timeToDrawingY(nextTime) - timeToDrawingY(time),
+          //   fill: color,
+          // })
+          const x = plotLeftX + healthToDrawWidth(health) - 1
+          const remWidth = Math.max(healthToDrawWidth(perfectHealth) - healthToDrawWidth(health), 1)
+          let color = '#888';
+          if (health <= 0) {
+            color = '#fff'
+          } else if (health < 100 || remWidth > 1) {
+            color = '#ec4339aa'
+          }
+          var rect = new Konva.default.Rect({
+            x: x,
+            y: timeToDrawingY(time),
+            width: remWidth,
+            height: timeToDrawingY(nextTime) - timeToDrawingY(time),
+            fill: color,
+          })
+          layerPlot.add(rect);
+
+          if (health <= 0) {
+            var text = new Konva.default.Text({
+              text: `you died`,
+              x: x,
+              y: timeToDrawingY(time),
+              fontSize: 24,
+              fill: '#fff',
+            });
+            layerPlot.add(text);
+          }
+        }
+
+        layerPlot.batchDraw();
+      });
 
       // draw axis
       var yAxisLine = new Konva.default.Line({
-        points: [enpsPlotColumnX, headerHeight, enpsPlotColumnX, headerHeight + stageHeight],
+        points: [plotLeftX, headerHeight, plotLeftX, headerHeight + plotHeight],
         stroke: '#888',
         strokeWidth: 1,
       })
       layer1.add(yAxisLine);
       var xAxisLine = new Konva.default.Line({
-        points: [enpsPlotColumnX, headerHeight, enpsPlotColumnX + enpsBarMaxWidth, headerHeight],
+        points: [plotLeftX, headerHeight, plotLeftX + plotWidth, headerHeight],
         stroke: '#888',
         strokeWidth: 1,
       })
       layer1.add(xAxisLine);
-      const enpsThresholds = [1.5, 4, 8, 13]
-      for (let i: number = 0; i < enpsThresholds.length; i++) {
-        const et = enpsThresholds[i];
-        if (et <= maxENPS) {
-          const x = enpsPlotColumnX + (et / maxENPS) * enpsBarMaxWidth;
-          var tick = new Konva.default.Line({
-            points: [x, headerHeight - 3, x, headerHeight + 3],
-            stroke: '#888',
-            strokeWidth: 1,
-          })
-          layer1.add(tick);
 
-          const tickText = new Konva.default.Text({
-            text: `${Math.round(et)}`,
-            x: x - 5,
-            y: headerHeight - 18,
-            fontSize: timeFontSize,
-            fill: '#bbb',
-            align: 'right',
-          });
-          layer1.add(tickText);
-        }
+      // draw ticks
+      const lifeThresholds = [500, 1000, lifeMax]
+      for (let i: number = 0; i < lifeThresholds.length; i++) {
+        const et = lifeThresholds[i];
+        const x = plotLeftX + (et / lifeMax) * plotWidth;
+        var tick = new Konva.default.Line({
+          points: [x, headerHeight - 3, x, headerHeight + 3],
+          stroke: '#888',
+          strokeWidth: 1,
+        })
+        layer1.add(tick);
+
+        const tickText = new Konva.default.Text({
+          text: `${Math.round(et)}`,
+          x: x - 5,
+          y: headerHeight - 18,
+          fontSize: 14,
+          fill: '#bbb',
+          align: 'right',
+        });
+        layer1.add(tickText);
       }
 
-      // draw enps plot
-      const enpsBarAlpha = 0.7;
-      for (let i: number = 0; i < timelineData.length; i++) {
-        const y = timeToDrawingY(i);
-        const enps = timelineData[i];
-        const width = (enps / maxENPS) * enpsBarMaxWidth;
-        const x_left = enpsPlotColumnX;
-
-        if (width > 0) {
-          var rect = new Konva.default.Rect({
-            x: x_left,
-            y: y,
-            width: width,
-            height: enpsTimeline_pxPerSecond,
-            fill: getENPSColor(enps),
-            opacity: enpsBarAlpha,
-          });
-          layer1.add(rect);
-        }
-      }
-
-      // draw high eNPS sections of interest
-      const roiBracketWidth = 5;
-      const roiBracketColor = '#bbb';
-      const roiBracketStrokeWidth = 2;
-      for (let i: number = 0; i < rangesOfInterest.length; i++) {
-        const startTime = rangesOfInterest[i][0];
-        const endTime = rangesOfInterest[i][1];
-        const startTimeY = timeToDrawingY(startTime);
-        const endTimeY = timeToDrawingY(endTime);
-
-        // draw text
-        const timeText = new Konva.default.Text({
-          text: `${endTime - startTime} s`,
-          x: roiPlotColumnX + roiBracketWidth + 10,
-          y: startTimeY,
-          fontSize: fontSize,
+      // draw header
+      function drawHeader() {
+        var text = new Konva.default.Text({
+          text: `Life bar`,
+          x: plotLeftX,
+          y: 0,
+          fontSize: 14,
           fill: '#bbb',
         });
-        layer1.add(timeText);
-
-        // draw lines
-        var roiLine = new Konva.default.Line({
-          points: [
-            roiPlotColumnX,
-            startTimeY, 
-            roiPlotColumnX + roiBracketWidth, 
-            startTimeY
-          ],
-          stroke: roiBracketColor,
-          strokeWidth: roiBracketStrokeWidth,
-        })
-        layer1.add(roiLine);
-
-        var roiLine = new Konva.default.Line({
-          points: [
-            roiPlotColumnX + roiBracketWidth,
-            startTimeY, 
-            roiPlotColumnX + roiBracketWidth, 
-            endTimeY
-          ],
-          stroke: roiBracketColor,
-          strokeWidth: roiBracketStrokeWidth,
-        })
-        layer1.add(roiLine);
-
-        var roiLine = new Konva.default.Line({
-          points: [
-            roiPlotColumnX,
-            endTimeY, 
-            roiPlotColumnX + roiBracketWidth, 
-            endTimeY
-          ],
-          stroke: roiBracketColor,
-          strokeWidth: roiBracketStrokeWidth,
-        })
-        layer1.add(roiLine);
-
+        layer1.add(text);  
       }
+      drawHeader();
 
       // draw segment timestamps and levels
+      const segments: Segment[] = metadata['Segments'];
+      const segmentMetadata: StrToAny[] = metadata['Segment metadata'];
       const levels = segmentMetadata.map((d) => Number(d['level']));
       const minSegmentLevel = Math.min(...levels);
       const maxSegmentLevel = Math.max(...levels);
@@ -238,8 +265,8 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
         // lines
         var segmentStartLine = new Konva.default.Line({
           points: [
-            enpsPlotColumnX - segmentSeparatorWidth / 2, y, 
-            enpsPlotColumnX, y
+            plotLeftX - segmentSeparatorWidth / 2, y, 
+            plotLeftX, y
           ],
           stroke: '#ddd',
           strokeWidth: 1,
@@ -261,9 +288,9 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
         const tt = secondsToTimeStr(time);
         const timeText = new Konva.default.Text({
           text: `${tt}`,
-          x: enpsPlotColumnX - segmentSeparatorWidth - 30,
+          x: plotLeftX - segmentSeparatorWidth - 30,
           y: y - 5,
-          fontSize: timeFontSize,
+          fontSize: fontSize,
           fill: '#bbb',
           align: 'right',
         });
@@ -339,7 +366,7 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
       }
 
       // current scroll position tracker
-      const viewportHeight = (800 / pxPerSecond()) * enpsTimeline_pxPerSecond;
+      const viewportHeight = (800 / pxPerSecond()) * plotPxPerSecond;
       function drawPositionTracker(currTime: number) {
         var positionTracker = new Konva.default.Rect({
           x: 0,
@@ -379,7 +406,7 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
         // click on stage to scroll
         stage.on('click', function (e) {
           const y = stage.getPointerPosition()!.y
-          const time = (y - headerHeight) / enpsTimeline_pxPerSecond;
+          const time = (y - headerHeight) / plotPxPerSecond;
 
           scrollContainerRef()!.scrollTo({
             top: time * pxPerSecond(),
@@ -394,16 +421,16 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
       }
 
       stage.add(layer1);
+      stage.add(layerPlot);
     });
   });
 
   return (
     <div
-      ref={timelineContainerRef!}
+      ref={plotContainerRef!}
       style={'height: 100%; overflow: auto'}
     >
       <p style={`color:#888`}>Loading ...</p>
     </div>
   );
-};
-
+}
