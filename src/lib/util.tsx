@@ -91,3 +91,15 @@ export function skillBadge(skill: string) {
     </span>
   );
 }
+
+
+export function secondsToTimeStr(inputTime: number): string {
+  const time = Math.round(inputTime);
+  const min = Math.floor(time / 60);
+  const sec = time - min * 60;
+  function str_pad_left(string: string, pad: string, length: number) {
+    return (new Array(length + 1).join(pad) + string).slice(-length);
+  }
+  const finalTime = str_pad_left(String(min), '0', 1) + ':' + str_pad_left(String(sec), '0', 2);
+  return finalTime;
+}
