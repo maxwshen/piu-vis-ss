@@ -67,7 +67,7 @@ export default function EditorPanel(props: EditorProps) {
   
   function SetClickToMissButton(): JSXElement {
     const ChangeClickAction = () => {
-      setClickTo({'l': 'h', 'r': 'h', 'e': 'h', 'h': 'h'});
+      setClickTo({'l': 'h', 'r': 'h', 'e': 'h', 'h': 'e'});
     };
     return (
       <div>
@@ -90,10 +90,10 @@ export default function EditorPanel(props: EditorProps) {
 
   return (
     <div style={'display: flex'}>
-      {SaveJsonButton(params.id, dataGet()!)}
+      {SetClickToLRButton()}
       {SetClickToEitherButton()}
       {SetClickToMissButton()}
-      {SetClickToLRButton()}
+      {SaveJsonButton(params.id, dataGet()!)}
     </div>
   );
 }

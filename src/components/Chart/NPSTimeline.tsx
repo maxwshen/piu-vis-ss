@@ -58,19 +58,19 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
 
       const nSeconds = timelineData.length;
 
-      const stageWidth = 290;
+      const stageWidth = 290 - 40;
       // const enpsPlotHeight = 820;
       const enpsPlotHeight = window.innerHeight - 150;
       const enpsBarMaxWidth = 70;
-      const enpsPlotColumnX = 150;
-      const difficultyLineColumnX = 100;
+      const enpsPlotColumnX = 120;
+      const difficultyLineColumnX = 70;
       const roiPlotColumnX = enpsPlotColumnX + enpsBarMaxWidth + 5;
       // const enpsTimeline_pxPerSecond = 7;
       const enpsTimeline_pxPerSecond = enpsPlotHeight / nSeconds;
       const headerHeight = 40;
       const fontSize = 14;
       const timeFontSize = 14;
-      const stageHeight = headerHeight + enpsTimeline_pxPerSecond * timelineData.length + 10;
+      const stageHeight = headerHeight + enpsPlotHeight + 10;
 
       const maxENPS = Math.max(...timelineData);
 

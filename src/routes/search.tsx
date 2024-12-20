@@ -172,7 +172,9 @@ function SearchTable() {
       const f = filters();
       
       // Name filter (case-insensitive)
-      if (f.name && !String(item.name).toLowerCase().includes(f.name.toLowerCase())) 
+      if (f.name && !String(item.name).toLowerCase().includes(
+        f.name.toLowerCase().replace(/ /g, '_')
+      )) 
         return false;
       
       // Sord filter (exact match)

@@ -254,19 +254,18 @@ export default function DynamicPage(): JSXElement {
             </div>
 
             <div id="column3" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
-
-              <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                {/* <p>eNPS timeline data</p> */}
-              </span>
               <div style={'height: 100%; overflow: auto'}>
-                {/* <ENPSTimeline dataGet={data} /> */}
+                <ENPSTimeline dataGet={data} />
+                {/* <LifebarPlot dataGet={data}/> */}
+              </div>
+            </div>
+
+            <div id="column4" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+              <div style={'height: 100%; overflow: auto'}>
                 <LifebarPlot dataGet={data}/>
               </div>
-
-              {/* <div style={'float: right; width: 500px; height: 100%; background-color: #3e3e3e; overflow: auto'}>
-              </div> */}
-
             </div>
+
           </div>
         </ChartProvider>
       </div>

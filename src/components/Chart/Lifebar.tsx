@@ -51,6 +51,9 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
 
   let times: number[] = [0];
   let currLife = 500;
+  if (freezeLifePct() != '') {
+    currLife = 10 * Number(freezeLifePct());
+  }
   let healths: number[] = [currLife];
   for (let i = 0; i < allUniqueTimes.length; i++) {
     const t = allUniqueTimes[i];
@@ -132,12 +135,14 @@ export default function LifebarPlot(props: Props) {
       var lifeMax = 1000 + 3 * chartLevel * chartLevel;
 
       // plot using data structure
-      const headerHeight = 40;
-      const stageWidth = 290;
+      const headerHeight = 30;
+      // const stageWidth = 290;
+      const stageWidth = 250;
       const plotHeight = window.innerHeight - 220;
       // console.log(plotContainerRef.clientHeight);
-      const plotLeftX = 120;
-      const plotWidth = 140;
+      const plotLeftX = 50;
+      // const plotWidth = 200;
+      const plotWidth = stageWidth - plotLeftX - 40;
       const stageHeight = headerHeight + plotHeight + 10;
 
       const difficultyLineColumnX = 70;
@@ -297,8 +302,8 @@ export default function LifebarPlot(props: Props) {
       function drawHeader() {
         var text = new Konva.default.Text({
           text: `Life`,
-          x: plotLeftX + plotWidth / 2,
-          y: 0,
+          x: plotLeftX - 24,
+          y: headerHeight - 18,
           fontSize: 14,
           fill: '#bbb',
         });
@@ -306,118 +311,50 @@ export default function LifebarPlot(props: Props) {
       }
       drawHeader();
 
-      // draw segment timestamps and levels
-      const segments: Segment[] = metadata['Segments'];
-      const segmentMetadata: StrToAny[] = metadata['Segment metadata'];
-      const levels = segmentMetadata.map((d) => Number(d['level']));
-      const minSegmentLevel = Math.min(...levels);
-      const maxSegmentLevel = Math.max(...levels);
-      const segmentSeparatorWidth = 10;
-
-      function drawTimeStamp(time: number) {
-        const y = timeToDrawingY(time);
-        // lines
-        var segmentStartLine = new Konva.default.Line({
-          points: [
-            plotLeftX - segmentSeparatorWidth / 2, y, 
-            plotLeftX, y
-          ],
-          stroke: '#ddd',
-          strokeWidth: 1,
-        })
-        layer1.add(segmentStartLine);
-
-        const leftLineX = difficultyLineColumnX;
-        var segmentStartLine = new Konva.default.Line({
-          points: [
-            leftLineX - segmentSeparatorWidth / 2, y,
-            leftLineX + segmentSeparatorWidth / 2, y
-          ],
-          stroke: '#ddd',
-          strokeWidth: 1,
-        })
-        layer1.add(segmentStartLine);
-
-        // timestamp text
-        const tt = secondsToTimeStr(time);
-        const timeText = new Konva.default.Text({
-          text: `${tt}`,
-          x: plotLeftX - segmentSeparatorWidth - 30,
-          y: y - 5,
-          fontSize: fontSize,
-          fill: '#bbb',
-          align: 'right',
-        });
-        layer1.add(timeText);
-      }
-
-      for (let i: number = 0; i < segments.length; i++) {
-        const segmentStartTime = segments[i][0];
-        const segmentEndTime = segments[i][1];
-        drawTimeStamp(segmentStartTime);
-
-        // draw timestamp line and text for end of last section
-        if (i == segments.length - 1) {
-          drawTimeStamp(segmentEndTime);
-        }
-
-        let levelFontStyle = '';
-        const segmentLevel = segmentMetadata[i]['level'];
-        const relativeSegmentLevel = (segmentLevel - minSegmentLevel) / (maxSegmentLevel - minSegmentLevel);
-        const levelText = getLevelText(segmentLevel);
-        if (segmentLevel > 0.95 * maxSegmentLevel) {
-        }
-
-        // difficulty text
-        var levelTextwCrux = `lv.${levelText}`
-        if (relativeSegmentLevel >= 0.97 && segmentLevel >= 7) {
-          levelTextwCrux = `lv.${levelText}\ncrux`
-        }
-        const y = timeToDrawingY(segmentStartTime);
-        const levelColor = getLevelColor(relativeSegmentLevel);
-        const text = new Konva.default.Text({
-          text: levelTextwCrux,
-          x: difficultyLineColumnX - 45,
-          // x: enpsPlotColumnX - segmentSeparatorWidth - 40,
-          y: y - 5,
-          // y: y + 5,
-          fontSize: fontSize,
-          fill: levelColor,
-          align: 'right',
-          fontStyle: levelFontStyle,
-        });
-        layer1.add(text);
-
-        // difficulty line
-        var difficultyLine = new Konva.default.Line({
-          points: [
-            difficultyLineColumnX, 
-            y, 
-            difficultyLineColumnX,
-            timeToDrawingY(segmentEndTime)
-          ],
-          stroke: levelColor,
-          strokeWidth: getLevelLineThickness(relativeSegmentLevel),
-        })
-        layer1.add(difficultyLine);
-
-        // rare skill text
-        const rareSkills = segmentMetadata[i]['rare skills'];
-        let rareSkillText = '';
-        if (rareSkills.length > 0) {
-          rareSkillText = '⚠️';
-          const rsText = new Konva.default.Text({
-            text: `${rareSkillText}`,
-            x: difficultyLineColumnX - 70,
-            y: y - 5 - 2,
+      function drawSegmentTimestamps() {
+        // draw segment timestamps and levels
+        const segments: Segment[] = metadata['Segments'];
+        const segmentMetadata: StrToAny[] = metadata['Segment metadata'];
+        const segmentSeparatorWidth = 10;
+  
+        function drawTimeStamp(time: number) {
+          const y = timeToDrawingY(time);
+          // lines
+          var segmentStartLine = new Konva.default.Line({
+            points: [
+              plotLeftX - segmentSeparatorWidth / 2, y, 
+              plotLeftX, y
+            ],
+            stroke: '#ddd',
+            strokeWidth: 1,
+          })
+          layer1.add(segmentStartLine);
+  
+          // timestamp text
+          const tt = secondsToTimeStr(time);
+          const timeText = new Konva.default.Text({
+            text: `${tt}`,
+            x: plotLeftX - segmentSeparatorWidth - 30,
+            y: y - 5,
             fontSize: fontSize,
-            fill: levelColor,
+            fill: '#bbb',
             align: 'right',
-            fontStyle: levelFontStyle,
           });
-          layer1.add(rsText);
+          layer1.add(timeText);
+        }
+  
+        for (let i: number = 0; i < segments.length; i++) {
+          const segmentStartTime = segments[i][0];
+          const segmentEndTime = segments[i][1];
+          drawTimeStamp(segmentStartTime);
+  
+          // draw timestamp line and text for end of last section
+          if (i == segments.length - 1) {
+            drawTimeStamp(segmentEndTime);
+          }
         }
       }
+      drawSegmentTimestamps();
 
       // current scroll position tracker
       const viewportHeight = (800 / pxPerSecond()) * plotPxPerSecond;
@@ -484,7 +421,7 @@ export default function LifebarPlot(props: Props) {
       <div>
         <span style={`color:#ddd`}>Life bar calculator</span>
       </div>
-      <div style={`color:#888`}>
+      <div class={`text-sm`} style={`color:#888`}>
 
         <input type="checkbox" checked={!showOverflow()}
           onChange={(e) => setShowOverflow(!e.target.checked)}
@@ -492,16 +429,24 @@ export default function LifebarPlot(props: Props) {
         />
         <span> Hide life overflow</span>
 
-        <p>Lowest life: {Math.round(minHealth() / 10)}%</p>
+        <p>
+          <span> Freeze life % until first miss: </span>
+          <input type="number" 
+            value={freezeLifePct()}
+            onBlur={(e) => setFreezeLifePct(e.currentTarget.value === '' ? '' : (Number(e.currentTarget.value)))}
+            placeholder="none"
+            style={`width:70px;background-color:#555;color:#fff`}
+            class="mr-1"
+          />
+        </p>
 
-        <span> Freeze life % until first miss: </span>
-        <input type="number" 
-          value={freezeLifePct()}
-          onBlur={(e) => setFreezeLifePct(e.currentTarget.value === '' ? '' : (Number(e.currentTarget.value)))}
-          placeholder="none"
-          style={`width:70px;background-color:#555;color:#fff`}
-          class="mr-1"
-        />
+        <p>
+          <span>
+            Lowest life: {Math.round(minHealth() / 10)}%
+            &emsp;
+            Num. misses: {missTimes().length}
+          </span>
+        </p>
 
       </div>
       <div

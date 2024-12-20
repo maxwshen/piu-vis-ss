@@ -339,12 +339,8 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
                 // todo - incorrect with multiple arrows on same line
                 setMissTimes(misses.filter(item => item !== time));
               }
-              return;
-            }
-            // if (Object.keys(clickTo()).includes('click')) {
-              // setMissTimes(prev => [...prev, time]);
               // return;
-            // }
+            }
 
             // remove prev arrow
             const node = layer1?.findOne(`#${id}`);
