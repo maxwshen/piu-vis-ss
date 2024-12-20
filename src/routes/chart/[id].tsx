@@ -13,30 +13,17 @@ import ENPSTimeline from "~/components/Chart/NPSTimeline";
 import SegmentTimeline from "~/components/Chart/SegmentTimeline";
 import { ChartProvider } from "~/components/Chart/ChartContext";
 import EditorPanel from "~/components/Chart/Editor";
+import chartDescription from "~/components/Chart/Description";
 
 
 const [activeColumn, setActiveColumn] = createSignal('column1');
 const [editorMode, setEditorMode] = createSignal(false);
 
 
-function chartDescription(metadata: StrToAny): JSXElement {
+function similarCharts(metadata: StrToAny): JSXElement {
   if (metadata === undefined) {
     return null;
   }
-  function parseDisplayBPM(displaybpm: string | undefined): string {
-    if (displaybpm === undefined) {
-      return 'missing';
-    }
-    if (displaybpm.includes(':')) {
-      let bpms = displaybpm.split(':');
-      return `${Math.round(Number(bpms[0]))}~${Math.round(Number(bpms[1]))}`
-    }
-    return `${Math.round(Number(displaybpm))}`
-  }
-  const sordChartLevel = metadata['sord_chartlevel'];
-  const pack = String(metadata['pack']).toLowerCase()
-  const songtype = String(metadata['SONGTYPE']).toLowerCase()
-  const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
 
   function makeSimilarChartsList(level: any, chartList: any) {
     return (
@@ -57,43 +44,6 @@ function chartDescription(metadata: StrToAny): JSXElement {
 
   return (
     <div class="font-small" style="color:#aaa">
-      <span>{pack}&emsp;</span>
-      <a href={"/difficulty/"+sordChartLevel}
-        style={`color:#aaa;text-decoration:underline`}
-        >{sordChartLevel}</a>
-      <span>&emsp;{songtype}&emsp;{songcategory}</span>
-      <Show when={'CHARTNAME' in metadata} fallback={<></>}>
-        <p>{metadata['CHARTNAME']}</p>
-      </Show>
-      <p>BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}&emsp;
-      Step artist: {metadata['CREDIT']}
-      </p>
-
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
-      >
-        <Show when={metadata['notetype_bpm_summary']}>
-          <span>
-            {metadata['notetype_bpm_summary']}
-            <br></br>
-            {metadata['nps_summary']} notes per second
-          </span>
-        </Show>
-      </span>
-
-      <hr style={`border-color:#666`}></hr>
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
-      > Skills</span>
-      <Show 
-        when={metadata['chart_skill_summary'] && metadata['chart_skill_summary'].length > 0}
-        fallback={<></>}
-      >
-        <div style={`justify-content:center;text-align:center`}>
-          <For each={metadata['chart_skill_summary']}>
-            {(skill: string) => skillBadge(skill)}
-          </For>
-        </div>
-      </Show>
-
       <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
       > Similar charts</span>
       <Show 
@@ -260,15 +210,16 @@ export default function DynamicPage(): JSXElement {
 
         <ChartProvider>
           <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>
-            <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
-              
-              {/* <div style={'position: fixed; width: 400px; height: 100%; background-color: #3e3e3e'}>
-              </div> */}
 
+            {/* column 1 */}
+            <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+
+              {/* title */}
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
                   {currentParams().replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ") + manuallyAnnotatedFlag}
                   <hr style={`border-color:#666`}></hr>
               </span>
+
               <span> {data.loading && "Loading..."} </span>
               <span> {data.error && "Error"} </span>
 
@@ -277,6 +228,19 @@ export default function DynamicPage(): JSXElement {
               </Show>
 
               {chartDescription(metadata)}
+
+              <hr style={`border-color:#666`}></hr>
+
+              <div style={`text-align:center`}>
+                <a href={`/lifebar/${params.id}`}
+                  target="_blank" rel="noopener noreferrer"
+                > Use lifebar calculator </a>
+              </div>
+
+              <hr style={`border-color:#666`}></hr>
+
+              {similarCharts(metadata)}
+
               <div style={'height: 100%; overflow: auto'}>
                 <SegmentTimeline 
                   segments={segments} segmentData={segmentdata}

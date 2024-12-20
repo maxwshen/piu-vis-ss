@@ -71,7 +71,8 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
 
     // holds: increase life at end of hold
     if (holdTickEndTimes.includes(t)) {
-      let counts = holdTickCounts[i];
+      let idx = holdTickEndTimes.indexOf(t);
+      let counts = holdTickCounts[idx];
       for (let ct = 0; ct < counts; ct++) {
         currLife = Math.min(currLife + 12 * healFactor / 1000, lifeMax);
         healFactor = Math.min(healFactor + 20, healFactorMax);
@@ -414,6 +415,9 @@ export default function LifebarPlot(props: Props) {
       stage.add(layer1);
       stage.add(layerPlot);
     });
+
+    // onMount - try to set click to miss. Timing issues?
+    setClickTo({'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
   });
 
   return (
@@ -444,7 +448,7 @@ export default function LifebarPlot(props: Props) {
           <span>
             Lowest life: {Math.round(minHealth() / 10)}%
             &emsp;
-            Num. misses: {missTimes().length}
+            Num. misses: {new Set(missTimes()).size}
           </span>
         </p>
 

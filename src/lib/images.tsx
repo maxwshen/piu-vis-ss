@@ -191,7 +191,7 @@ export function getImage(
     '?_trail': trailImageSignalsEither,
     '?_cap': capImgSignalsEither,
   }
-  let key = (limbAnnot + '_' + imageName);
+  let key = (limbAnnot[0] + '_' + imageName);
   let imgSet = tree[key];
   let panel_idx = panel % 5;
   return imgSet[panel_idx];

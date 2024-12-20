@@ -216,8 +216,8 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
         const [imageGetter, _] = getImage(panelPos, limb, 'arrow');
         image.src = imageGetter();
         let alpha = 1.0;
-        if (limb == 'h') {
-          alpha = 0.5;
+        if (limb.includes('miss')) {
+          alpha = 0.3;
         }
         let konva_img = new Konva.default.Image({
           x: arrowsColX + panelPos * panelPxInterval,
@@ -236,8 +236,8 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
         const [panelPos, startTime, endTime, limbAnnot] = holdart;
         let alpha = 1.0;
         let trail_alpha = 1.0;
-        if (limb == 'h') {
-          alpha = 0.4;
+        if (limb.includes('miss')) {
+          alpha = 0.3;
           trail_alpha = 0.15;
         }
 
@@ -330,16 +330,17 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
             y <= arrow_y + arrowImgHeight
           ) {
             // detect if click-to-miss
-            if (clickTo()['l'] == 'h') {
+            if (clickTo()['l'] == 'l_miss') {
               let misses = missTimes(); 
-              if (!misses.includes(time)) {
+              
+              // handle marking multiple arrows in same row as miss, by allowing duplicate times in missTimes, which are unique'd in code that calculates health
+              if (!limbAnnot.includes('miss')) {
                 setMissTimes([...misses, time]);
               } else {
-                // remove 
-                // todo - incorrect with multiple arrows on same line
-                setMissTimes(misses.filter(item => item !== time));
+                let newMisses = [...misses];
+                newMisses.splice(newMisses.indexOf(time), 1);
+                setMissTimes(newMisses);
               }
-              // return;
             }
 
             // remove prev arrow
@@ -358,14 +359,19 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
             return;
           }
         };
-    
+
         // handle clicking on hold 
         for (let i: number = 0; i < holdarts.length; i++) {
           let holdart = holdarts[i];
           const [panelPos, startTime, endTime, limbAnnot] = holdart;
           const arrow_x = arrowsColX + panelPos * panelPxInterval;
           const arrow_y = startTime * pxPerSecond();
-    
+
+          // disallow click-to-miss on holds
+          if (clickTo()['l'] == 'l_miss') {
+            return;
+          }
+
           // clicking on head
           if (
             x >= arrow_x &&

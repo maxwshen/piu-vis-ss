@@ -33,6 +33,12 @@ export default function Nav() {
             style={`color:#ddd;text-decoration:underline`}
           >Skills</a>
         </li>
+        <li class={`border-b-2} ml-1.5 sm:ml-6`}>
+          <a class='nava'
+            href="/lifebarcalculator"
+            style={`color:#ddd;text-decoration:underline`}
+          >Lifebar calculator</a>
+        </li>
       </ul>
     </nav>
   );

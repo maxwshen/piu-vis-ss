@@ -14,73 +14,10 @@ import SegmentTimeline from "~/components/Chart/SegmentTimeline";
 import { ChartProvider } from "~/components/Chart/ChartContext";
 import EditorPanel from "~/components/Chart/Editor";
 import LifebarPlot from "~/components/Chart/Lifebar";
-
+import chartDescription from "~/components/Chart/Description";
 
 const [activeColumn, setActiveColumn] = createSignal('column1');
 const [editorMode, setEditorMode] = createSignal(false);
-
-
-function chartDescription(metadata: StrToAny): JSXElement {
-  if (metadata === undefined) {
-    return null;
-  }
-  function parseDisplayBPM(displaybpm: string | undefined): string {
-    if (displaybpm === undefined) {
-      return 'missing';
-    }
-    if (displaybpm.includes(':')) {
-      let bpms = displaybpm.split(':');
-      return `${Math.round(Number(bpms[0]))}~${Math.round(Number(bpms[1]))}`
-    }
-    return `${Math.round(Number(displaybpm))}`
-  }
-  const sordChartLevel = metadata['sord_chartlevel'];
-  const pack = String(metadata['pack']).toLowerCase()
-  const songtype = String(metadata['SONGTYPE']).toLowerCase()
-  const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
-
-  return (
-    <div class="font-small" style="color:#aaa">
-      <span>{pack}&emsp;</span>
-      <a href={"/difficulty/"+sordChartLevel}
-        style={`color:#aaa;text-decoration:underline`}
-        >{sordChartLevel}</a>
-      <span>&emsp;{songtype}&emsp;{songcategory}</span>
-      <Show when={'CHARTNAME' in metadata} fallback={<></>}>
-        <p>{metadata['CHARTNAME']}</p>
-      </Show>
-      <p>BPM: {parseDisplayBPM(metadata['DISPLAYBPM'])}&emsp;
-      Step artist: {metadata['CREDIT']}
-      </p>
-
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
-      >
-        <Show when={metadata['notetype_bpm_summary']}>
-          <span>
-            {metadata['notetype_bpm_summary']}
-            <br></br>
-            {metadata['nps_summary']} notes per second
-          </span>
-        </Show>
-      </span>
-
-      <hr style={`border-color:#666`}></hr>
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
-      > Skills</span>
-      <Show 
-        when={metadata['chart_skill_summary'] && metadata['chart_skill_summary'].length > 0}
-        fallback={<></>}
-      >
-        <div style={`justify-content:center;text-align:center`}>
-          <For each={metadata['chart_skill_summary']}>
-            {(skill: string) => skillBadge(skill)}
-          </For>
-        </div>
-      </Show>
-
-    </div>
-);
-};
 
 
 /**
@@ -150,7 +87,6 @@ export default function DynamicPage(): JSXElement {
       });
     });
 
-
     // handle back/forward buttons: kinda scuffed currently
     const navigate = useNavigate();
     // Create a signal to track current path
@@ -188,7 +124,7 @@ export default function DynamicPage(): JSXElement {
       window.removeEventListener('popstate', handlePopState);
     });
 
-    // handle editor mode
+    // handle editor mode in query string
     const urlParams = new URLSearchParams(window.location.search);
     const editFlag = urlParams.get('edit');
     if (editFlag) {
@@ -226,7 +162,11 @@ export default function DynamicPage(): JSXElement {
 
         <ChartProvider>
           <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>
+
+            {/* column 1 */}
             <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+              
+              {/* title */}
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
                   {currentParams().replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ") + manuallyAnnotatedFlag}
                   <hr style={`border-color:#666`}></hr>
@@ -234,16 +174,38 @@ export default function DynamicPage(): JSXElement {
               <span> {data.loading && "Loading..."} </span>
               <span> {data.error && "Error"} </span>
 
+              {chartDescription(metadata)}
+
               <Show when={editorMode()}>
                 <EditorPanel dataGet={data}/>
               </Show>
 
-              {chartDescription(metadata)}
-              <div style={'height: 100%; overflow: auto'}>
+              {/* lifebar calculator instructions */}
+              <div style={`background-color:#ec433960;color:#eee;padding:8px`}>
+                <div class='font-medium' style={`text-align:center;margin-top:10px`}>
+                  Lifebar calculator mode
+                </div>
+                <span>Instructions:</span>
+                <p>
+                  1. Click arrows to toggle miss/perfect judgment
+                </p>
+                <br></br>
+                <div style={`opacity:60%`}>
+                  <p>The lifebar calculator uses red to show your "bleed" compared to perfect play.</p>
+                  <br></br>
+                  <p>The calculator does not support missing holds. Pro tip: don't miss holds! Hold tick counts are listed in the arrows canvas.</p>
+                  <br></br>
+                  <p>Hide/show life overflow: Life above 100% is called "overflow". Any overflow amount appears as a full lifebar in-game. Life overflow can accrue up to a max that depends on the chart level.</p>
+                  <br></br>
+                  <p>Freeze life % until first miss: Use this to fix life to a specific %. Life calculations resume after the first marked miss. Use this to quickly study what happens if you enter a specific section with a specific amount of life.</p>
+                </div>
+              </div>
+
+              {/* <div style={'height: 100%; overflow: auto'}>
                 <SegmentTimeline 
                   segments={segments} segmentData={segmentdata}
                 />
-              </div>
+              </div> */}
 
             </div>
 
