@@ -7,7 +7,7 @@ An interactive web app for the dance rhythm game, Pump it Up!
 
 **[Difficulty tier lists](/difficulty)**: Trying to break into a new difficulty level? Find stepcharts ranked by difficulty *within* each level, for all difficulties: from S1 to S26, and D4 to D28.
 
-**[Lifebar calculator](/lifebarcalculator)**: Plan stage passes with our interactive lifebar calculator: see the impact of missing specific notes in a stepchart on your lifebar.
+**[Lifebar calculator](/articles/lifebarcalculator)**: Plan stage passes with our interactive lifebar calculator: see the impact of missing specific notes in a stepchart on your lifebar.
 
 ---
 

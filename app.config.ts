@@ -1,6 +1,4 @@
 import { defineConfig } from "@solidjs/start/config";
-// import { VitePluginConfig } from "vite";
-
 
 export default defineConfig({
   server: {
@@ -10,9 +8,19 @@ export default defineConfig({
     plugins: [
       {
         name: 'markdown-loader',
+        enforce: 'pre',
         transform(code, id) {
           if (!id.endsWith('.md')) return;
-          return `export default ${JSON.stringify(code)}`;
+          
+          // Properly handle the markdown content
+          const content = code
+            .replace(/`/g, '\\`')  // Escape backticks
+            .replace(/\${/g, '\\${');  // Escape template literals
+          
+          return {
+            code: `export default \`${content}\`;`,
+            map: null
+          };
         }
       }
     ]

@@ -1,3 +1,8 @@
+---
+title: How to use piucenter's Lifebar calculator
+# description: 
+date: 2024-12-18
+---
 # Life bar calculator
 
 piucenter features interactive, stepchart-specific lifebar calculators.

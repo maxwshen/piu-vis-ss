@@ -1,6 +1,7 @@
 import { createResource, onMount } from "solid-js";
 import { getMarkdownFiles } from "~/lib/markdown";
 import Nav from '~/components/Nav';
+import { forceRefresh } from "~/lib/util";
 
 
 export default function Index() {
@@ -22,7 +23,8 @@ export default function Index() {
           {pages()?.map(page => (
             <a
               href={`/articles/${page.slug}`}
-              target="_blank" rel="noopener noreferrer"
+              onClick={(e) => {forceRefresh(e, `/articles/${page.slug}`)}}
+              // target="_blank" rel="noopener noreferrer"
               class="p-6 rounded-lg border border-gray-700 hover:border-gray-600 
                      bg-gray-800/50 hover:bg-gray-800/80 transition-all duration-200"
             >

@@ -1,8 +1,8 @@
 // [slug].tsx
 // various plugins are used to support html and latex inside markdown
-import { createResource, onMount, createSignal, createEffect } from "solid-js";
+import { createResource, onMount, createSignal, createEffect, onCleanup, Show } from "solid-js";
 import { SolidMarkdown } from "solid-markdown";
-import { useParams } from "@solidjs/router";
+import { useParams, useNavigate } from "@solidjs/router";
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
@@ -11,6 +11,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import type { Root } from 'hast';
 import Nav from '~/components/Nav';
 import frontMatter from 'front-matter';
+import { Title } from "@solidjs/meta";
 
 import 'katex/dist/katex.min.css';
 
@@ -34,14 +35,43 @@ const schema = {
 
 export default function MarkdownPage() {
   const params = useParams();
+  const navigate = useNavigate();
+
   const [currentParams, setCurrentParams] = createSignal(params.slug);
   const [isMounted, setIsMounted] = createSignal(false);
   const [markdownContent, setMarkdownContent] = createSignal('');
 
   onMount(() => {
     setIsMounted(true);
+    // Add click event listener to handle internal navigation
+    document.addEventListener('click', handleLinkClick);
+  });
+
+  // Cleanup listener on component unmount
+  onCleanup(() => {
+    if (typeof window !== 'undefined') {
+      document.removeEventListener('click', handleLinkClick);
+    }
   });
   
+  const handleLinkClick = (e: MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const link = target.closest('a');
+    
+    if (!link) return; // Not a link click
+    
+    const href = link.getAttribute('href');
+    if (!href) return; // No href attribute
+    
+    // Check if this is an internal link
+    if (href.startsWith('/') && !href.startsWith('//')) {
+      e.preventDefault(); // Prevent default navigation
+      
+      // Navigate using SolidJS router
+      navigate(href);
+    }
+  };
+
   createEffect(() => {
     setCurrentParams(params.slug);
   });
@@ -58,6 +88,7 @@ export default function MarkdownPage() {
     }
   });
 
+  // update document.title
   createEffect(() => {
     if (isMounted()) {
       const slug = currentParams();
@@ -73,22 +104,27 @@ export default function MarkdownPage() {
 
   return (
     <div>
+      <Title>{currentParams().split('-')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')}</Title>
       <Nav />
       <div class="markdown-content">
-        {content() && (
-          <SolidMarkdown 
-            children={content()} 
-            remarkPlugins={[
-              remarkGfm, 
-              remarkMath
-            ]}
-            rehypePlugins={[
-              rehypeRaw, 
-              [rehypeSanitize, schema],
-              rehypeKatex
-            ]}
-          />
-        )}
+        <Show when={params.slug} keyed>
+          {content() && (
+            <SolidMarkdown 
+              children={content()} 
+              remarkPlugins={[
+                remarkGfm, 
+                remarkMath
+              ]}
+              rehypePlugins={[
+                rehypeRaw, 
+                [rehypeSanitize, schema],
+                rehypeKatex
+              ]}
+            />
+          )}
+        </Show>
       </div>
     </div>
   );

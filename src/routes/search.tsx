@@ -4,6 +4,7 @@ import Nav from '~/components/Nav';
 import "./search.css"
 import { StrToAny } from "~/lib/types";
 import { getShortChartNameWithLevel, getENPSColor, skillBadge, skillToColor } from "~/lib/util";
+import { Title } from "@solidjs/meta";
 
 // Enhanced interface to allow more flexible data handling
 interface SearchItem {
@@ -557,6 +558,7 @@ export default function Page(): JSXElement {
 
   return (
     <div>
+      <Title>Search</Title>
       <div>{Nav()}</div>
       <div class='container' style={'background-color: #2e2e2e; height: 100%'}>      
         {SearchTable()}

@@ -128,7 +128,7 @@ Unfortunately, this means that pad quality is extremely important. If your pad g
 
 ## Takeaways & Strategy Tips
 
-We'll conclude with some tips on how you can combine what you've learned above with [piucenter's interactive lifebar calculator](/lifebarcalculator) to design your own stage-passing strategies.
+We'll conclude with some tips on how you can combine what you've learned above with [piucenter's interactive lifebar calculator](/articles/lifebarcalculator) to design your own stage-passing strategies.
 
 - **Categorize stepchart sections into two types: 1) maximize life gain (you can full-combo it with perfects/greats), 2) survive (whichever sections are hardest for you).** Many stepcharts begin with easier sections (where you should maximize life gain), and end in a "death" run (where you hope to survive). As higher level charts expand the variety in technical challenges, "easy" and "hard" sections can become more subjective and vary by person.
 
