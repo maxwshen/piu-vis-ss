@@ -22,19 +22,15 @@ import { isServer } from "solid-js/web";
 
 export function checkEnvironment(): string {
   const viteEnv = import.meta.env.VITE_ENV;
+  const baseUrl = isServer 
+    ? 'https://www.piucenter.com'  // Production URL for server context
+    : (typeof window !== 'undefined' && window.location 
+        ? window.location.origin 
+        : 'https://www.piucenter.com');
 
-  if (viteEnv === 'dev') {
-    return "http://localhost:3000";
-  }
-  
-  if (!isServer) {
-    return window.location.origin;
-  }
-  
-  // Fallback for server context
-  return viteEnv === 'prod' 
-    ? 'www.piucenter.com' 
-    : 'http://localhost:3000';
+  return viteEnv === 'dev' 
+    ? "http://localhost:3000" 
+    : baseUrl;
 }
 
 
