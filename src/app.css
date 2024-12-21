@@ -42,3 +42,179 @@ body {
     max-width: 250px;
   }
 }
+
+/* markdown */
+.markdown-content {
+  color: #e4e4e4;
+  line-height: 1.6;
+  max-width: 85ch;
+  margin: 0 auto;
+  padding: 1rem;
+  font-size: 18px;
+}
+
+/* Headings */
+.markdown-content h1 {
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 2rem 0 1.5rem;
+  border-bottom: 1px solid #404040;
+  padding-bottom: 0.5rem;
+}
+
+.markdown-content h2 {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1.5rem 0 1rem;
+}
+
+.markdown-content h3 {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.25rem 0 0.75rem;
+}
+
+/* Paragraphs and lists */
+.markdown-content p {
+  margin: 1rem 0;
+}
+
+.markdown-content ul, 
+.markdown-content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-content ul li {
+  list-style-type: disc;
+  margin: 0.5rem 0;
+}
+
+.markdown-content ol li {
+  list-style-type: decimal;
+  margin: 0.5rem 0;
+}
+
+/* Links */
+.markdown-content a {
+  color: #00a0dc;
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
+}
+
+/* Code blocks */
+.markdown-content pre {
+  background: #222222;
+  border-radius: 6px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-content code {
+  background: #222222;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+/* Inline code */
+.markdown-content p code {
+  color: #f472b6;
+}
+
+/* Blockquotes */
+.markdown-content blockquote {
+  border-left: 4px solid #404040;
+  margin: 1rem 0;
+  padding: 0.5rem 0 0.5rem 1rem;
+  color: #a3a3a3;
+}
+
+/* Tables */
+.markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.markdown-content th {
+  background: #222222;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.25rem;
+  text-align: left;
+}
+
+.markdown-content td {
+  padding: 0.25rem;
+  border-top: 1px solid #404040;
+}
+
+/* Horizontal rule */
+.markdown-content hr {
+  border: 0;
+  border-top: 1px solid #404040;
+  margin: 2rem 0;
+}
+
+/* Images */
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.markdown-content .tip,
+.markdown-content .note,
+.markdown-content .warning {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-left: 4px solid;
+  border-radius: 0.25rem;
+}
+
+.markdown-content .tip {
+  background-color: rgba(0, 200, 83, 0.1);
+  border-left-color: #00c853;
+}
+
+.markdown-content .note {
+  background-color: rgba(3, 169, 244, 0.1);
+  border-left-color: #03a9f4;
+}
+
+.markdown-content .warning {
+  background-color: rgba(255, 145, 0, 0.1);
+  border-left-color: #ff9100;
+}
+
+.markdown-content .tip::before,
+.markdown-content .note::before,
+.markdown-content .warning::before {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content .tip::before {
+  content: "💡 Tip";
+  color: #00c853;
+}
+
+.markdown-content .note::before {
+  content: "📝 Note";
+  color: #03a9f4;
+}
+
+.markdown-content .warning::before {
+  content: "⚠️ Warning";
+  color: #ff9100;
+}
