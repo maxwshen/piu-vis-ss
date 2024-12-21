@@ -6,7 +6,7 @@ import { Segment } from '~/lib/types';
 import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
-
+import { forceRefresh } from "~/lib/util";
 
 interface SegmentTimelineProps {
   segments: Segment[];
@@ -26,27 +26,10 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
     let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
     const displayName = getShortChartNameWithLevel(chartName);
 
-    const navigate = useNavigate();
-    const handleNavAndReload = (e: MouseEvent) => {
-      e.preventDefault();
-      
-      // Navigate to the new page
-      navigate('chart' + '/' + chartName + '?section=' + sectionIdx1, {
-        resolve: false, 
-        // Optional: you can pass state if needed
-        // state: { someData: "value" }
-      });
-  
-      // Reload the page after a short delay to ensure navigation
-      setTimeout(() => {
-        window.location.reload();
-      }, 50);
-    };
-
     return (
       <li>
         <a href={link}
-          onClick={handleNavAndReload}
+          onClick={(e) => {forceRefresh(e, link)}}
           style={`text-decoration: underline`}
         >{displayName}</a>
       </li>

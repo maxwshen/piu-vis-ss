@@ -87,43 +87,6 @@ export default function DynamicPage(): JSXElement {
       });
     });
 
-    // handle back/forward buttons: kinda scuffed currently
-    const navigate = useNavigate();
-    // Create a signal to track current path
-    const [currentPath, setCurrentPath] = createSignal(window.location.pathname);
-    // Handle browser navigation events
-    const handlePopState = (event: PopStateEvent) => {
-      const newPath = window.location.pathname;
-      
-      // Only navigate if the path has actually changed
-      if (newPath !== currentPath()) {
-        window.history.pushState(null, '', currentPath());
-        setCurrentPath(newPath);
-        // navigate(newPath, { replace: true });
-
-        // Navigate to the new page
-        navigate(newPath, {
-          resolve: false, 
-          // Optional: you can pass state if needed
-          // state: { someData: "value" }
-        });
-    
-        // Reload the page after a short delay to ensure navigation
-        setTimeout(() => {
-          window.location.reload();
-        }, 50);
-
-      }
-    };
-
-    // Add event listener when component mounts
-    window.addEventListener('popstate', handlePopState);
-
-    // Clean up event listener when component unmounts
-    onCleanup(() => {
-      window.removeEventListener('popstate', handlePopState);
-    });
-
     // handle editor mode in query string
     const urlParams = new URLSearchParams(window.location.search);
     const editFlag = urlParams.get('edit');
