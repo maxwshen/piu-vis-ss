@@ -32,11 +32,9 @@ The lifebar starts at 50%, or halfway filled on the screen. If you get perfect o
 
 At 100% life, your life bar on screen is full. However, your life can increase above 100%, which is known as *overflow*. Overflow is not shown in your life bar on-screen. 
 
-Maximum life scales with stepchart level, and is above 200% at level 19+, and hits 300% at level 26.
+Maximum life scales with stepchart level using this formula. It's above 200% at level 19+, and hits 300% at level 26.
 
-$$
-maxLifePercent = 100 + 0.3*(chartLevel)^2
-$$
+    maxLifePercent = 100 + 0.3*(chartLevel)^2
 
 | Chart level | 5    | 10   | 15   | 16   | 17   | 18   | 19   | 20   |
 |-------------|------|------|------|------|------|------|------|------|

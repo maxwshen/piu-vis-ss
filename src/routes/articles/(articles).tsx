@@ -1,10 +1,16 @@
-import { createResource } from "solid-js";
+import { createResource, onMount } from "solid-js";
 import { getMarkdownFiles } from "~/lib/markdown";
 import Nav from '~/components/Nav';
 
 
 export default function Index() {
   const [pages] = createResource(getMarkdownFiles);
+
+  onMount(() => {
+    if (typeof window !== 'undefined') {
+      window.document.title = 'Articles';
+    }
+  })
 
   return (
     <div class="min-h-screen bg-[#2e2e2e] text-gray-200">

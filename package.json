@@ -17,6 +17,7 @@
     "postcss": "^8.4.38",
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.0",
     "remark-math": "^6.0.0",
     "solid-js": "^1.8.17",
@@ -26,5 +27,8 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@types/hast": "^3.0.4"
   }
 }
