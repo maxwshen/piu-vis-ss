@@ -28,7 +28,8 @@ export default function Nav() {
         </li>
         <li class={`border-b-2} ml-1.5 sm:ml-6`}>
           <A class='nava' 
-            href="/difficulty/S13"
+            href="/articles/difficultytierlists"
+            onClick={(e) => {forceRefresh(e, '/articles/difficultytierlists')}}
             style={`color:#ddd;text-decoration:underline`}
           >Difficulty tier lists</A>
         </li>

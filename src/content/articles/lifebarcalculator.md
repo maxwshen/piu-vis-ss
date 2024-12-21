@@ -17,9 +17,8 @@ piucenter features interactive, stepchart-specific lifebar calculators.
 To read about lifebar mechanics, visit the [lifebar article](/articles/lifebar).
 
 ---
-
-<span style="color:#bbb">
+<div style='color:#888'>
 Credits
 
 Life bar calculation is based on https://github.com/Team-Infinitesimal/Infinitesimal/blob/lts/Modules/PIU/Gameplay.Life.lua
-</span>
+</div>

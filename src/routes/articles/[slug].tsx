@@ -18,8 +18,9 @@ import 'katex/dist/katex.min.css';
 // Custom sanitization schema
 const schema = {
   attributes: {
-    '*': ['className', 'class'],
-    div: ['className', 'class'],
+    '*': ['className', 'class', 'style'],
+    div: ['className', 'class', 'style'],
+    span: ['className', 'class', 'style'],
     a: ['href', 'title', 'target'],
     img: ['src', 'alt', 'title']
   },
