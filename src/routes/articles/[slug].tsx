@@ -1,4 +1,5 @@
 // [slug].tsx
+// various plugins are used to support html and latex inside markdown
 import { createResource, onMount, createSignal, createEffect } from "solid-js";
 import { SolidMarkdown } from "solid-markdown";
 import { useParams } from "@solidjs/router";
@@ -27,7 +28,7 @@ const schema = {
     'strong', 'em', 'del', 'a', 'img',
     'blockquote', 'code', 'pre',
     'ol', 'ul', 'li',
-    'table', 'thead', 'tbody', 'tr', 'th', 'td'
+    'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr'
   ]
 };
 
