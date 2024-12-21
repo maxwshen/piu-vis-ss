@@ -2,7 +2,7 @@ import { createSignal, createResource, onMount } from "solid-js";
 import type { Resource } from 'solid-js';
 import { isServer } from 'solid-js/web';
 import Konva from 'konva';
-import { getImage } from '~/lib/images';
+import { useArrowImages } from '~/lib/images';
 import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art';
 import { ArrowArt, HoldArt, HoldTick, ChartArt } from '~/lib/types';
 import { secondsToTimeStr } from '~/lib/util';
@@ -56,6 +56,8 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
       let metadata = data[2];
       let holdticks: Array<HoldTick> = metadata['Hold ticks'];
       let segments = metadata['Segments'];
+
+      const { getImage } = useArrowImages();
 
       // compute canvas height and width
       const numPanels = getSinglesOrDoubles(data);

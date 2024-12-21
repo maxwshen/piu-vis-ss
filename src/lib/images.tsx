@@ -1,198 +1,136 @@
-import type { Signal, Accessor, Resource, Setter, JSXElement } from 'solid-js';
-import { createSignal, createResource, onMount, onCleanup, createEffect, $DEVCOMP, untrack } from "solid-js";
-import { checkEnvironment } from './data';
+import { createSignal, Signal, onMount, createEffect } from "solid-js";
+import { useLocation } from "@solidjs/router";
+import { StrToStr } from "~/components/Chart/util";
+import { StrToAny } from "./types";
 
 
-const arrowImagePathsLeft = [
-  '/images/arrows-hint/arrow_downleft_left.png',
-  '/images/arrows-hint/arrow_upleft_left.png',
-  '/images/arrows-hint/arrow_center_left.png',
-  '/images/arrows-hint/arrow_upright_left.png',
-  '/images/arrows-hint/arrow_downright_left.png',
-];
-const arrowImgSignalsLeft = Array.from(
-  { length: arrowImagePathsLeft.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(arrowImagePathsLeft[i])
-  )
-);
-const trailImagePathsLeft = [
-  '/images/arrows-hint/trail_downleft_left.png',
-  '/images/arrows-hint/trail_upleft_left.png',
-  '/images/arrows-hint/trail_center_left.png',
-  '/images/arrows-hint/trail_upright_left.png',
-  '/images/arrows-hint/trail_downright_left.png',
-];
-const trailImageSignalsLeft = Array.from(
-  { length: trailImagePathsLeft.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(trailImagePathsLeft[i])
-  )
-);
-const capImagePathsLeft = [
-  '/images/arrows-hint/holdcap_downleft_left.png',
-  '/images/arrows-hint/holdcap_upleft_left.png',
-  '/images/arrows-hint/holdcap_center_left.png',
-  '/images/arrows-hint/holdcap_upright_left.png',
-  '/images/arrows-hint/holdcap_downright_left.png',
-];
-const capImgSignalsLeft = Array.from(
-  { length: capImagePathsLeft.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(capImagePathsLeft[i])
-  )
-);
-const arrowImagePathsRight = [
-  '/images/arrows-hint/arrow_downleft_right.png',
-  '/images/arrows-hint/arrow_upleft_right.png',
-  '/images/arrows-hint/arrow_center_right.png',
-  '/images/arrows-hint/arrow_upright_right.png',
-  '/images/arrows-hint/arrow_downright_right.png',
-];
-const arrowImgSignalsRight = Array.from(
-  { length: arrowImagePathsRight.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(arrowImagePathsRight[i])
-  )
-);
-const trailImagePathsRight = [
-  '/images/arrows-hint/trail_downleft_right.png',
-  '/images/arrows-hint/trail_upleft_right.png',
-  '/images/arrows-hint/trail_center_right.png',
-  '/images/arrows-hint/trail_upright_right.png',
-  '/images/arrows-hint/trail_downright_right.png',
-];
-const trailImageSignalsRight = Array.from(
-  { length: trailImagePathsRight.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(trailImagePathsRight[i])
-  )
-);
-const capImagePathsRight = [
-  '/images/arrows-hint/holdcap_downleft_right.png',
-  '/images/arrows-hint/holdcap_upleft_right.png',
-  '/images/arrows-hint/holdcap_center_right.png',
-  '/images/arrows-hint/holdcap_upright_right.png',
-  '/images/arrows-hint/holdcap_downright_right.png',
-];
-const capImgSignalsRight = Array.from(
-  { length: capImagePathsRight.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(capImagePathsRight[i])
-  )
-);
-const arrowImagePathsEither = [
-  '/images/arrows-hint/arrow_downleft_either.png',
-  '/images/arrows-hint/arrow_upleft_either.png',
-  '/images/arrows-hint/arrow_center_either.png',
-  '/images/arrows-hint/arrow_upright_either.png',
-  '/images/arrows-hint/arrow_downright_either.png',
-];
-const arrowImgSignalsEither = Array.from(
-  { length: arrowImagePathsEither.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(arrowImagePathsEither[i])
-  )
-);
-const trailImagePathsEither = [
-  '/images/arrows-hint/trail_downleft_either.png',
-  '/images/arrows-hint/trail_upleft_either.png',
-  '/images/arrows-hint/trail_center_either.png',
-  '/images/arrows-hint/trail_upright_either.png',
-  '/images/arrows-hint/trail_downright_either.png',
-];
-const trailImageSignalsEither = Array.from(
-  { length: trailImagePathsEither.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(trailImagePathsEither[i])
-  )
-);
-const capImagePathsEither = [
-  '/images/arrows-hint/holdcap_downleft_either.png',
-  '/images/arrows-hint/holdcap_upleft_either.png',
-  '/images/arrows-hint/holdcap_center_either.png',
-  '/images/arrows-hint/holdcap_upright_either.png',
-  '/images/arrows-hint/holdcap_downright_either.png',
-];
-const capImgSignalsEither = Array.from(
-  { length: capImagePathsEither.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(capImagePathsEither[i])
-  )
-);
-const arrowImagePathsHand = [
-  '/images/arrows-hint/arrow_downleft_hand.png',
-  '/images/arrows-hint/arrow_upleft_hand.png',
-  '/images/arrows-hint/arrow_center_hand.png',
-  '/images/arrows-hint/arrow_upright_hand.png',
-  '/images/arrows-hint/arrow_downright_hand.png',
-];
-const arrowImgSignalsHand = Array.from(
-  { length: arrowImagePathsHand.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(arrowImagePathsHand[i])
-  )
-);
-const trailImagePathsHand = [
-  '/images/arrows-hint/trail_downleft_hand.png',
-  '/images/arrows-hint/trail_upleft_hand.png',
-  '/images/arrows-hint/trail_center_hand.png',
-  '/images/arrows-hint/trail_upright_hand.png',
-  '/images/arrows-hint/trail_downright_hand.png',
-];
-const trailImageSignalsHand = Array.from(
-  { length: trailImagePathsHand.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(trailImagePathsHand[i])
-  )
-);
-const capImagePathsHand = [
-  '/images/arrows-hint/holdcap_downleft_hand.png',
-  '/images/arrows-hint/holdcap_upleft_hand.png',
-  '/images/arrows-hint/holdcap_center_hand.png',
-  '/images/arrows-hint/holdcap_upright_hand.png',
-  '/images/arrows-hint/holdcap_downright_hand.png',
-];
-const capImgSignalsHand = Array.from(
-  { length: capImagePathsHand.length }, 
-  (_, i) => createSignal(
-    checkEnvironment().concat(capImagePathsHand[i])
-  )
-);
-
-/**
- * Fetches Signal for query image
- * @param panel: number in [0-9]
- * @param limbAnnot: one of ['l', 'r', 'e', 'h', '?']
- * @param imageName: one of ['arrow', 'trail', 'cap']
- */
-export function getImage(
-  panel: number, 
-  limbAnnot: string, 
-  imageName: string
-): Signal<string> {
-  interface treeInterface {
-    [key: string]: Signal<string>[];
+const IMAGE_PATHS: StrToAny = {
+  left: {
+    arrow: [
+      '/images/arrows-hint/arrow_downleft_left.png',
+      '/images/arrows-hint/arrow_upleft_left.png',
+      '/images/arrows-hint/arrow_center_left.png',
+      '/images/arrows-hint/arrow_upright_left.png',
+      '/images/arrows-hint/arrow_downright_left.png',
+    ],
+    trail: [
+      '/images/arrows-hint/trail_downleft_left.png',
+      '/images/arrows-hint/trail_upleft_left.png',
+      '/images/arrows-hint/trail_center_left.png',
+      '/images/arrows-hint/trail_upright_left.png',
+      '/images/arrows-hint/trail_downright_left.png',
+    ],
+    cap: [
+      '/images/arrows-hint/holdcap_downleft_left.png',
+      '/images/arrows-hint/holdcap_upleft_left.png',
+      '/images/arrows-hint/holdcap_center_left.png',
+      '/images/arrows-hint/holdcap_upright_left.png',
+      '/images/arrows-hint/holdcap_downright_left.png',
+    ]
+  },
+  right: {
+    arrow: [
+      '/images/arrows-hint/arrow_downleft_right.png',
+      '/images/arrows-hint/arrow_upleft_right.png',
+      '/images/arrows-hint/arrow_center_right.png',
+      '/images/arrows-hint/arrow_upright_right.png',
+      '/images/arrows-hint/arrow_downright_right.png',
+    ],
+    trail: [
+      '/images/arrows-hint/trail_downleft_right.png',
+      '/images/arrows-hint/trail_upleft_right.png',
+      '/images/arrows-hint/trail_center_right.png',
+      '/images/arrows-hint/trail_upright_right.png',
+      '/images/arrows-hint/trail_downright_right.png',
+    ],
+    cap: [
+      '/images/arrows-hint/holdcap_downleft_right.png',
+      '/images/arrows-hint/holdcap_upleft_right.png',
+      '/images/arrows-hint/holdcap_center_right.png',
+      '/images/arrows-hint/holdcap_upright_right.png',
+      '/images/arrows-hint/holdcap_downright_right.png',
+    ]
+  },
+  either: {
+    arrow: [
+      '/images/arrows-hint/arrow_downleft_either.png',
+      '/images/arrows-hint/arrow_upleft_either.png',
+      '/images/arrows-hint/arrow_center_either.png',
+      '/images/arrows-hint/arrow_upright_either.png',
+      '/images/arrows-hint/arrow_downright_either.png',
+    ],
+    trail: [
+      '/images/arrows-hint/trail_downleft_either.png',
+      '/images/arrows-hint/trail_upleft_either.png',
+      '/images/arrows-hint/trail_center_either.png',
+      '/images/arrows-hint/trail_upright_either.png',
+      '/images/arrows-hint/trail_downright_either.png',
+    ],
+    cap: [
+      '/images/arrows-hint/holdcap_downleft_either.png',
+      '/images/arrows-hint/holdcap_upleft_either.png',
+      '/images/arrows-hint/holdcap_center_either.png',
+      '/images/arrows-hint/holdcap_upright_either.png',
+      '/images/arrows-hint/holdcap_downright_either.png',
+    ]
+  },
+  hand: {
+    arrow: [
+      '/images/arrows-hint/arrow_downleft_hand.png',
+      '/images/arrows-hint/arrow_upleft_hand.png',
+      '/images/arrows-hint/arrow_center_hand.png',
+      '/images/arrows-hint/arrow_upright_hand.png',
+      '/images/arrows-hint/arrow_downright_hand.png',
+    ],
+    trail: [
+      '/images/arrows-hint/trail_downleft_hand.png',
+      '/images/arrows-hint/trail_upleft_hand.png',
+      '/images/arrows-hint/trail_center_hand.png',
+      '/images/arrows-hint/trail_upright_hand.png',
+      '/images/arrows-hint/trail_downright_hand.png',
+    ],
+    cap: [
+      '/images/arrows-hint/holdcap_downleft_hand.png',
+      '/images/arrows-hint/holdcap_upleft_hand.png',
+      '/images/arrows-hint/holdcap_center_hand.png',
+      '/images/arrows-hint/holdcap_upright_hand.png',
+      '/images/arrows-hint/holdcap_downright_hand.png',
+    ]
   }
-  const tree: treeInterface = {
-    'l_arrow': arrowImgSignalsLeft,
-    'l_trail': trailImageSignalsLeft,
-    'l_cap': capImgSignalsLeft,
-    'r_arrow': arrowImgSignalsRight,
-    'r_trail': trailImageSignalsRight,
-    'r_cap': capImgSignalsRight,
-    'h_arrow': arrowImgSignalsHand,
-    'h_trail': trailImageSignalsHand,
-    'h_cap': capImgSignalsHand,
-    'e_arrow': arrowImgSignalsEither,
-    'e_trail': trailImageSignalsEither,
-    'e_cap': capImgSignalsEither,
-    '?_arrow': arrowImgSignalsEither,
-    '?_trail': trailImageSignalsEither,
-    '?_cap': capImgSignalsEither,
-  }
-  let key = (limbAnnot[0] + '_' + imageName);
-  let imgSet = tree[key];
-  let panel_idx = panel % 5;
-  return imgSet[panel_idx];
+};
+
+
+export function useArrowImages() {
+  // For client-side only, we can use a simpler baseUrl approach
+  const [baseUrl, setBaseUrl] = createSignal('');
+  
+  onMount(() => {
+    setBaseUrl(window.location.origin);
+  });
+
+  const getImage = (panel: number, limbAnnot: string, imageName: string): Signal<string> => {
+    const limbMap: StrToStr = {
+      'l': 'left',
+      'r': 'right',
+      'e': 'either',
+      'h': 'hand',
+      '?': 'either'
+    };
+    
+    const limb = limbMap[limbAnnot[0]] || 'either';
+    const type = imageName as 'arrow' | 'trail' | 'cap';
+    const panelIndex = panel % 5;
+    
+    // Create the signal with a computed URL
+    const [url, setUrl] = createSignal(baseUrl() + IMAGE_PATHS[limb][type][panelIndex]);
+    
+    // Update URL when baseUrl changes
+    createEffect(() => {
+      setUrl(baseUrl() + IMAGE_PATHS[limb][type][panelIndex]);
+    });
+
+    return [url, setUrl];
+  };
+
+  return { getImage };
 }

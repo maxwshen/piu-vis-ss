@@ -1,7 +1,6 @@
 
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
-import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
-// import "./[skillname].css"
+import { fetchSkillData } from '../../lib/data';
 import { Show } from 'solid-js';
 import Nav from '../../components/Nav';
 import { skillBadge } from "~/lib/util";

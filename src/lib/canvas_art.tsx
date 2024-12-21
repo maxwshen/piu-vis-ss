@@ -1,7 +1,4 @@
-import Konva from 'konva';
-
-import { ArrowArt, HoldArt, ChartArt } from './types';
-import { getImage } from './images';
+import { ChartArt } from './types';
 
 
 // Returns 5 or 10 if singles or doubles

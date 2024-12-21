@@ -1,7 +1,7 @@
 
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
 import { useParams } from "@solidjs/router";
-import { checkEnvironment, fetchPageContent, fetchSkillData } from '../../lib/data';
+import { fetchSkillData } from '../../lib/data';
 // import "./[skillname].css"
 import { Show } from 'solid-js';
 import Nav from '~/components/Nav';
