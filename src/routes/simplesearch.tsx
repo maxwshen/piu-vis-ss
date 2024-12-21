@@ -1,8 +1,6 @@
 
 import { createSignal, createMemo, For, createEffect, JSXElement, onMount } from "solid-js";
-import { useLocation } from "@solidjs/router";
 import "./simplesearch.css"
-// import { checkEnvironment, fetchData } from '~/lib/data';
 import Nav from '~/components/Nav';
 
 
@@ -23,8 +21,6 @@ function SearchTable() {
     try {
       setBaseUrl(window.location.origin);
       const [searchNameList, manualAnnotatedList] = await Promise.all([
-        // fetch(checkEnvironment().concat(`/chart-jsons/120524/__search-struct.json`)),
-        // fetch(checkEnvironment().concat(`/chart-jsons/120524/__manual-limb-annotated.json`))
         fetch(baseUrl().concat(`/chart-jsons/120524/__search-struct.json`)),
         fetch(baseUrl().concat(`/chart-jsons/120524/__manual-limb-annotated.json`))
       ]);
@@ -39,7 +35,6 @@ function SearchTable() {
         modName = modName.replace(/_+/g, ' ');
         return {
           name: modName,
-          // url: checkEnvironment().concat(`/chart/${name}`)
           url: baseUrl().concat(`/chart/${name}`)
         };
       });

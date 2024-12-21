@@ -1,7 +1,5 @@
 import { createSignal, createEffect, Show } from "solid-js";
 import type { JSXElement } from 'solid-js';
-import { useNavigate } from "@solidjs/router";
-import { checkEnvironment } from '~/lib/data';
 import { Segment } from '~/lib/types';
 import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
@@ -14,16 +12,14 @@ interface SegmentTimelineProps {
 }
 
 
-
 function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, data: StrToAny): JSXElement {
   // provides content inside of segment collapsible
   const similarSections = data['Closest sections'];
 
-  let baseUrl = checkEnvironment();
   function makeUrlBullets(section: any): JSXElement {
     let [chartName, sectionIdx] = section;
     const sectionIdx1 = sectionIdx + 1;
-    let link = [baseUrl, 'chart', chartName + '?section=' + sectionIdx1].join('/');
+    let link = ['/chart', chartName + '?section=' + sectionIdx1].join('/');
     const displayName = getShortChartNameWithLevel(chartName);
 
     return (

@@ -1,5 +1,4 @@
 import { createSignal, createMemo, For, createEffect, JSXElement, onMount } from "solid-js";
-import { checkEnvironment } from '~/lib/data';
 import Nav from '~/components/Nav';
 import "./search.css"
 import { StrToAny } from "~/lib/types";
@@ -149,7 +148,7 @@ function SearchTable() {
 
   onMount(async () => {
     try {
-      const searchDict = await fetch(checkEnvironment().concat(`/chart-jsons/120524/page-content/chart-table.json`));
+      const searchDict = await fetch(window.location.origin.concat(`/chart-jsons/120524/page-content/chart-table.json`));
       const searchData: SearchItem[] = await searchDict.json();
 
       // Set items and extract columns dynamically

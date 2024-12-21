@@ -125,9 +125,9 @@ export function useArrowImages() {
     const [url, setUrl] = createSignal(baseUrl() + IMAGE_PATHS[limb][type][panelIndex]);
     
     // Update URL when baseUrl changes
-    createEffect(() => {
-      setUrl(baseUrl() + IMAGE_PATHS[limb][type][panelIndex]);
-    });
+    // createEffect(() => {
+    //   setUrl(baseUrl() + IMAGE_PATHS[limb][type][panelIndex]);
+    // });
 
     return [url, setUrl];
   };

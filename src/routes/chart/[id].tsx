@@ -3,7 +3,7 @@ import { createSignal, createResource, onMount, onCleanup, createEffect, For } f
 import type { JSXElement } from 'solid-js';
 import { Show } from 'solid-js';
 import { useNavigate } from "@solidjs/router";
-import { checkEnvironment, fetchData } from '~/lib/data';
+import { fetchData } from '~/lib/data';
 import { ChartArt, Segment, StrToAny } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel, skillBadge } from '~/lib/util';
 import Nav from '~/components/Nav';
@@ -145,7 +145,6 @@ export default function DynamicPage(): JSXElement {
 
   });
 
-  console.log('env: ', checkEnvironment());
   return (
     <>
       <div>{Nav()}</div>

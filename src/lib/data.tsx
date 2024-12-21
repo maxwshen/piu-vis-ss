@@ -44,6 +44,7 @@ export function checkEnvironment(): string {
 export async function fetchData(id: string): Promise<ChartArt | null> {
   try {
     const response = await fetch(
+      // window.location.origin.concat(`/chart-jsons/120524/${id}.json`)
       checkEnvironment().concat(`/chart-jsons/120524/${id}.json`)
   );
     const obj = await response.json();
@@ -53,6 +54,31 @@ export async function fetchData(id: string): Promise<ChartArt | null> {
   }
   return null;
 }
+
+// export async function fetchData(id: string): Promise<ChartArt | null> {
+//   try {
+//     // For development environment
+//     if (import.meta.env.DEV) {
+//       const response = await fetch(
+//         `http://localhost:3000/chart-jsons/120524/${id}.json`
+//       );
+//       const obj = await response.json();
+//       return obj;
+//     }
+    
+//     // For production environment
+//     const baseUrl = window.location.origin;
+//     const response = await fetch(
+//       `${baseUrl}/chart-jsons/120524/${id}.json`
+//     );
+//     const obj = await response.json();
+//     return obj;
+//   } catch (error) {
+//     console.error('Error fetching data:', error);
+//     console.error('URL attempted:', `${window.location.origin}/chart-jsons/120524/${id}.json`);
+//     return null;
+//   }
+// }
 
 /**
  * Fetches JSON data
