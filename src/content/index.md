@@ -26,5 +26,5 @@ Content version: Phoenix v2.01.
 piucenter is founded on the idea that community-made .ssc stepchart files are a rich resource for data analysis, visualization, and creating tools for the community to support players playing on official Pump it Up machines.
 
 piucenter is a hobby project by aesthete.
-For more information and credits, see the [about page](/about) and join our [discord](https://discord.gg/aHbZsk7j2U).
+For more information and credits, see the [about page](/articles/about) and join our [discord](https://discord.gg/aHbZsk7j2U).
 </span>

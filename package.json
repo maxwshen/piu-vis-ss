@@ -11,6 +11,8 @@
     "@solidjs/router": "^0.13.6",
     "@solidjs/start": "^1.0.2",
     "autoprefixer": "^10.4.19",
+    "front-matter": "^4.0.2",
+    "gray-matter": "^4.0.3",
     "konva": "^9.3.16",
     "postcss": "^8.4.38",
     "rehype-katex": "^7.0.1",

@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import Nav from '~/components/Nav';
+import frontMatter from 'front-matter';
 
 import 'katex/dist/katex.min.css';
 
@@ -27,8 +28,10 @@ export default function MarkdownPage() {
 
   const [content] = createResource(currentParams, async (slug) => {
     const markdown = await import(`~/content/articles/${slug}.md`);
-    setMarkdownContent(markdown.default);
-    return markdown.default;
+    // Parse front-matter from the markdown content
+    const { attributes, body } = frontMatter(markdown.default);
+    setMarkdownContent(body);
+    return body;
   });
 
   createEffect(() => {

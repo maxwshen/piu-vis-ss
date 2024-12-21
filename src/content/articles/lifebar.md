@@ -1,3 +1,8 @@
+---
+title: Lifebar mechanics in Pump it Up
+description: Improve your stage pass play with strategy & tips
+date: 2024-12-20
+---
 # Lifebar mechanics in Pump it Up
 
 First, why should one try to understand the lifebar in Pump?

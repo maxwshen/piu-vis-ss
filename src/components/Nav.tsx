@@ -39,6 +39,12 @@ export default function Nav() {
             style={`color:#ddd;text-decoration:underline`}
           >Lifebar calculator</a>
         </li>
+        <li class={`border-b-2} ml-1.5 sm:ml-6`}>
+          <a class='nava'
+            href="/articles"
+            style={`color:#ddd;text-decoration:underline`}
+          >Articles</a>
+        </li>
       </ul>
     </nav>
   );

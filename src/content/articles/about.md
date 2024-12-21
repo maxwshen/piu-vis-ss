@@ -1,3 +1,8 @@
+---
+title: About piucenter
+description: 
+date: 2024-12-19
+---
 # about piucenter
 
 piucenter is founded on the idea that community-made .ssc stepchart files are a rich resource for data analysis, visualization, and creating tools for the community to support players playing on official Pump it Up machines.
