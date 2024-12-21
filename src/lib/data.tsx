@@ -1,23 +1,41 @@
 import { ArrowArt, HoldArt, ChartArt, StrToAny } from './types';
-
+import { isServer } from "solid-js/web";
 
 /**
  * Get base URL, depending on local env variable
  * https://stackoverflow.com/questions/74966208/next-js-typeerror-failed-to-parse-url-from-api-projects-or-error-connect-econ
  * @returns 
  */
+// export function checkEnvironment(): string {
+//   const viteEnv = import.meta.env.VITE_ENV;
+//   const baseUrl = window.location.origin;
+//   if (viteEnv == 'dev') {
+//     return "http://localhost:3000"
+//   } else if (viteEnv == 'prod') {
+//     // return "https://piucenterv2.netlify.app"
+//     return baseUrl;
+//   }
+//   // return 'https://piucenterv2.netlify.app';
+//   return baseUrl;
+// };
+
+
 export function checkEnvironment(): string {
   const viteEnv = import.meta.env.VITE_ENV;
-  const baseUrl = window.location.origin;
-  if (viteEnv == 'dev') {
-    return "http://localhost:3000"
-  } else if (viteEnv == 'prod') {
-    // return "https://piucenterv2.netlify.app"
-    return baseUrl;
+
+  if (viteEnv === 'dev') {
+    return "http://localhost:3000";
   }
-  // return 'https://piucenterv2.netlify.app';
-  return baseUrl;
-};
+  
+  if (!isServer) {
+    return window.location.origin;
+  }
+  
+  // Fallback for server context
+  return viteEnv === 'prod' 
+    ? 'www.piucenter.com' 
+    : 'http://localhost:3000';
+}
 
 
 /**
