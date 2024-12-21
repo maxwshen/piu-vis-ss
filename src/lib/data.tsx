@@ -8,12 +8,15 @@ import { ArrowArt, HoldArt, ChartArt, StrToAny } from './types';
  */
 export function checkEnvironment(): string {
   const viteEnv = import.meta.env.VITE_ENV;
+  const baseUrl = window.location.origin;
   if (viteEnv == 'dev') {
     return "http://localhost:3000"
   } else if (viteEnv == 'prod') {
-    return "https://piucenterv2.netlify.app"
+    // return "https://piucenterv2.netlify.app"
+    return baseUrl;
   }
-  return 'https://piucenterv2.netlify.app';
+  // return 'https://piucenterv2.netlify.app';
+  return baseUrl;
 };
 
 
