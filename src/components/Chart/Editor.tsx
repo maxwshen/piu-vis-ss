@@ -55,7 +55,7 @@ export default function EditorPanel(props: EditorProps) {
 
   function SetClickToEitherButton(): JSXElement {
     const ChangeClickAction = () => {
-      setClickTo({'l': 'e', 'r': 'e', 'e': 'e', 'h': 'e'});
+      setClickTo({'type': 'either', 'l': 'e', 'r': 'e', 'e': 'e', 'h': 'e'});
     };
     return (
       <div>
@@ -67,7 +67,10 @@ export default function EditorPanel(props: EditorProps) {
   
   function SetClickToMissButton(): JSXElement {
     const ChangeClickAction = () => {
-      setClickTo({'l': 'h', 'r': 'h', 'e': 'h', 'h': 'e'});
+      setClickTo({
+        'type': 'miss',
+        'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'
+      });
     };
     return (
       <div>
@@ -75,11 +78,27 @@ export default function EditorPanel(props: EditorProps) {
       </div>
     )
   };
+
+
+  function SetClickToShowTimingWindowButton(): JSXElement {
+    const ChangeClickAction = () => {
+      setClickTo({
+        'type': 'timingwindow',
+        'l': 'l_window', 'r': 'r_window', 'e': 'e_window', 
+        'l_window': 'l', 'r_window': 'r', 'e_window': 'e'
+      });
+    };
+    return (
+      <div>
+        <button class="nice-button" onClick={ChangeClickAction}>Set Click To Show Timing Windows</button>
+      </div>
+    )
+  };
   
   
   function SetClickToLRButton(): JSXElement {
     const ChangeClickAction = () => {
-      setClickTo({'l': 'r', 'r': 'l', 'e': 'l', 'h': 'l'});
+      setClickTo({'type': 'lr', 'l': 'r', 'r': 'l', 'e': 'l', 'h': 'l'});
     };
     return (
       <div>
@@ -93,6 +112,7 @@ export default function EditorPanel(props: EditorProps) {
       {SetClickToLRButton()}
       {SetClickToEitherButton()}
       {SetClickToMissButton()}
+      {SetClickToShowTimingWindowButton()}
       {SaveJsonButton(params.id, dataGet()!)}
     </div>
   );

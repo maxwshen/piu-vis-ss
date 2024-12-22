@@ -417,7 +417,9 @@ export default function LifebarPlot(props: Props) {
     });
 
     // onMount - try to set click to miss. Timing issues?
-    setClickTo({'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
+    setClickTo({'type': 'miss', 
+      'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 
+      'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
   });
 
   return (

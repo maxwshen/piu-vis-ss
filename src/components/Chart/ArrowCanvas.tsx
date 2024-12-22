@@ -7,6 +7,7 @@ import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art
 import { ArrowArt, HoldArt, HoldTick, ChartArt } from '~/lib/types';
 import { secondsToTimeStr } from '~/lib/util';
 import { useChartContext } from "~/components/Chart/ChartContext";
+import { StrToAny, StrToStr } from "./util";
 
 
 interface ArrowCanvasProps {
@@ -95,9 +96,10 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
         height: window.innerHeight + PADDING * 2,
       });
       const layer1 = new Konva.default.Layer();
-      const layer2 = new Konva.default.Layer();
-      const layer3 = new Konva.default.Layer();
-      const layer4 = new Konva.default.Layer();
+      const layerHoldHead = new Konva.default.Layer();
+      const layerHoldCap = new Konva.default.Layer();
+      const layerHoldTrail = new Konva.default.Layer();
+      const layerTimingWindow = new Konva.default.Layer();
 
       // make background
       const background = new Konva.default.Rect({
@@ -256,7 +258,7 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
           id: String(id),
           opacity: alpha,
         });
-        layer2.add(konva_img);
+        layerHoldHead.add(konva_img);
 
         // draw hold trail
         const holdTrail = new Image();
@@ -271,7 +273,7 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
           id: String(id),
           opacity: trail_alpha,
         });
-        layer4.add(konva_img);
+        layerHoldTrail.add(konva_img);
 
         // draw hold cap
         const holdCap = new Image();
@@ -286,7 +288,7 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
           id: String(id),
           opacity: alpha,
         });
-        layer3.add(konva_img);
+        layerHoldCap.add(konva_img);
 
       };
 
@@ -303,6 +305,58 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
         let holdart = holdarts[i];
         const [panelPos, startTime, endTime, limbAnnot] = holdart;
         drawHoldArt(holdart, limbAnnot, i);
+      }
+
+      // draw function for timing window
+      function drawTimingWindow(time: number, id: string) {
+        // draws timing window for arrow `id` at `time`
+        // id is used to construct a shared name for all drawn assets
+        const t = 0.0416;
+        
+        const judgmentToColor: StrToStr = {
+          'perfect': '#00a0dc',
+          'great': '#7cb82f',
+          'good': '#efb920',
+          'bad': '#8c68cb',
+        }
+
+        const windows = [
+          [-t*4, -t*3],
+          [-t*3, -t*2],
+          [-t*2, -t],
+          [-t, t*2],
+          [t*2, t*3],
+          [t*3, t*4],
+          [t*4, t*5],
+        ]
+        const judgments = ['bad', 'good', 'great', 'perfect', 'great', 'good', 'bad']
+
+        for (let i = 0; i < windows.length; i++) {
+          let [beginTime, endTime] = windows[i];
+          let judgment = judgments[i];
+          let color = judgmentToColor[judgment];
+          let rect = new Konva.default.Rect({
+            x: arrowsColX,
+            y: (time + beginTime) * pxPerSecond(),
+            width: arrowsColXRight,
+            height: (endTime - beginTime) * pxPerSecond(),
+            fill: color,
+            opacity: 0.5,
+            name: id,
+          })
+          layerTimingWindow.add(rect);
+        }
+
+        // draw line for exact perfect time
+        let rect = new Konva.default.Rect({
+          x: arrowsColX,
+          y: time * pxPerSecond(),
+          width: arrowsColXRight,
+          height: 1,
+          fill: '#fff',
+          name: id,
+        })
+        layerTimingWindow.add(rect);
       }
 
       // interactivity on stage
@@ -331,11 +385,13 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
             y >= arrow_y &&
             y <= arrow_y + arrowImgHeight
           ) {
-            // detect if click-to-miss
-            if (clickTo()['l'] == 'l_miss') {
+            // handle click-to-miss
+            if (clickTo()['type'] == 'miss') {
               let misses = missTimes(); 
               
-              // handle marking multiple arrows in same row as miss, by allowing duplicate times in missTimes, which are unique'd in code that calculates health
+              // handle marking multiple arrows in same row as miss, 
+              // by allowing duplicate times in missTimes, 
+              // which are unique'd in code that calculates health
               if (!limbAnnot.includes('miss')) {
                 setMissTimes([...misses, time]);
               } else {
@@ -345,17 +401,28 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
               }
             }
 
+            // handle click-to-show-timing-window
+            if (clickTo()['type'] == 'timingwindow') {              
+              if (!limbAnnot.includes('window')) {
+                drawTimingWindow(time, id);
+                layerTimingWindow.batchDraw();
+              } else {
+                let drawnAssets = layerTimingWindow.find(`.${id}`);
+                drawnAssets.map((a) => a.destroy());
+              }
+            }
+
             // remove prev arrow
             const node = layer1?.findOne(`#${id}`);
             node?.destroy();
 
             // draw new arrow
-            let newLimb = clickTo()[limbAnnot];
+            let newLimb = clickTo()[limbAnnot] ?? limbAnnot;
             drawArrowArt(arrowart, newLimb, i); 
 
             // edit foot annotation
             let editedArrowArts = arrowarts.slice(0, i).concat(
-              [[panelPos, time, clickTo()[limbAnnot]]],
+              [[panelPos, time, newLimb]],
             ).concat(arrowarts.slice(i + 1, arrowarts.length));
             mutate([editedArrowArts, holdarts, metadata]);
             return;
@@ -388,15 +455,15 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
 
             // remove prev art
             let id = String(i);
-            const node2 = layer2?.findOne(`#${id}`);
+            const node2 = layerHoldHead?.findOne(`#${id}`);
             node2?.destroy();
-            const node3 = layer3?.findOne(`#${id}`);
+            const node3 = layerHoldCap?.findOne(`#${id}`);
             node3?.destroy();
-            const node4 = layer4?.findOne(`#${id}`);
+            const node4 = layerHoldTrail?.findOne(`#${id}`);
             node4?.destroy();
 
             // draw new art
-            let newLimb = clickTo()[limbAnnot];
+            let newLimb = clickTo()[limbAnnot] ?? limbAnnot;
             drawHoldArt(holdart, newLimb, i); 
             return;
           }
@@ -409,22 +476,23 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
             y >= arrow_y_end &&
             y <= arrow_y_end + arrowImgHeight
           ) {
+            let newLimb = clickTo()[limbAnnot] ?? limbAnnot;
+
             let editedHoldArts = holdarts.slice(0, i).concat(
-              [[panelPos, startTime, endTime, clickTo()[limbAnnot]]],
+              [[panelPos, startTime, endTime, newLimb]],
             ).concat(holdarts.slice(i + 1, holdarts.length));
             mutate([arrowarts, editedHoldArts, metadata]);
 
             // remove prev art
             let id = String(i);
-            const node2 = layer2?.findOne(`#${id}`);
+            const node2 = layerHoldHead?.findOne(`#${id}`);
             node2?.destroy();
-            const node3 = layer3?.findOne(`#${id}`);
+            const node3 = layerHoldCap?.findOne(`#${id}`);
             node3?.destroy();
-            const node4 = layer4?.findOne(`#${id}`);
+            const node4 = layerHoldTrail?.findOne(`#${id}`);
             node4?.destroy();
 
             // draw new art
-            let newLimb = clickTo()[limbAnnot];
             drawHoldArt(holdart, newLimb, i); 
             return;
           }
@@ -450,9 +518,10 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
       // layer1 has background; draw it on bottom
       stage.add(layer1);
       // layers for holds
-      stage.add(layer4);
-      stage.add(layer3);
-      stage.add(layer2);
+      stage.add(layerHoldTrail);
+      stage.add(layerHoldCap);
+      stage.add(layerHoldHead);
+      stage.add(layerTimingWindow);
 
       repositionStage();
       scrollContainerRef()!.addEventListener('scroll', repositionStage);
