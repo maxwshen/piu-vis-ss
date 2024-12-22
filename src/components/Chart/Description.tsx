@@ -1,6 +1,7 @@
 import { Show, For } from 'solid-js';
 import type { JSXElement } from 'solid-js';
 import { StrToAny } from '~/lib/types';
+import { roundToDecimals } from '~/lib/util';
 import { getShortChartName, getShortChartNameWithLevel, skillBadge } from '~/lib/util';
 
 
@@ -57,7 +58,7 @@ export default function chartDescription(metadata: StrToAny): JSXElement {
           <span>
             {metadata['notetype_bpm_summary']}
             <br></br>
-            {metadata['nps_summary']} notes per second
+            {roundToDecimals(metadata['nps_summary'], 1)} notes per second
           </span>
         </Show>
       </span>

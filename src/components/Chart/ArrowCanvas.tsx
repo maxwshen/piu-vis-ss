@@ -1,3 +1,4 @@
+import { useParams } from "@solidjs/router";
 import { createSignal, onMount, onCleanup, createEffect } from "solid-js";
 import { isServer } from 'solid-js/web';
 import type { ChartData } from '~/lib/types';
@@ -11,12 +12,12 @@ import { StrToStr } from "./util";
 type MutateFunction = (v: ChartData | ((prev: ChartData) => ChartData)) => void;
 
 interface ArrowCanvasProps {
-  params: any;
   data: ChartData;
   mutate: MutateFunction;
 }
 
 export default function ArrowCanvas(props: ArrowCanvasProps) {
+  const params = useParams();
   let containerRef: HTMLDivElement;
   let largeContainerRef: HTMLDivElement;
   let stage: any = null;
@@ -37,6 +38,16 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
   const [canvasWidth, setCanvasWidth] = createSignal(530);
   const arrowImgWidth = 40;
   const arrowImgHeight = arrowImgWidth;
+
+  // Set up scrolling
+  function repositionStage() {
+    const dx = scrollContainerRef()!.scrollLeft;
+    const dy = scrollContainerRef()!.scrollTop;
+    stage.container().style.transform = `translate(${dx}px, ${dy}px)`;
+    stage.x(-dx);
+    stage.y(-dy);
+    setCanvasScrollPositionMirror(dy);
+  }
 
   const drawEverything = async () => {
     if (typeof window === 'undefined' || !containerRef) return;
@@ -360,6 +371,9 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
 
     // Set up click handlers
     stage.on('click', function(e: any) {
+      const arrowarts = props.data.arrowarts;
+      const holdarts = props.data.holdarts;
+
       // ... your existing click handler code ...
       // if (!editorMode) { return }
 
@@ -497,16 +511,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
       };
     });
 
-    // Set up scrolling
-    function repositionStage() {
-      const dx = scrollContainerRef()!.scrollLeft;
-      const dy = scrollContainerRef()!.scrollTop;
-      stage.container().style.transform = `translate(${dx}px, ${dy}px)`;
-      stage.x(-dx);
-      stage.y(-dy);
-      setCanvasScrollPositionMirror(dy);
-    }
-
     // Initial positioning
     repositionStage();
     scrollContainerRef()!.addEventListener('scroll', repositionStage);
@@ -536,22 +540,48 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     drawEverything();
   });
 
-  // Cleanup
-  onCleanup(() => {
+  const cleanup = () => {
+    // Clean up event listeners
+    if (scrollContainerRef()) {
+      scrollContainerRef()!.removeEventListener('scroll', repositionStage);
+    }
+
     if (stage) {
+      // Remove all event listeners
+      stage.off('click');
+      stage.off('mousemove');
+
+      // Clean up images
+      stage.find('Image').forEach((imageNode: any) => {
+        const image = imageNode.image();
+        if (image) {
+          image.src = '';
+        }
+      });
+
+      // Cleanup layers
+      Object.values(layers).forEach(layer => {
+        layer.removeChildren();
+        layer.clear();
+        layer.destroy();
+      });
+
+      // Destroy stage
       stage.destroy();
       stage = null;
     }
-    if (scrollContainerRef()) {
-      scrollContainerRef()!.removeEventListener('scroll', () => {});
-    }
-  });
 
-  // Redraw when URL changes
+    layers = {};
+  };
+
+  // Call cleanup on component unmount
+  onCleanup(cleanup);
+
   createEffect(() => {
-    // const p = props.params;
-    const currentData = props.data; // Create dependency on data
+    // Redraw when URL changes
+    const chartId = params.id;
     if (!isServer) {
+      cleanup();
       drawEverything();
     }
   });

@@ -1,6 +1,12 @@
 import { StrToAny } from "./types";
 
 
+export function roundToDecimals(input: any, decimals: number): number {
+  let x = Number(input);
+  let n = Math.pow(10, decimals);
+  return Math.round(x * n) / n;
+}
+
 export const forceRefresh = (e: MouseEvent, url: string) => {
   e.preventDefault();
   // Force a full page load

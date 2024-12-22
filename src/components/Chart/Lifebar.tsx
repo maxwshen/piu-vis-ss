@@ -5,31 +5,17 @@ import { ChartArt, Segment, HoldTick, StrToAny } from '~/lib/types';
 import { getLevelColor, getLevelText } from "./util";
 import { getENPSColor, secondsToTimeStr } from '~/lib/util';
 import { useChartContext } from "~/components/Chart/ChartContext";
-
+import { ChartData } from "~/lib/types";
 
 const [showOverflow, setShowOverflow] = createSignal(true);
 const [minHealth, setMinHealth] = createSignal(500);
 const [freezeLifePct, setFreezeLifePct] = createSignal<number | string>('');
 
 
-function getLevelLineThickness(t: number): number {
-  if (t < 0.6) {
-    return 0.5
-  } else if (t < 0.75) {
-    return 1
-  } else if (t < 0.875) {
-    return 2
-  } else if (t < 0.97) {
-    return 3
-  }
-  return 5
-}
-
-
-function calcHealths(data: ChartArt, missTimes: number[]) {
+function calcHealths(data: ChartData, missTimes: number[]) {
   // based on https://github.com/Team-Infinitesimal/Infinitesimal/blob/lts/Modules/PIU/Gameplay.Life.lua
-  const arrowArts = data[0];
-  const metadata = data[2];
+  const arrowArts = data['arrowarts'];
+  const metadata = data['metadata'];
 
   let arrowTimes = arrowArts.map((aa) => aa[1]);
   let uniqueArrowTimes = new Set(arrowTimes);
@@ -101,13 +87,12 @@ function calcHealths(data: ChartArt, missTimes: number[]) {
 
 
 interface Props {
-  dataGet: Resource<ChartArt | null>;
+  data: ChartData;
 
 }
 
 
 export default function LifebarPlot(props: Props) {
-  let dataGet = props.dataGet;
   let plotContainerRef: HTMLDivElement;
 
   const {
@@ -128,8 +113,9 @@ export default function LifebarPlot(props: Props) {
     if (isServer ) return;
 
     import('konva').then((Konva) => {
-      const data = dataGet()!;
-      const metadata = data[2];
+      const data = props.data;
+      const metadata = data['metadata'];
+
       const timelineData: number[] = metadata['eNPS timeline data'];
       const nSeconds = timelineData.length;
       const chartLevel = Number(metadata['METER']);
@@ -146,7 +132,6 @@ export default function LifebarPlot(props: Props) {
       const plotWidth = stageWidth - plotLeftX - 40;
       const stageHeight = headerHeight + plotHeight + 10;
 
-      const difficultyLineColumnX = 70;
       const fontSize = 14;
 
       const plotPxPerSecond = plotHeight / nSeconds;

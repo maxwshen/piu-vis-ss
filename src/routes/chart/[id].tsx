@@ -38,7 +38,6 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
             <span>
               <a href={`/chart/${chart}`} 
                 style={`color:#aaa;text-decoration:underline`}
-                // onClick={(e) => {forceRefresh(e, `/chart/${chart}`)}}
               >
                 {getShortChartName(chart)}
               </a>
@@ -77,17 +76,6 @@ export default function DynamicPage(): JSXElement {
   const params = useParams();
   const [editorMode, setEditorMode] = createSignal(false);
   
-  function isValidChartData(data: any): data is ChartData {
-    return (
-      Array.isArray(data.arrowarts) &&
-      Array.isArray(data.holdarts) &&
-      typeof data.metadata === 'object' &&
-      data.metadata !== null &&
-      Array.isArray(data.segments) &&
-      Array.isArray(data.segmentdata)
-    );
-  }
-  
   const [chartData, { mutate, refetch }] = createResource<ChartData, string>(
     () => params.id,
     async (id: string) => {
@@ -109,11 +97,6 @@ export default function DynamicPage(): JSXElement {
         segmentdata: metadata['Segment metadata'] as StrToAny[] || [],
         manuallyAnnotatedFlag: metadata['Manual limb annotation'] ? '✅' : ''
       };
-  
-      if (!isValidChartData(chartData)) {
-        throw new Error('Invalid chart data structure');
-      }
-  
       return chartData;
     }
   );
@@ -165,7 +148,7 @@ export default function DynamicPage(): JSXElement {
               <div style="text-align:center">
                 <a 
                   href={`/lifebar/${params.id}`}
-                  onClick={(e) => {forceRefresh(e, `/lifebar/${params.id}`)}}
+                  // onClick={(e) => {forceRefresh(e, `/lifebar/${params.id}`)}}
                 >
                   Use lifebar calculator
                 </a>
@@ -191,11 +174,11 @@ export default function DynamicPage(): JSXElement {
               class="column" 
             >
               <div style={'background-color: #2e2e2e; height: 100%'}>
-              <ArrowCanvas
-                data={chartData()!}
-                mutate={mutate as MutateFunction}
-              />
-                {/* <Show when={chartData()}>
+                <ArrowCanvas
+                  data={chartData()!}
+                  mutate={mutate as MutateFunction}
+                />
+                {/* <Show when={chartData()} fallback={'Loading, or failed to find chart'}>
                   <ArrowCanvas
                     data={chartData()!}
                     mutate={mutate as MutateFunction}

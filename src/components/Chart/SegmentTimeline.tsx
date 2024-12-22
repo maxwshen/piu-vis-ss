@@ -4,7 +4,6 @@ import { Segment } from '~/lib/types';
 import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
-import { forceRefresh } from "~/lib/util";
 
 interface SegmentTimelineProps {
   segments: Segment[];
@@ -25,13 +24,10 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
     return (
       <li>
         <a href={link}
-          onClick={(e) => {forceRefresh(e, link)}}
-          // target="_blank" rel="noopener noreferrer"
           style={`text-decoration: underline`}
         >{displayName}</a>
       </li>
     );
-    // return <li><a href={link}>{displayName}, §{sectionIdx1}</a></li>
   }
 
   function makeRareSkillText(): JSXElement {
@@ -101,11 +97,11 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
   };
 
   // console.log(props.segmentData);
-  const levels = props.segmentData.map((d) => Number(d['level']));
-  const minSegmentLevel = Math.min(...levels);
-  const maxSegmentLevel = Math.max(...levels);
-
+  
   const SegmentCollapsible = (segment: Segment, data: StrToAny, index: number) => {
+    const levels = props.segmentData.map((d) => Number(d['level']));
+    const minSegmentLevel = Math.min(...levels);
+    const maxSegmentLevel = Math.max(...levels);
     const [isOpen, setIsOpen] = createSignal(false);
     const sectionNumberP1 = index + 1;
     const fmtTimeStart = secondsToTimeStr(Math.round(segment[0]));

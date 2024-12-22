@@ -51,7 +51,7 @@ function displayCell(item: StrToAny, column: string) {
     return (
       <td>
         <a href={`/chart/${value}`}
-          target="_blank" rel="noopener noreferrer"
+          // target="_blank" rel="noopener noreferrer"
         >
           {getShortChartNameWithLevel(value)}
         </a>
