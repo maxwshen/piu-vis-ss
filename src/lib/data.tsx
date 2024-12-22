@@ -6,34 +6,34 @@ import { isServer } from "solid-js/web";
  * https://stackoverflow.com/questions/74966208/next-js-typeerror-failed-to-parse-url-from-api-projects-or-error-connect-econ
  * @returns 
  */
-export function checkEnvironment(): string {
-  const viteEnv = import.meta.env.VITE_ENV;
-  // const baseUrl = window.location.origin;
-  if (viteEnv == 'dev') {
-    return "http://localhost:3000"
-  } else if (viteEnv == 'prod') {
-    return "https://www.piucenter.com"
-    // return "https://piucenterv2.netlify.app"
-    // return baseUrl;
-  }
-  return "https://www.piucenter.com"
-  // return 'https://piucenterv2.netlify.app';
-  // return baseUrl;
-};
-
-
 // export function checkEnvironment(): string {
 //   const viteEnv = import.meta.env.VITE_ENV;
-//   const baseUrl = isServer 
-//     ? 'https://www.piucenter.com'  // Production URL for server context
-//     : (typeof window !== 'undefined' && window.location 
-//         ? window.location.origin 
-//         : 'https://www.piucenter.com');
+//   // const baseUrl = window.location.origin;
+//   if (viteEnv == 'dev') {
+//     return "http://localhost:3000"
+//   } else if (viteEnv == 'prod') {
+//     return "https://www.piucenter.com"
+//     // return "https://piucenterv2.netlify.app"
+//     // return baseUrl;
+//   }
+//   return "https://www.piucenter.com"
+//   // return 'https://piucenterv2.netlify.app';
+//   // return baseUrl;
+// };
 
-//   return viteEnv === 'dev' 
-//     ? "http://localhost:3000" 
-//     : baseUrl;
-// }
+
+export function checkEnvironment(): string {
+  const viteEnv = import.meta.env.VITE_ENV;
+  const baseUrl = isServer 
+    ? 'https://www.piucenter.com'  // Production URL for server context
+    : (typeof window !== 'undefined' && window.location 
+        ? window.location.origin 
+        : 'https://www.piucenter.com');
+
+  return viteEnv === 'dev' 
+    ? "http://localhost:3000" 
+    : baseUrl;
+}
 
 
 /**
