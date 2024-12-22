@@ -338,7 +338,7 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
           let rect = new Konva.default.Rect({
             x: arrowsColX,
             y: (time + beginTime) * pxPerSecond(),
-            width: arrowsColXRight,
+            width: (arrowsColXRight - arrowsColX),
             height: (endTime - beginTime) * pxPerSecond(),
             fill: color,
             opacity: 0.5,
@@ -351,7 +351,7 @@ export default function KonvaCanvas(props: ArrowCanvasProps) {
         let rect = new Konva.default.Rect({
           x: arrowsColX,
           y: time * pxPerSecond(),
-          width: arrowsColXRight,
+          width: (arrowsColXRight - arrowsColX),
           height: 1,
           fill: '#fff',
           name: id,
