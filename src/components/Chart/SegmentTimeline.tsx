@@ -26,6 +26,7 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
       <li>
         <a href={link}
           onClick={(e) => {forceRefresh(e, link)}}
+          // target="_blank" rel="noopener noreferrer"
           style={`text-decoration: underline`}
         >{displayName}</a>
       </li>

@@ -1,5 +1,15 @@
 
 
+export interface ChartData {
+  arrowarts: ArrowArt[];
+  holdarts: HoldArt[];
+  metadata: StrToAny;
+  segments: Segment[];
+  segmentdata: StrToAny[];
+  manuallyAnnotatedFlag: string;
+}
+
+
 // [panel, time, limbAnnot]
 export type ArrowArt = [number, number, string];
 

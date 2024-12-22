@@ -1,14 +1,14 @@
 import { onMount, createEffect, onCleanup, Accessor } from "solid-js";
 import type { Resource } from 'solid-js';
 import { isServer } from 'solid-js/web';
-import { ChartArt, Segment } from '~/lib/types';
+import { ChartData, Segment } from '~/lib/types';
 import { getENPSColor, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
 
 
 interface NPSTimelineProps {
-  dataGet: Resource<ChartArt | null>;
+  data: ChartData;
 }
 
 
@@ -27,7 +27,7 @@ function getLevelLineThickness(t: number): number {
 
 
 export default function ENPSTimeline(props: NPSTimelineProps) {
-  let dataGet = props.dataGet;
+  let data = props.data;
 
   let timelineContainerRef: HTMLDivElement;
 
@@ -49,8 +49,7 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
     if (isServer ) return;
 
     import('konva').then((Konva) => {
-      const data = dataGet()!;
-      const metadata = data[2];
+      const metadata = data['metadata'];
       const timelineData: number[] = metadata['eNPS timeline data'];
       const segments: Segment[] = metadata['Segments'];
       const segmentMetadata: StrToAny[] = metadata['Segment metadata'];

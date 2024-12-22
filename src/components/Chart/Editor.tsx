@@ -1,14 +1,18 @@
-import type { JSXElement } from 'solid-js';
+import type { Accessor, JSXElement } from 'solid-js';
 import type { Resource } from 'solid-js';
 import { useParams } from "@solidjs/router";
 import { ChartArt } from '~/lib/types';
 import { useChartContext } from "~/components/Chart/ChartContext";
+import { ChartData } from '~/lib/types';
 
 
-function SaveJsonButton(id: string, data: ChartArt): JSXElement {
+function SaveJsonButton(id: string, data: ChartData): JSXElement {
   // Function to save JSON to file
   const saveJsonToFile = () => {
-    const json = JSON.stringify(data, null, 2); // Convert JSON object to string
+    const toSave = [data['arrowarts'], data['holdarts'], data['metadata']]
+
+    // const json = JSON.stringify(data, null, 2); // Convert JSON object to string
+    const json = JSON.stringify(toSave, null, 2); // Convert JSON object to string
     const blob = new Blob([json], { type: "application/json" }); // Create a Blob from the JSON string
     const url = URL.createObjectURL(blob); // Create a URL for the Blob
 
@@ -33,7 +37,7 @@ function SaveJsonButton(id: string, data: ChartArt): JSXElement {
 
 
 interface EditorProps {
-  dataGet: Resource<ChartArt | null>;
+  dataGet: Resource<ChartData | null>;
 }
 
 export default function EditorPanel(props: EditorProps) {
