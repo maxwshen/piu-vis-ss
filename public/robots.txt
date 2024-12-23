@@ -1,3 +1,12 @@
-# robots.txt
+# Allow legitimate search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Rate limit everyone
 User-agent: *
-Disallow: /
+Crawl-delay: 10  # Suggest 10 second delay between requests
+Disallow: /api/
+Disallow: /chart-jsons/  # Block access to your JSON data files
