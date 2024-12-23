@@ -43,6 +43,9 @@ function SkillList(props: { skillname: string }) {
 
   // Use createMemo to reactively compute the specific tier list
   const skillchartlist = createMemo(() => {
+    if (skillData.error) {
+      return (<p>Error loading data</p>)
+    };
     const data_and_descriptions = skillData();
     const indentSize = 50;
     if (data_and_descriptions) {

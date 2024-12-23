@@ -1,8 +1,10 @@
 User-agent: Googlebot
-Allow: /
+Disallow: /chart-jsons/
+Disallow: /chart/
 
 User-agent: DuckDuckBot
-Allow: /
+Disallow: /chart-jsons/
+Disallow: /chart/
 
 User-agent: Amazonbot
 Disallow: /
@@ -13,3 +15,4 @@ User-agent: *
 Crawl-delay: 10
 Disallow: /api/
 Disallow: /chart-jsons/
+Disallow: /chart/

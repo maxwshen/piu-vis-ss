@@ -5,18 +5,23 @@ import RootLayout from "./components/RootLayout";
 import Nav from "~/components/Nav";
 import "./app.css";
 import { MetaProvider } from "@solidjs/meta";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 
 export default function App() {
   return (
     <Router
       root={props => (
-        <RootLayout>
-          <MetaProvider>
-            {/* <Nav /> */}
-            <Suspense>{props.children}</Suspense>
-          </MetaProvider>
-        </RootLayout>
+        <ErrorBoundary>
+          <RootLayout>
+            <MetaProvider>
+              {/* <Nav /> */}
+              <Suspense>
+                {props.children}
+              </Suspense>
+            </MetaProvider>
+          </RootLayout>
+        </ErrorBoundary>
       )}
     >
       <FileRoutes />
