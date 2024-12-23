@@ -29,7 +29,9 @@ export function checkEnvironment(): string {
     : (typeof window !== 'undefined' && window.location 
         ? window.location.origin 
         : 'https://www.piucenter.com');
-
+  
+  return baseUrl;
+  // console.log(baseUrl);
   return viteEnv === 'dev' 
     ? "http://localhost:3000" 
     : baseUrl;

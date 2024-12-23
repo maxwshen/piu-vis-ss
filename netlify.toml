@@ -3,6 +3,10 @@
   to = "/"
   status = 200
 
+[[edge_functions]]
+  path = "/*"
+  function = "serve"
+
 [[headers]]
   for = "/*.json"
   [headers.values]
