@@ -16,9 +16,12 @@
   status = 200
 
 [[edge_functions]]
+  function = "bot-blocker"
   path = "/*"
+
+[[edge_functions]]
   function = "serve"
-  excludedPattern = "Amazonbot"
+  path = "/*"
 
 [[headers]]
   for = "/*"
