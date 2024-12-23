@@ -1,7 +1,21 @@
-// @refresh reload
 import { createHandler, StartServer } from "@solidjs/start/server";
 
-export default createHandler(() => (
+const wrapHandler = (handler: Function) => {
+  let lastCall = Date.now();
+  return (...args: any[]) => {
+    const now = Date.now();
+    console.log({
+      timeSinceLastCall: now - lastCall,
+      timestamp: new Date().toISOString(),
+      stack: new Error().stack?.split('\n').slice(1).join('\n'),
+      args
+    });
+    lastCall = now;
+    return handler(...args);
+  };
+};
+
+const handler = () => (
   <StartServer
     document={({ assets, children, scripts }) => (
       <html lang="en">
@@ -18,4 +32,6 @@ export default createHandler(() => (
       </html>
     )}
   />
-));
+);
+
+export default wrapHandler(createHandler(handler));

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@netlify/edge-functions": "^2.11.1",
+    "@netlify/functions": "^3.0.0",
     "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.13.6",
     "@solidjs/start": "^1.0.2",
