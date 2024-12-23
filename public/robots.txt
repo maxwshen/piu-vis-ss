@@ -5,7 +5,9 @@ User-agent: DuckDuckBot
 Allow: /
 
 User-agent: Amazonbot
-Disallow: /do-not-crawl/ 
+Disallow: /
+Disallow: /chart/
+Disallow: /chart-jsons/
 
 User-agent: *
 Crawl-delay: 10
