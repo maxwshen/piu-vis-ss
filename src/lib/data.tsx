@@ -1,26 +1,5 @@
-import { ArrowArt, HoldArt, ChartArt, StrToAny } from './types';
+import { ChartArt, StrToAny } from './types';
 import { isServer } from "solid-js/web";
-
-/**
- * Get base URL, depending on local env variable
- * https://stackoverflow.com/questions/74966208/next-js-typeerror-failed-to-parse-url-from-api-projects-or-error-connect-econ
- * @returns 
- */
-// export function checkEnvironment(): string {
-//   const viteEnv = import.meta.env.VITE_ENV;
-//   // const baseUrl = window.location.origin;
-//   if (viteEnv == 'dev') {
-//     return "http://localhost:3000"
-//   } else if (viteEnv == 'prod') {
-//     return "https://www.piucenter.com"
-//     // return "https://piucenterv2.netlify.app"
-//     // return baseUrl;
-//   }
-//   return "https://www.piucenter.com"
-//   // return 'https://piucenterv2.netlify.app';
-//   // return baseUrl;
-// };
-
 
 export function checkEnvironment(): string {
   const viteEnv = import.meta.env.VITE_ENV;
@@ -31,7 +10,6 @@ export function checkEnvironment(): string {
         : 'https://www.piucenter.com');
   
   return baseUrl;
-  // console.log(baseUrl);
   return viteEnv === 'dev' 
     ? "http://localhost:3000" 
     : baseUrl;
@@ -44,11 +22,12 @@ export function checkEnvironment(): string {
  * @returns 
  */
 export async function fetchData(id: string): Promise<ChartArt | null> {
+  const startTime = Date.now();
   try {
-    const response = await fetch(
-      // window.location.origin.concat(`/chart-jsons/120524/${id}.json`)
-      checkEnvironment().concat(`/chart-jsons/120524/${id}.json`)
-  );
+    const url = checkEnvironment().concat(`/chart-jsons/120524/${id}.json`);
+    console.log(`[${new Date().toISOString()}] Fetching ${url}`);
+    const response = await fetch(url);
+    console.log(`Fetch took ${Date.now() - startTime}ms`);
     const obj = await response.json();
     return obj;
   } catch (error) {
@@ -56,31 +35,6 @@ export async function fetchData(id: string): Promise<ChartArt | null> {
   }
   return null;
 }
-
-// export async function fetchData(id: string): Promise<ChartArt | null> {
-//   try {
-//     // For development environment
-//     if (import.meta.env.DEV) {
-//       const response = await fetch(
-//         `http://localhost:3000/chart-jsons/120524/${id}.json`
-//       );
-//       const obj = await response.json();
-//       return obj;
-//     }
-    
-//     // For production environment
-//     const baseUrl = window.location.origin;
-//     const response = await fetch(
-//       `${baseUrl}/chart-jsons/120524/${id}.json`
-//     );
-//     const obj = await response.json();
-//     return obj;
-//   } catch (error) {
-//     console.error('Error fetching data:', error);
-//     console.error('URL attempted:', `${window.location.origin}/chart-jsons/120524/${id}.json`);
-//     return null;
-//   }
-// }
 
 /**
  * Fetches JSON data
