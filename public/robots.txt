@@ -5,7 +5,7 @@ User-agent: DuckDuckBot
 Allow: /
 
 User-agent: Amazonbot
-Disallow: /
+Disallow: /do-not-crawl/ 
 
 User-agent: *
 Crawl-delay: 10
