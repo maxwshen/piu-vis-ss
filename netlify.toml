@@ -8,7 +8,6 @@
   for = "/*.json"
   [headers.values]
     Cache-Control = "public, max-age=86400" # Cache for 1 day
-    Content-Encoding = "br,gzip"
     Vary = "Accept-Encoding"
     
 [[headers]]
