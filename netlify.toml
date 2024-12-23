@@ -8,6 +8,14 @@
   to = "/.netlify/functions/:splat"
   status = 200
 
+# block Amazonbot IPs
+[[redirects]]
+  from = "/*"
+  to = "/blocked"
+  status = 403
+  force = true
+  conditions = {IP = ["52.3.156.186", "54.236.63.251"]}
+
 [[edge_functions]]
   path = "/*"
   function = "serve"
