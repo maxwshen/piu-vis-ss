@@ -18,7 +18,7 @@
 [[edge_functions]]
   path = "/*"
   function = "serve"
-  excluded_patterns = ["*Amazonbot*"]
+  excludedPattern = "Amazonbot"
 
 [[headers]]
   for = "/*"
