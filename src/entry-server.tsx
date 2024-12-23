@@ -2,7 +2,7 @@ import { createHandler, StartServer } from "@solidjs/start/server";
 
 const wrapHandler = (handler: Function) => {
   let lastCall = Date.now();
-  return async (...args: any[]) => {
+  return (...args: any[]) => {
     const now = Date.now();
     const event = args[0];
     const userAgent = event?.node?.req?.headers['user-agent'];
@@ -15,9 +15,6 @@ const wrapHandler = (handler: Function) => {
         ip: event?.node?.req?.headers['x-forwarded-for'],
         ua: userAgent
       });
-
-      // Add a significant delay before responding
-      await new Promise(resolve => setTimeout(resolve, 10000)); // 10 second delay
       
       // Return a 403 response
       event.node.res.writeHead(403, { 'Content-Type': 'application/json' });
