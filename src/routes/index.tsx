@@ -56,8 +56,8 @@ export default function Home() {
       <div class="markdown-content">
         <SolidMarkdown 
           children={markdownContent} 
-          remarkPlugins={[remarkGfm]}
-          rehypePlugins={[rehypeRaw]}
+          // remarkPlugins={[remarkGfm]}
+          // rehypePlugins={[rehypeRaw]}
         />
       </div>
     </div>
