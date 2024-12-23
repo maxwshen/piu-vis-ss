@@ -4,7 +4,7 @@ import type { JSXElement } from 'solid-js';
 import { Show } from 'solid-js';
 import { fetchData } from '~/lib/data';
 import { ArrowArt, ChartArt, HoldArt, Segment, StrToAny } from '~/lib/types';
-import { getShortChartName, getShortChartNameWithLevel, forceRefresh } from '~/lib/util';
+import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
 import Nav from '~/components/Nav';
 import "./[id].css"
 import { ChartData } from "~/lib/types";
@@ -148,7 +148,6 @@ export default function DynamicPage(): JSXElement {
               <div style="text-align:center">
                 <a 
                   href={`/lifebar/${params.id}`}
-                  // onClick={(e) => {forceRefresh(e, `/lifebar/${params.id}`)}}
                 >
                   Use lifebar calculator
                 </a>
@@ -178,12 +177,6 @@ export default function DynamicPage(): JSXElement {
                   data={chartData()!}
                   mutate={mutate as MutateFunction}
                 />
-                {/* <Show when={chartData()} fallback={'Loading, or failed to find chart'}>
-                  <ArrowCanvas
-                    data={chartData()!}
-                    mutate={mutate as MutateFunction}
-                  />
-                </Show> */}
               </div>
             </div>
 

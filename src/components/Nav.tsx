@@ -1,20 +1,11 @@
 import { A, useNavigate } from "@solidjs/router";
 
 export default function Nav() {
-  const navigate = useNavigate();
-
-  const forceRefresh = (e: MouseEvent, url: string) => {
-    e.preventDefault();
-    // Force a full page load for the home page
-    window.location.href = url;
-  };
-
   return (
     <nav class="nav" style={`margin-bottom: 10px; background-color: #444`}>
       <ul class="container flex items-center p-1 text-gray-200">
         <a 
           href="/"
-          onClick={(e) => {forceRefresh(e, '/')}}
           style={`color:#efb920;font-style:italic;text-decoration:none;text-shadow: 0 0 2px;`}
         > 
           piucenter 
@@ -29,7 +20,6 @@ export default function Nav() {
         <li class={`border-b-2} ml-1.5 sm:ml-6`}>
           <A class='nava' 
             href="/articles/difficultytierlists"
-            onClick={(e) => {forceRefresh(e, '/articles/difficultytierlists')}}
             style={`color:#ddd;text-decoration:underline`}
           >Difficulty tier lists</A>
         </li>
@@ -42,7 +32,6 @@ export default function Nav() {
         <li class={`border-b-2} ml-1.5 sm:ml-6`}>
           <A class='nava'
             href="/articles/lifebarcalculator"
-            onClick={(e) => {forceRefresh(e, '/articles/lifebarcalculator')}}
             style={`color:#ddd;text-decoration:underline`}
           >Lifebar calculator</A>
         </li>

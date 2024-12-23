@@ -7,12 +7,6 @@ export function roundToDecimals(input: any, decimals: number): number {
   return Math.round(x * n) / n;
 }
 
-export const forceRefresh = (e: MouseEvent, url: string) => {
-  e.preventDefault();
-  // Force a full page load
-  window.location.href = url;
-};
-
 
 export function getShortChartName(name: string) {
   var n = name.replace('_INFOBAR_TITLE_', '_').replace('_HALFDOUBLE_', '_');
