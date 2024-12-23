@@ -1,10 +1,19 @@
 import { defineConfig } from "@solidjs/start/config";
 
 export default defineConfig({
+  // ssr: false,
   server: {
-    preset: "netlify"
+    preset: "netlify",
   },
   vite: {
+    // Add build optimizations
+    build: {
+      // Enable minification
+      minify: 'terser',
+      // Reduce chunk size warnings
+      chunkSizeWarningLimit: 1000
+    },
+    // Enable caching for development
     plugins: [
       {
         name: 'markdown-loader',
@@ -12,10 +21,9 @@ export default defineConfig({
         transform(code, id) {
           if (!id.endsWith('.md')) return;
           
-          // Properly handle the markdown content
           const content = code
-            .replace(/`/g, '\\`')  // Escape backticks
-            .replace(/\${/g, '\\${');  // Escape template literals
+            .replace(/`/g, '\\`')
+            .replace(/\${/g, '\\${');
           
           return {
             code: `export default \`${content}\`;`,
