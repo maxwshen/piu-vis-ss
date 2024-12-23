@@ -21,3 +21,11 @@
   for = "/assets/*"  # Adjust path based on your structure
   [headers.values]
     Cache-Control = "public, max-age=31536000" # Cache for 1 year
+
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Add rate limiting headers
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
