@@ -25,9 +25,7 @@ export async function fetchData(id: string): Promise<ChartArt | null> {
   const startTime = Date.now();
   try {
     const url = checkEnvironment().concat(`/chart-jsons/120524/${id}.json`);
-    console.log(`[${new Date().toISOString()}] Fetching ${url}`);
     const response = await fetch(url);
-    console.log(`Fetch took ${Date.now() - startTime}ms`);
     const obj = await response.json();
     return obj;
   } catch (error) {
