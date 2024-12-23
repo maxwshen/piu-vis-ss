@@ -1,9 +1,9 @@
 import { Title } from "@solidjs/meta";
 import Nav from '~/components/Nav';
 import { marked } from 'marked';
-import { createSignal, onMount } from 'solid-js';
+import { createEffect, createSignal, onMount } from 'solid-js';
 
-// Keep your original markdown content
+
 const markdownContent = `
 An interactive web app and knowledge resource for the dance rhythm game, Pump it Up!
 
@@ -35,20 +35,26 @@ For more information and credits, see the [about page](/articles/about) and join
 </span>
 `;
 
+
 export default function Home() {
+  const [mdContent, setMDContent] = createSignal('');
   const [htmlContent, setHtmlContent] = createSignal('');
 
   onMount(() => {
-    // Configure marked to handle HTML and styling
     marked.setOptions({
       breaks: true,
       gfm: true,
-      headerIds: true,
-      mangle: false,
-      sanitize: false, // Allow HTML
     });
 
-    setHtmlContent(marked(markdownContent));
+    const parseContent = async () => {
+      const parsedContent = await marked(markdownContent);
+      setMDContent(parsedContent);
+    }
+    parseContent();
+
+    createEffect(() => {
+      setHtmlContent(mdContent());
+    })
   });
 
   return (
