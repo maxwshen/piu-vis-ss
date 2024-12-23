@@ -1,7 +1,7 @@
 import { defineConfig } from "@solidjs/start/config";
 
 export default defineConfig({
-  // ssr: false,
+  ssr: false,
   server: {
     preset: "netlify",
   },
@@ -13,6 +13,21 @@ export default defineConfig({
       // Reduce chunk size warnings
       chunkSizeWarningLimit: 1000
     },
+    ssr: {
+      noExternal: ['solid-markdown']
+    },
+    optimizeDeps: {
+      include: ['solid-markdown']
+    },
+    // optimizeDeps: {
+    //   include: [
+    //     'solid-markdown',
+    //     'remark-gfm',
+    //     'remark-parse',
+    //     'remark-rehype',
+    //     'rehype-raw'
+    //   ]
+    // },
     // Enable caching for development
     plugins: [
       {
