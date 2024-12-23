@@ -1,17 +1,36 @@
-import { Context } from "@netlify/edge-functions";
+import { Context, Handler } from "@netlify/functions";
 
-export default async function botBlocker(request: Request, context: Context) {
-  const ip = request.headers.get("x-forwarded-for")?.split(", ")[0];
-  const userAgent = request.headers.get("user-agent") || "";
-  
-  // Block if it's Amazonbot
-  if (userAgent.includes("Amazonbot")) {
-    return new Response(JSON.stringify({ error: "Access denied" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" }
+export const handler: Handler = async (event, context) => {
+  const userAgent = event.headers['user-agent'] || '';
+  const ip = event.headers['x-forwarded-for'] || '';
+
+  console.log({
+    message: "Server bot-blocker running",
+    ip,
+    userAgent,
+    timestamp: new Date().toISOString()
+  });
+
+  if (userAgent.includes('Amazonbot')) {
+    console.log({
+      message: "Server blocking Amazonbot",
+      ip,
+      userAgent,
+      timestamp: new Date().toISOString()
     });
+
+    return {
+      statusCode: 403,
+      body: JSON.stringify({ error: 'Access denied' }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    };
   }
 
-  // Continue to the next middleware/function if not blocked
-  return context.next();
-}
+  // If not blocked, proxy to original destination
+  return {
+    statusCode: 200,
+    body: JSON.stringify({ message: 'Allowed' })
+  };
+};
