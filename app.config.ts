@@ -8,14 +8,6 @@ export default defineConfig({
   vite: {
     // Add build optimizations
     build: {
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            // Group dependencies into larger chunks
-            'vendor': ['solid-js', '@solidjs/router'],
-          }
-        }
-      },
       // Enable minification
       minify: 'terser',
       // Reduce chunk size warnings
