@@ -13,7 +13,7 @@
   to = "/blocked"
   status = 403
   force = true
-  conditions = {User-Agent = "~Amazonbot"}
+  conditions = {User-Agent = "~.*Amazonbot.*"}
 
 [[edge_functions]]
   path = "/*"
