@@ -4,16 +4,21 @@ const wrapHandler = (handler: Function) => {
   let lastCall = Date.now();
   return (...args: any[]) => {
     const now = Date.now();
+    const event = args[0];
     console.log({
       timeSinceLastCall: now - lastCall,
       timestamp: new Date().toISOString(),
-      stack: new Error().stack?.split('\n').slice(1).join('\n'),
-      args
+      method: event?.node?.req?.method,
+      path: event?.node?.req?.url,
+      ip: event?.node?.req?.headers['x-forwarded-for'],
+      ua: event?.node?.req?.headers['user-agent'], 
+      clientId: event?.node?.req?.headers['x-client-id'],
+      stack: new Error().stack?.split('\n').slice(1).join('\n')
     });
     lastCall = now;
     return handler(...args);
   };
-};
+ };
 
 const handler = () => (
   <StartServer
