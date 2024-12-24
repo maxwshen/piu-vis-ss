@@ -8,13 +8,13 @@ const markdownContent = `
 An interactive web app and knowledge resource for the dance rhythm game, Pump it Up!
 
 ---
-**[Chart search](/search)**: Find stepcharts with specific skills and techniques, like twisting, anchor runs, brackets, and doubles charts focused on the middle 4 panels.
-
-**[Difficulty tier lists](/difficulty)**: Trying to break into a new difficulty level? Find stepcharts ranked by difficulty *within* each level, for all difficulties: from S1 to S26, and D4 to D28.
+**[Chart search](/search)** and **[Skills](/skill)**: Find stepcharts with specific skills and techniques, like twists, anchor runs, brackets, and middle-4 panel doubles.
 
 **[Lifebar calculator](/articles/lifebarcalculator)**: Plan stage passes with our interactive lifebar calculator: see the impact of missing specific notes in a stepchart on your lifebar.
 
 **[Articles](/articles)**: Learn about game mechanics, like the lifebar, judgment timing windows, and core concepts like crux sections (the hardest parts of a stepchart), notes per second to quantify footspeed, and time under tension.
+
+**[Difficulty tier lists](/articles/difficultytierlists)**: Trying to break into a new difficulty level? Find stepcharts ranked by difficulty *within* each level, for all difficulties: from S1 to S26, and D4 to D28.
 
 ---
 

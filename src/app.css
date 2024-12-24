@@ -12,6 +12,10 @@
   color: #8c68cb;
 } */
 
+.nav ul {
+  transition: all 0.3s ease-in-out;
+}
+
 .nava {
   color: '#ccc';
   text-decoration: underline;
@@ -40,6 +44,14 @@ body {
 
   .legend {
     max-width: 250px;
+  }
+
+  .markdown-content {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
   }
 }
 
