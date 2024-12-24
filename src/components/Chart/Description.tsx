@@ -24,8 +24,16 @@ export default function chartDescription(metadata: StrToAny): JSXElement {
   const songtype = String(metadata['SONGTYPE']).toLowerCase()
   const songcategory = String(metadata['SONGCATEGORY']).toLowerCase()
 
+  let query_list = [metadata['TITLE'], sordChartLevel];
+  if (songtype.toLowerCase() != 'arcade') {
+    query_list = [...query_list, songtype];
+  }
+  const youtube_query = 'pump+it+up+' + query_list.join('+');
+
   return (
     <div class="font-small" style="color:#aaa;margin-top:10px">
+
+      {/* skill badges */}
       <Show 
         when={metadata['chart_skill_summary'] && metadata['chart_skill_summary'].length > 0}
         fallback={<></>}
@@ -37,6 +45,7 @@ export default function chartDescription(metadata: StrToAny): JSXElement {
         </div>
       </Show>
 
+      {/* pack - difficulty - songtype */}
       {/* <hr style={`border-color:#666`}></hr> */}
       <div style={`text-align:center`}>
         <span>{pack}&emsp;</span>
@@ -52,7 +61,8 @@ export default function chartDescription(metadata: StrToAny): JSXElement {
         </p>
       </div>
 
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
+      {/* notetype/bpm info */}
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:5px;margin-bottom:5px`}
       >
         <Show when={metadata['notetype_bpm_summary']}>
           <span>
@@ -62,6 +72,16 @@ export default function chartDescription(metadata: StrToAny): JSXElement {
           </span>
         </Show>
       </span>
+
+      {/* youtube */}
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-bottom:5px`}>
+        <a href={`https://www.youtube.com/results?search_query=${youtube_query}`}
+          target="_blank" rel="noopener noreferrer"
+        >
+          Find chart on YouTube
+        </a>
+      </span>
+
     </div>
 );
 };
