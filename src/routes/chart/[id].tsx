@@ -32,20 +32,22 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
 
   const makeSimilarChartsList = (level: string, chartList: string[]): JSXElement => {
     return (
-      <p>{level}: 
-        <For each={chartList}>
-          {(chart: string) => (
-            <span>
-              <a href={`/chart/${chart}`} 
-                style={`color:#aaa;text-decoration:underline`}
-              >
-                {getShortChartName(chart)}
-              </a>
-              &ensp;
-            </span>
-          )}
-        </For>
-      </p>
+      <Show when={chartList.length > 0}>
+        <p>{level}: 
+          <For each={chartList}>
+            {(chart: string) => (
+              <span>
+                <a href={`/chart/${chart}`} 
+                  style={`color:#aaa;text-decoration:underline`}
+                >
+                  {getShortChartName(chart)}
+                </a>
+                &ensp;
+              </span>
+            )}
+          </For>
+        </p>
+      </Show>
     );
   };
 
