@@ -9,6 +9,27 @@ import ErrorBoundary from "./components/ErrorBoundary";
 
 
 export default function App() {
+  const viteEnv = import.meta.env.VITE_ENV;
+  if (viteEnv === 'dev') {
+    // remove errorboundary
+    return (
+      <Router
+        root={props => (
+          <RootLayout>
+            <MetaProvider>
+              {/* <Nav /> */}
+              <Suspense>
+                {props.children}
+              </Suspense>
+            </MetaProvider>
+          </RootLayout>
+        )}
+      >
+        <FileRoutes />
+      </Router>
+    );
+  };
+
   return (
     <Router
       root={props => (
