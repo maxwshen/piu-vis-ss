@@ -10,7 +10,8 @@ export default function Nav() {
     { href: "/articles/difficultytierlists", text: "Difficulty tier lists" },
     { href: "/skill", text: "Skills" },
     { href: "/articles/lifebarcalculator", text: "Lifebar calculator" },
-    { href: "/articles", text: "Articles" }
+    { href: "/articles", text: "Articles" },
+    { href: "/upload", text: "Upload" },
   ];
 
   return (

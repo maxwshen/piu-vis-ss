@@ -44,11 +44,15 @@ function UploaderOrVisualizer(): JSXElement {
           fallback=
           {
             <div style='max-width:800px;margin:auto;margin-top:50px'>
+              <div class='text-[28px]' style={`color:#ddd;margin-top:50px;margin-bottom:50px`}>
+                Upload a chart json file for visualization
+              </div>
               <JSONUploader/>
               <div class='text-lg' style={`color:#888;margin-top:50px`}>
-                Upload a chart json file to visualize it.
+                Chart jsons are from piucenter's editor, which allows you to edit foot annotations and mark suggested misses.
+                The editor lets you save chart json files to share with others. 
                 <br/><br/>
-                Where can you get chart jsons? Piucenter's editor allows you to edit foot annotations, mark suggested misses, and save these custom annotations to json file. You can use the editor to get chart jsons to re-visualize here, or get chart jsons shared by people in the community. 
+                You can find and share chart json files in the <a href="https://discord.gg/aHbZsk7j2U">piucenter discord</a>.
               </div>
             </div>
           }

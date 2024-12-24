@@ -8,7 +8,7 @@ const markdownContent = `
 An interactive web app and knowledge resource for the dance rhythm game, Pump it Up!
 
 ---
-**[Chart search](/search)** and **[Skills](/skill)**: Find stepcharts with specific skills and techniques, like twists, anchor runs, brackets, and middle-4 panel doubles.
+**[Chart search](/search)** and **[Skills](/skill)**: Find stepcharts with specific skills and techniques, like twists, anchor runs, brackets, and middle-4 panel doubles. Incrementally improve your footspeed (notes per second) and time under tension.
 
 **[Lifebar calculator](/articles/lifebarcalculator)**: Plan stage passes with our interactive lifebar calculator: see the impact of missing specific notes in a stepchart on your lifebar.
 
@@ -19,19 +19,18 @@ An interactive web app and knowledge resource for the dance rhythm game, Pump it
 ---
 
 **Stepchart visualization**
-- Learn how to execute stepcharts: all arrows and holds are annotated with which foot you should use: right foot or left foot
-- Prepare yourself for playing unfamiliar stepcharts
-- Struggling on a particular stepchart section? Find similar charts, and similar chart sections
+- Learn how to execute stepcharts: how-to-play (left foot / right foot) for all charts in the game
+- Prepare for unfamiliar stepcharts: quickly identify the hardest crux sections, and study patterns
+- Struggling on a section? Find similar charts and sections
 
 ---
 
 <span style="color:#888;">
-Content version: Phoenix v2.01.
+Content version: Phoenix v2.01
 
-piucenter is founded on the idea that community-made .ssc stepchart files are a rich resource for data analysis, visualization, and creating tools for the community to support players playing on official Pump it Up machines.
+piucenter is founded on the idea that community-made .ssc simfiles are a rich resource for data analysis, visualization, and creating tools to support Pump it Up players.
 
-piucenter is a hobby project by aesthete.
-For more information and credits, see the [about page](/articles/about) and join our [discord](https://discord.gg/aHbZsk7j2U).
+piucenter is a hobby project by aesthete. See our [about page](/articles/about) and join our [discord](https://discord.gg/aHbZsk7j2U).
 </span>
 `;
 

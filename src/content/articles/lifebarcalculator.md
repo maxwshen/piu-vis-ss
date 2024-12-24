@@ -3,9 +3,10 @@ title: How to use piucenter's Lifebar calculator
 # description: 
 date: 2024-12-18
 ---
-# Life bar calculator
+# Lifebar calculator
 
 piucenter features interactive, stepchart-specific lifebar calculators.
+To read more about lifebar mechanics, visit our [lifebar article](/articles/lifebar).
 
 ---
 
@@ -14,10 +15,11 @@ piucenter features interactive, stepchart-specific lifebar calculators.
 2. On the chart visualizer page, such as [Super Fantasy D17 Shortcut](/chart/Super_Fantasy_-_SHORT_CUT_-_-_SHK_D17_SHORTCUT), click the "Use lifebar calculator" link on the left panel
 3. Arrive at the lifebar calculator page, such as [Super Fantasy D17 Shortcut: Lifebar calculator page](/lifebar/Super_Fantasy_-_SHORT_CUT_-_-_SHK_D17_SHORTCUT)
 
+---
+
 ### How to use the lifebar calculator
 1. Click arrows to toggle perfect/miss judgment, and see its impact on your lifebar.
 
-To read more about lifebar mechanics, visit the [lifebar article](/articles/lifebar).
 
 ---
 <div style='color:#888'>
