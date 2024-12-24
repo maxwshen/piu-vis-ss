@@ -4,6 +4,7 @@ import { Segment } from '~/lib/types';
 import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
+import { useParams } from "@solidjs/router";
 
 interface SegmentTimelineProps {
   segments: Segment[];
@@ -12,6 +13,7 @@ interface SegmentTimelineProps {
 
 
 function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, data: StrToAny): JSXElement {
+  console.log(window.location.href);
   // provides content inside of segment collapsible
   const similarSections = data['Closest sections'];
 
@@ -55,11 +57,15 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
 
   return (
     <div class="text-md">
-      <p class="hover:gray-900 cursor-pointer"
-        style={`color:#888;text-decoration:underline`}
-        onClick={(e) => copyToClipboard()}
-      >copy link to section</p>
+      <Show when={!window.location.href.includes('upload')}>
+        <p class="hover:gray-900 cursor-pointer"
+          style={`color:#888;text-decoration:underline`}
+          onClick={(e) => copyToClipboard()}
+        >copy link to section</p>
+      </Show>
+
       {makeRareSkillText()}
+
       <Show when={similarSections.length > 0}>
         {/* <pre class="whitespace-pre-wrap text-base"> */}
         <p style={`color:#ddd`}>Similar chart sections:</p>    

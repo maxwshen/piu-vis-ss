@@ -101,6 +101,7 @@ export default function LifebarPlot(props: Props) {
     setClickTo,
     pxPerSecond,
     missTimes,
+    setMissTimes,
   } = useChartContext();
 
   onMount(() => {
@@ -400,6 +401,18 @@ export default function LifebarPlot(props: Props) {
     setClickTo({'type': 'miss', 
       'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 
       'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
+
+    // try to update miss times?
+    let arrowarts = props.data.arrowarts;
+    let initMissTimes: number[] = [];
+    for (let i = 0; i < arrowarts.length; i++) {
+      const [panelPos, time, limbAnnot] = arrowarts[i];
+
+      if (limbAnnot.includes('miss')) {
+        initMissTimes = [...initMissTimes, time];
+      }
+    }
+    setMissTimes(initMissTimes);
   });
 
   return (

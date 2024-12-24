@@ -374,7 +374,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
       const arrowarts = props.data.arrowarts;
       const holdarts = props.data.holdarts;
 
-      // ... your existing click handler code ...
       // if (!editorMode) { return }
 
       const scrolly = scrollContainerRef()!.scrollTop - PADDING;

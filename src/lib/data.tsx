@@ -10,9 +10,6 @@ export function checkEnvironment(): string {
         : 'https://www.piucenter.com');
   
   return baseUrl;
-  return viteEnv === 'dev' 
-    ? "http://localhost:3000" 
-    : baseUrl;
 }
 
 

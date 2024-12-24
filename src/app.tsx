@@ -11,7 +11,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 export default function App() {
   const viteEnv = import.meta.env.VITE_ENV;
   if (viteEnv === 'dev') {
-    // remove errorboundary
+    // remove errorboundary in dev
     return (
       <Router
         root={props => (

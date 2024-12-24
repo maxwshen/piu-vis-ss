@@ -17,6 +17,7 @@ import SegmentTimeline from "~/components/Chart/SegmentTimeline";
 import { ChartProvider } from "~/components/Chart/ChartContext";
 import EditorPanel from "~/components/Chart/Editor";
 import chartDescription from "~/components/Chart/Description";
+import LifebarPlot from "~/components/Chart/Lifebar";
 
 import { JSONUploader } from "~/components/JsonUploader";
 import { ChartDataProvider } from "~/components/ChartDataContext";
@@ -25,57 +26,6 @@ import { useChart } from "~/components/ChartDataContext";
 
 // Types
 type MutateFunction = (v: ChartData | ((prev: ChartData) => ChartData)) => void;
-
-interface SimilarChartsProps {
-  metadata: StrToAny;
-}
-
-// Helper Components
-const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
-  if (!metadata) {
-    return null;
-  }
-
-  const makeSimilarChartsList = (level: string, chartList: string[]): JSXElement => {
-    return (
-      <p>{level}: 
-        <For each={chartList}>
-          {(chart: string) => (
-            <span>
-              <a href={`/chart/${chart}`} 
-                style={`color:#aaa;text-decoration:underline`}
-              >
-                {getShortChartName(chart)}
-              </a>
-              &ensp;
-            </span>
-          )}
-        </For>
-      </p>
-    );
-  };
-
-  return (
-    <div class="font-small" style="color:#aaa">
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}>
-        Similar charts
-      </span>
-      <Show 
-        when={metadata['Similar charts'] && Object.keys(metadata['Similar charts']).length > 0}
-        fallback={<></>}
-      >
-        <div>
-          <For each={Object.entries(metadata['Similar charts'])}>
-            {([key, valueList]) => (
-              makeSimilarChartsList(key, valueList as string[])
-            )}
-          </For>
-        </div>
-      </Show>
-    </div>
-  );
-};
-
 
 
 function UploaderOrVisualizer(): JSXElement {
@@ -166,6 +116,16 @@ function UploaderOrVisualizer(): JSXElement {
                   </Show>
                 </div>
               </div>
+
+              {/* column 4 */}
+              <div id="column4" 
+                class='column'
+              >
+                <div style={'height: 100%; overflow: auto'}>
+                  <LifebarPlot data={chartData()!}/>
+                </div>
+              </div>
+
             </div>
           </ChartProvider>
 
