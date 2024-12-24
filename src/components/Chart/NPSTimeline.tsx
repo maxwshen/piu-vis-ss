@@ -40,15 +40,8 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
 
   const {
     scrollContainerRef,
-    setScrollContainerRef,
     canvasScrollPositionMirror,
-    setCanvasScrollPositionMirror,
-    clickTo,
-    setClickTo,
     pxPerSecond,
-    setPxPerSecond,
-    missTimes,
-    setMissTimes,
   } = useChartContext();
 
   const drawEverything = async () => {

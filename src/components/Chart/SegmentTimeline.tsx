@@ -78,15 +78,8 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
 export default function SegmentTimeline(props: SegmentTimelineProps) {
   const {
     scrollContainerRef,
-    setScrollContainerRef,
     canvasScrollPositionMirror,
-    setCanvasScrollPositionMirror,
-    clickTo,
-    setClickTo,
     pxPerSecond,
-    setPxPerSecond,
-    missTimes,
-    setMissTimes,
   } = useChartContext();
 
   const scrollToTime = (startTime: number) => {

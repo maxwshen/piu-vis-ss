@@ -79,7 +79,8 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
 
 
 function UploaderOrVisualizer(): JSXElement {
-  const { chartData, mutate } = useChart();
+  // Shows upload json button, or visualizer
+  const { chartData, mutate, filename } = useChart();
   const [editorMode, setEditorMode] = createSignal(false);
   setEditorMode(true);
 
@@ -89,7 +90,19 @@ function UploaderOrVisualizer(): JSXElement {
       <div>{Nav()}</div>
       <div style={'background-color: #2e2e2e'}>
 
-        <Show when={chartData() != null} fallback={<JSONUploader/>}>
+        <Show when={chartData() != null} 
+          fallback=
+          {
+            <div style='max-width:800px;margin:auto;margin-top:50px'>
+              <JSONUploader/>
+              <div class='text-lg' style={`color:#888;margin-top:50px`}>
+                Upload a chart json file to visualize it.
+                <br/><br/>
+                Where can you get chart jsons? Piucenter's editor allows you to edit foot annotations, mark suggested misses, and save these custom annotations to json file. You can use the editor to get chart jsons to re-visualize here, or get chart jsons shared by people in the community. 
+              </div>
+            </div>
+          }
+        >
           {/* Show visualizer */}
 
           <ChartProvider>
@@ -105,17 +118,19 @@ function UploaderOrVisualizer(): JSXElement {
                 </span>
 
                 <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                  Custom uploaded chart json
+                  Custom uploaded chart json file:
+                  <br/>
+                  {filename()}
                   <hr style="border-color:#666" />
                 </span>
-
-                <Show when={editorMode()}>
-                  <EditorPanel dataGet={chartData} />
-                </Show>
 
                 {chartData() && chartDescription(chartData()!.metadata)}
 
                 <hr style="border-color:#666" />
+
+                <Show when={editorMode()}>
+                  <EditorPanel dataGet={chartData} />
+                </Show>
 
                 <div style={'height: 100%; overflow: auto'}>
                   <Show when={chartData()}>

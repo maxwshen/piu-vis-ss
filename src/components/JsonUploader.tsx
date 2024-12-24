@@ -47,7 +47,7 @@ interface JSONUploaderProps {
 
 
 export const JSONUploader: Component<JSONUploaderProps> = (props) => {
-  const { chartData, mutate } = useChart();
+  const { chartData, mutate, setFilename } = useChart();
   const [isDragging, setIsDragging] = createSignal(false);
 
   const processFile = async (file: File) => {
@@ -61,6 +61,7 @@ export const JSONUploader: Component<JSONUploaderProps> = (props) => {
       const processedData = processChartData(jsonData);
       
       // Update the resource with the new data
+      setFilename(file.name);
       mutate(processedData);
       
       // Notify parent component if callback is provided
@@ -111,9 +112,9 @@ export const JSONUploader: Component<JSONUploaderProps> = (props) => {
         onDrop={handleDrop}
         class={`
           border-2 border-dashed rounded-lg p-8 text-center
-          transition-colors duration-200 ease-in-out
+          transition-colors duration-200 ease-in-out bg-gray-800 
           ${isDragging() ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}
-          hover:border-blue-500 hover:bg-blue-50
+          hover:bg-gray-700
         `}
       >
         <input
@@ -128,9 +129,9 @@ export const JSONUploader: Component<JSONUploaderProps> = (props) => {
           class="cursor-pointer text-gray-400 hover:text-blue-500"
         >
           <div class="text-lg mb-2">
-            {isDragging() ? 'Drop your JSON file here' : 'Drag & drop your JSON file here'}
+            {isDragging() ? 'Drop your Chart JSON file here' : 'Drag & drop your Chart JSON file here'}
           </div>
-          <div class="text-sm">or click to browse</div>
+          <div class="text">or click to browse</div>
         </label>
       </div>
       

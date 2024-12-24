@@ -97,15 +97,10 @@ export default function LifebarPlot(props: Props) {
 
   const {
     scrollContainerRef,
-    setScrollContainerRef,
     canvasScrollPositionMirror,
-    setCanvasScrollPositionMirror,
-    clickTo,
     setClickTo,
     pxPerSecond,
-    setPxPerSecond,
     missTimes,
-    setMissTimes,
   } = useChartContext();
 
   onMount(() => {

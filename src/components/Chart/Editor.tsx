@@ -45,16 +45,8 @@ export default function EditorPanel(props: EditorProps) {
   const params = useParams();
 
   const {
-    scrollContainerRef,
-    setScrollContainerRef,
-    canvasScrollPositionMirror,
-    setCanvasScrollPositionMirror,
     clickTo,
     setClickTo,
-    pxPerSecond,
-    setPxPerSecond,
-    missTimes,
-    setMissTimes,
   } = useChartContext(); 
 
   function SetClickToEitherButton(): JSXElement {
