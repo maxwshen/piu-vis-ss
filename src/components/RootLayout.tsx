@@ -1,8 +1,11 @@
 // src/components/RootLayout.tsx
 import { ParentComponent, onMount, onCleanup } from "solid-js";
+import { LayoutProvider, useLayout } from "~/components/LayoutContext";
 
+const MOBILE_BREAKPOINT = 768;
 
-const RootLayout: ParentComponent = (props) => {
+const LayoutContent: ParentComponent = (props) => {
+  const { setIsMobile } = useLayout();
 
   onMount(() => {
     // Add Google Analytics
@@ -19,10 +22,43 @@ const RootLayout: ParentComponent = (props) => {
       gtag('config', 'G-2XBRXQWGP5');
     `;
     document.head.appendChild(script2);
+
+    // Set up mobile detection
+    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`);
+    
+    const handleResize = (e: MediaQueryListEvent | MediaQueryList) => {
+      const layout = document.documentElement;
+      if (e.matches) {
+        layout.classList.add('mobile');
+        layout.classList.remove('desktop');
+        setIsMobile(true);
+      } else {
+        layout.classList.add('desktop');
+        layout.classList.remove('mobile');
+        setIsMobile(false);
+      }
+    };
+
+    // Initial check
+    handleResize(mediaQuery);
+    
+    // Add listener for changes
+    mediaQuery.addEventListener('change', handleResize);
+
+    // Cleanup
+    onCleanup(() => {
+      mediaQuery.removeEventListener('change', handleResize);
+    });
   });
 
+  return <div class="root-layout">{props.children}</div>;
+};
+
+const RootLayout: ParentComponent = (props) => {
   return (
-    <div>{props.children}</div>
+    <LayoutProvider>
+      <LayoutContent>{props.children}</LayoutContent>
+    </LayoutProvider>
   );
 };
 

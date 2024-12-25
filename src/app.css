@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+:root.mobile .desktop-only {
+  display: none !important;
+}
+
+:root.desktop .mobile-only {
+  display: none !important;
+}
+
+/* Base responsive classes */
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
 .a {
   color: '#00a0dc';
   text-decoration: underline;  

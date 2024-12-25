@@ -9,6 +9,7 @@ export default function chartDescription(metadata: StrToAny): JSXElement {
   if (metadata === undefined) {
     return null;
   }
+
   function parseDisplayBPM(displaybpm: string | undefined): string {
     if (displaybpm === undefined) {
       return 'missing';

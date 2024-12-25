@@ -6,6 +6,7 @@ import { fetchData } from '~/lib/data';
 import { ArrowArt, ChartArt, HoldArt, Segment, StrToAny } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
 import { ChartData } from "~/lib/types";
+import { useLayout } from "~/components/LayoutContext";
 
 // Components
 import ArrowCanvas from "~/components/Chart/ArrowCanvas";
@@ -75,6 +76,7 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
 
 
 export default function DynamicPage(): JSXElement {
+  const { isMobile } = useLayout();
   const params = useParams();
   
   const [chartData, { mutate, refetch }] = createResource<ChartData, string>(
@@ -152,15 +154,17 @@ export default function DynamicPage(): JSXElement {
 
               <hr style="border-color:#666" />
 
-              <div style="text-align:center">
-                <a href={`/lifebar/${params.chart}`}>
-                  Use lifebar calculator
-                </a>
-                &emsp;&emsp;
-                <a href={`/editor/${params.chart}`}>
-                  Use editor
-                </a>
-              </div>
+              <Show when={!isMobile()}>
+                <div style="text-align:center">
+                  <a href={`/lifebar/${params.chart}`}>
+                    Use lifebar calculator
+                  </a>
+                  &emsp;&emsp;
+                  <a href={`/editor/${params.chart}`}>
+                    Use editor
+                  </a>
+                </div>
+              </Show>
 
               <hr style="border-color:#666" />
 
