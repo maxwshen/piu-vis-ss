@@ -160,10 +160,12 @@ export default function DynamicPage(): JSXElement {
               class="column" 
             >
               <div style={'background-color: #2e2e2e; height: 100%'}>
-                <ArrowCanvas
-                  data={chartData()!}
-                  mutate={mutate as MutateFunction}
-                />
+                <Show when={chartData()}>
+                  <ArrowCanvas
+                    data={chartData()!}
+                    mutate={mutate as MutateFunction}
+                  />
+                </Show>
               </div>
             </div>
 

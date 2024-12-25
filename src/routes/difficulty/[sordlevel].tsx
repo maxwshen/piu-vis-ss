@@ -221,7 +221,6 @@ function DifficultyTierList(props: { sordlevel: string }) {
 }
 
 export default function Page(): JSXElement {
-  // Stores current route path; /chart/:id = params.id = [id].tsx
   const params = useParams();
 
   const [currentParams, setCurrentParams] = createSignal(params);

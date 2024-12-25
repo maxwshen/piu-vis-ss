@@ -3,6 +3,7 @@ import "./search.css"
 import { StrToAny } from "~/lib/types";
 import { getShortChartNameWithLevel, getENPSColor, skillBadge, skillToColor } from "~/lib/util";
 import { Title } from "@solidjs/meta";
+import { StrToStr } from "~/components/Chart/util";
 
 // Enhanced interface to allow more flexible data handling
 interface SearchItem {
@@ -84,15 +85,16 @@ function displayCell(item: StrToAny, column: string) {
     </td>
     );
   }
+  if (column == 'Sustain time') {
+    return (
+      <td>
+        {item[column]} s
+      </td>
+    );
+  }
   return (
     <td>
-      {column === 'url' ? (
-        <a href={item[column] as string} target="_blank" rel="noopener noreferrer">
-          {item[column]}
-        </a>
-      ) : (
-        item[column]
-      )}
+      {item[column]}
     </td>
   );
 }
@@ -138,6 +140,13 @@ function SearchTable() {
   const displayColumns = [
     'name', 'skills', 'BPM info', 'NPS', 'Sustain time',
   ]
+  const colToShownName: StrToStr = {
+    'name': 'Name',
+    'skills': 'Skills',
+    'BPM info': 'BPM info',
+    'NPS': 'NPS',
+    'Sustain time': 'Sustain time',
+  }
 
   // Numeric range validation
   const isInRange = (value: number, min: number | '', max: number | '') => {
@@ -518,7 +527,7 @@ function SearchTable() {
                   >
                     {/* {column} */}
                     {
-                      (['level', 'NPS', 'Sustain time'].includes(column)) ? column + ' *': column 
+                      (['level', 'NPS', 'Sustain time'].includes(column)) ? colToShownName[column] + ' *': colToShownName[column] 
                     }
                     {sortColumn() === column && (
                       <span class="ml-2">

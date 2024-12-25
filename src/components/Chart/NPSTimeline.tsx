@@ -447,7 +447,7 @@ export default function ENPSTimeline(props: NPSTimelineProps) {
 
   createEffect(() => {
     // Redraw when URL changes
-    const chartId = params.id;
+    const chartId = params.chart;
     if (!isServer) {
       // cleanup();
       drawEverything();

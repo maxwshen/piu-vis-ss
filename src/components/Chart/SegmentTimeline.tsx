@@ -95,8 +95,6 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
     });
   };
 
-  // console.log(props.segmentData);
-  
   const SegmentCollapsible = (segment: Segment, data: StrToAny, index: number) => {
     const levels = props.segmentData.map((d) => Number(d['level']));
     const minSegmentLevel = Math.min(...levels);

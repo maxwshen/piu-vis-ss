@@ -109,7 +109,7 @@ export default function EditorPanel(props: EditorProps) {
       {SetClickToEitherButton()}
       {SetClickToMissButton()}
       {SetClickToShowTimingWindowButton()}
-      {SaveJsonButton(params.id, dataGet()!)}
+      {SaveJsonButton(params.editorid, dataGet()!)}
     </div>
   );
 }
