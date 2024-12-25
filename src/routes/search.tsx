@@ -163,13 +163,13 @@ function SearchTable() {
 
       // Set items and extract columns dynamically
       setItems(searchData);      
-      setIsLoading(false);
-
+      
       const queryString = window.location.search;
       if (queryString) {
         decodeFilters(queryString);
       }
-
+      setIsLoading(false);
+      
     } catch (error) {
       console.error("Error fetching search items:", error);
       setIsLoading(false);
@@ -474,6 +474,25 @@ function SearchTable() {
     return;
   };
 
+  createEffect(() => {
+    if (isLoading()) {
+      return;
+    }
+  
+    const queryString = encodeFilters(filters());
+    const newUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+    
+    // Only update if the URL would actually change
+    if (window.location.search !== `?${queryString}`) {
+      console.log('Updating URL to:', newUrl);
+      window.history.replaceState(
+        { filters: filters() },
+        '',
+        newUrl
+      );
+    }
+  });
+
   // Copy URL button component
   const CopyUrlButton = () => {
     const handleCopy = () => {
@@ -486,7 +505,7 @@ function SearchTable() {
     return (
       <button
         onClick={handleCopy}
-        style={`color:#ddd;text-decoration:underline`}
+        style={`color:#888;text-decoration:underline`}
       >
         Copy URL to filtered results
       </button>
