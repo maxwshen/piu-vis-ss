@@ -12,6 +12,7 @@ import { ChartProvider } from "~/components/Chart/ChartContext";
 import EditorPanel from "~/components/Chart/Editor";
 import chartDescription from "~/components/Chart/Description";
 import LifebarPlot from "~/components/Chart/Lifebar";
+import EditorCollection from "~/components/collections/EditorCollection";
 
 import { JSONUploader } from "~/components/JsonUploader";
 import { ChartDataProvider } from "~/components/ChartDataContext";
@@ -53,80 +54,7 @@ function UploaderOrVisualizer(): JSXElement {
           }
         >
           {/* Show visualizer */}
-
-          <ChartProvider>
-            <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>
-              {/* Column 1 */}
-              <div 
-                id="column1" 
-                class="column" 
-              >
-                <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                  {chartData()?.metadata['TITLE']}
-                  <hr style="border-color:#666" />
-                </span>
-
-                <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                  Custom uploaded chart json file:
-                  <br/>
-                  {filename()}
-                  <hr style="border-color:#666" />
-                </span>
-
-                {chartData() && chartDescription(chartData()!.metadata)}
-
-                <hr style="border-color:#666" />
-
-                <Show when={editorMode()}>
-                  <EditorPanel dataGet={chartData} />
-                </Show>
-
-                <div style={'height: 100%; overflow: auto'}>
-                  <Show when={chartData()}>
-                    <SegmentTimeline 
-                      segments={chartData()!.segments}
-                      segmentData={chartData()!.segmentdata}
-                    />
-                  </Show>
-                </div>
-              </div>
-
-              {/* Column 2 */}
-              <div 
-                id="column2" 
-                class="column" 
-              >
-                <div style={'background-color: #2e2e2e; height: 100%'}>
-                  <ArrowCanvas
-                    data={chartData()!}
-                    mutate={mutate as MutateFunction}
-                  />
-                </div>
-              </div>
-
-              {/* Column 3 */}
-              <div 
-                id="column3" 
-                class="column" 
-              >
-                <div style={'height: 100%; overflow: auto'}>
-                  <Show when={chartData()}>
-                    <ENPSTimeline data={chartData()!} />
-                  </Show>
-                </div>
-              </div>
-
-              {/* column 4 */}
-              <div id="column4" 
-                class='column'
-              >
-                <div style={'height: 100%; overflow: auto'}>
-                  <LifebarPlot data={chartData()!}/>
-                </div>
-              </div>
-
-            </div>
-          </ChartProvider>
+          {EditorCollection(chartData, mutate, filename())}
 
         </Show>
 

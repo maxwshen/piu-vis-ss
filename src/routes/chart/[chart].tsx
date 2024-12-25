@@ -120,7 +120,6 @@ export default function DynamicPage(): JSXElement {
             >
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
                 {params.chart.replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ")}
-                {chartData()?.manuallyAnnotatedFlag}
                 <hr style="border-color:#666" />
               </span>
 
@@ -135,7 +134,6 @@ export default function DynamicPage(): JSXElement {
                 <a href={`/lifebar/${params.chart}`}>
                   Use lifebar calculator
                 </a>
-                {/* <br/> */}
                 &emsp;&emsp;
                 <a href={`/editor/${params.chart}`}>
                   Use editor
