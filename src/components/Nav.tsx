@@ -9,8 +9,9 @@ export default function Nav() {
     { href: "/search", text: "Chart search" },
     { href: "/articles/difficultytierlists", text: "Difficulty tier lists" },
     { href: "/skill", text: "Skills" },
-    { href: "/articles/lifebarcalculator", text: "Lifebar calculator" },
     { href: "/articles", text: "Articles" },
+    { href: "/articles/lifebarcalculator", text: "Lifebar calculator" },
+    { href: "/articles/editor", text: "Editor" },
     { href: "/upload", text: "Upload" },
   ];
 

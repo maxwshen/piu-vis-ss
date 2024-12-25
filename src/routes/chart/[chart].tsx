@@ -13,7 +13,6 @@ import ArrowCanvas from "~/components/Chart/ArrowCanvas";
 import ENPSTimeline from "~/components/Chart/NPSTimeline";
 import SegmentTimeline from "~/components/Chart/SegmentTimeline";
 import { ChartProvider } from "~/components/Chart/ChartContext";
-import EditorPanel from "~/components/Chart/Editor";
 import chartDescription from "~/components/Chart/Description";
 
 import "~/styles/layout/chartvis.css"
@@ -78,7 +77,7 @@ export default function DynamicPage(): JSXElement {
   const params = useParams();
   
   const [chartData, { mutate, refetch }] = createResource<ChartData, string>(
-    () => params.id,
+    () => params.chart,
     async (id: string) => {
       const result = await fetchData(id);
       if (!result) {
@@ -104,8 +103,8 @@ export default function DynamicPage(): JSXElement {
 
   // Update document title when params change
   createEffect(() => {
-    if (typeof document !== 'undefined' && params.id) {
-      document.title = getShortChartNameWithLevel(params.id);
+    if (typeof document !== 'undefined' && params.chart) {
+      document.title = getShortChartNameWithLevel(params.chart);
     }
   });
 
@@ -122,7 +121,7 @@ export default function DynamicPage(): JSXElement {
               class="column" 
             >
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                {params.id.replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ")}
+                {params.chart.replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ")}
                 {chartData()?.manuallyAnnotatedFlag}
                 <hr style="border-color:#666" />
               </span>
@@ -135,10 +134,13 @@ export default function DynamicPage(): JSXElement {
               <hr style="border-color:#666" />
 
               <div style="text-align:center">
-                <a 
-                  href={`/lifebar/${params.id}`}
-                >
+                <a href={`/lifebar/${params.chart}`}>
                   Use lifebar calculator
+                </a>
+                {/* <br/> */}
+                &emsp;&emsp;
+                <a href={`/editor/${params.chart}`}>
+                  Use editor
                 </a>
               </div>
 
