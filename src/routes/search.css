@@ -70,3 +70,48 @@
   border-radius: 4px;
   margin-bottom: 20px;
 }
+
+
+/* Add to your search.css */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+}
+
+.modal-content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #2e2e2e;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1001;
+}
+
+.modal-overlay.active {
+  display: block;
+}
+
+/* Hide the regular skills filter on mobile */
+@media screen and (max-width: 768px) {
+  .skill-filter-desktop {
+    display: none;
+  }
+}
+
+/* Hide the mobile skills filter on desktop */
+@media screen and (min-width: 769px) {
+  .skill-filter-mobile {
+    display: none;
+  }
+}

@@ -1,9 +1,36 @@
 import { createSignal, createMemo, For, createEffect, JSXElement, onMount } from "solid-js";
-import "./search.css"
 import { StrToAny } from "~/lib/types";
 import { getShortChartNameWithLevel, getENPSColor, skillBadge, skillToColor } from "~/lib/util";
 import { Title } from "@solidjs/meta";
 import { StrToStr } from "~/components/Chart/util";
+
+import "./search.css"
+
+const [isSkillsModalOpen, setIsSkillsModalOpen] = createSignal(false);
+
+// Filters object to track multiple column filters
+const [filters, setFilters] = createSignal<{
+  name: string;
+  sord: 'singles' | 'doubles' | '';
+  levelMin: number | '';
+  levelMax: number | '';
+  NPSMin: number | '';
+  NPSMax: number | '';
+  skills: string[];
+  sustainMin: number | '';
+  sustainMax: number | '';
+}>({
+  name: '',
+  sord: '',
+  levelMin: '',
+  levelMax: '',
+  NPSMin: '',
+  NPSMax: '',
+  skills: [],
+  sustainMin: '',
+  sustainMax: '',
+});
+
 
 // Enhanced interface to allow more flexible data handling
 interface SearchItem {
@@ -100,6 +127,98 @@ function displayCell(item: StrToAny, column: string) {
 }
 
 
+// skill filter multi-select menu: modal dialog on mobile
+const SkillsFilter = () => {
+  const SkillCheckboxes = () => (
+    <div 
+      class="w-full p-1"
+      style={`display:flex;flex-direction:row;flex-wrap:wrap`}
+    >
+      {displaySkills.map((skill) => (
+        <label class="flex items-center">
+          <input
+            type="checkbox"
+            checked={filters().skills.includes(skill)}
+            onChange={(e) => {
+              setFilters(prev => {
+                const skills = [...prev.skills];
+                if (e.currentTarget.checked) {
+                  skills.push(skill);
+                } else {
+                  const index = skills.indexOf(skill);
+                  if (index > -1) {
+                    skills.splice(index, 1);
+                  }
+                }
+                return {...prev, skills};
+              });
+            }}
+            class="mr-1"
+          />
+          <span 
+            style={`color:${skillToColor[skill]}`}
+          >
+            {skill.replace(/_/g, ' ')}&emsp;
+          </span>
+        </label>
+      ))}
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop View */}
+      <div class="skill-filter skill-filter-desktop">
+        <label class="block">Skill filter: select one or more</label>
+        <SkillCheckboxes />
+      </div>
+
+      {/* Mobile View */}
+      <div class="skill-filter-mobile">
+        <button
+          onClick={() => setIsSkillsModalOpen(true)}
+          class="p-2 bg-gray-700 rounded"
+          style="color: #fff"
+        >
+          Select Skills ({filters().skills.length} selected)
+        </button>
+
+        {/* Modal */}
+        <div 
+          class={`modal-overlay ${isSkillsModalOpen() ? 'active' : ''}`}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsSkillsModalOpen(false);
+            }
+          }}
+        >
+          <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="text-lg">Select Skills</h3>
+              <button
+                onClick={() => setIsSkillsModalOpen(false)}
+                class="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <SkillCheckboxes />
+            <div class="mt-4 flex justify-end">
+              <button
+                onClick={() => setIsSkillsModalOpen(false)}
+                class="p-2 bg-gray-700 rounded"
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+
 function SearchTable() {
   // State management for data and filters
   const [items, setItems] = createSignal<SearchItem[]>([]);
@@ -112,29 +231,6 @@ function SearchTable() {
   // Sorting state
   const [sortColumn, setSortColumn] = createSignal<keyof SearchItem | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc'>('asc');
-
-  // Filters object to track multiple column filters
-  const [filters, setFilters] = createSignal<{
-    name: string;
-    sord: 'singles' | 'doubles' | '';
-    levelMin: number | '';
-    levelMax: number | '';
-    NPSMin: number | '';
-    NPSMax: number | '';
-    skills: string[];
-    sustainMin: number | '';
-    sustainMax: number | '';
-  }>({
-    name: '',
-    sord: '',
-    levelMin: '',
-    levelMax: '',
-    NPSMin: '',
-    NPSMax: '',
-    skills: [],
-    sustainMin: '',
-    sustainMax: '',
-  });
 
   // display columns
   const displayColumns = [
@@ -348,42 +444,7 @@ function SearchTable() {
         </div>
 
         {/* Skills Multi-Select Filter */}
-        <div class="skill-filter">
-          <label class="block">Skill filter: select one or more</label>
-          <div 
-            class="w-full p-1"
-            style={`display:flex;flex-direction:row;flex-wrap:wrap`}
-          >
-            {displaySkills.map((skill) => (
-              <label class="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={filters().skills.includes(skill)}
-                  onChange={(e) => {
-                    setFilters(prev => {
-                      const skills = [...prev.skills];
-                      if (e.currentTarget.checked) {
-                        skills.push(skill);
-                      } else {
-                        const index = skills.indexOf(skill);
-                        if (index > -1) {
-                          skills.splice(index, 1);
-                        }
-                      }
-                      return {...prev, skills};
-                    });
-                  }}
-                  class="mr-1"
-                />
-                <span 
-                  style={`color:${skillToColor[skill]}`}
-                >
-                  {skill.replace(/_/g, ' ')}&emsp;
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
+        <SkillsFilter/>
 
       </div>
     );
