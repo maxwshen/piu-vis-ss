@@ -1,11 +1,11 @@
 // src/components/RootLayout.tsx
 import { ParentComponent, onMount, onCleanup } from "solid-js";
-import { LayoutProvider, useLayout } from "~/components/LayoutContext";
+import { LayoutProvider, useLayoutContext } from "~/components/LayoutContext";
 
 const MOBILE_BREAKPOINT = 768;
 
 const LayoutContent: ParentComponent = (props) => {
-  const { setIsMobile } = useLayout();
+  const { setIsMobile } = useLayoutContext();
 
   onMount(() => {
     // Add Google Analytics

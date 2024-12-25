@@ -5,6 +5,7 @@ import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
 import { useParams } from "@solidjs/router";
+import { useLayoutContext } from "../LayoutContext";
 
 interface SegmentTimelineProps {
   segments: Segment[];
@@ -13,7 +14,7 @@ interface SegmentTimelineProps {
 
 
 function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, data: StrToAny): JSXElement {
-  console.log(window.location.href);
+  // console.log(window.location.href);
   // provides content inside of segment collapsible
   const similarSections = data['Closest sections'];
 
@@ -87,6 +88,7 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
     canvasScrollPositionMirror,
     pxPerSecond,
   } = useChartContext();
+  const { isMobile } = useLayoutContext();
 
   const scrollToTime = (startTime: number) => {
     scrollContainerRef()!.scrollTo({
@@ -182,17 +184,27 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
   return (
     <div>
       <hr style={`border-color:#666`}></hr>
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:5px;margin-bottom:5px`}
       > Sections</span>
-      <div
-        // class="flex flex-col gap-0 p-4"
-        class="scrollbar"
-        style = {`height: calc(100vh - 550px); overflow-y: auto`}
+
+      <Show when={!isMobile()}
+        fallback={
+          props.segments.map((segment, index) =>
+            SegmentCollapsible(segment, props.segmentData[index], index)
+          )
+        }
       >
-        {props.segments.map((segment, index) =>
-          SegmentCollapsible(segment, props.segmentData[index], index)
-        )}
-      </div>
+        {/* show scrollbar on desktop, but not on mobile */}
+        <div
+          // class="flex flex-col gap-0 p-4"
+          class="scrollbar"
+          style = {`height: calc(100vh - 550px); overflow-y: auto`}
+        >
+          {props.segments.map((segment, index) =>
+            SegmentCollapsible(segment, props.segmentData[index], index)
+          )}
+        </div>
+      </Show>
     </div>
   );
 };

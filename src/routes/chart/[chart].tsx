@@ -6,7 +6,7 @@ import { fetchData } from '~/lib/data';
 import { ArrowArt, ChartArt, HoldArt, Segment, StrToAny } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
 import { ChartData } from "~/lib/types";
-import { useLayout } from "~/components/LayoutContext";
+import { useLayoutContext } from "~/components/LayoutContext";
 
 // Components
 import ArrowCanvas from "~/components/Chart/ArrowCanvas";
@@ -55,7 +55,7 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
 
   return (
     <div class="font-small" style="color:#aaa">
-      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:10px;margin-bottom:10px`}>
+      <span style={`color:#bbb;display:flex;justify-content:center;margin-top:5px;margin-bottom:5px`}>
         Similar charts
       </span>
       <Show 
@@ -76,7 +76,7 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
 
 
 export default function DynamicPage(): JSXElement {
-  const { isMobile } = useLayout();
+  const { isMobile } = useLayoutContext();
   const params = useParams();
   
   const [chartData, { mutate, refetch }] = createResource<ChartData, string>(
