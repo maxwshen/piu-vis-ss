@@ -2,12 +2,11 @@ import { useParams } from "@solidjs/router";
 import { createSignal, createResource, onMount, onCleanup, createEffect, For } from "solid-js";
 import type { JSXElement } from 'solid-js';
 import { Show } from 'solid-js';
-import { useNavigate } from "@solidjs/router";
 import { fetchData } from '~/lib/data';
 import { ChartArt, Segment, StrToAny, ArrowArt, HoldArt } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel, skillBadge } from '~/lib/util';
+
 import Nav from '~/components/Nav';
-import "./[id].css"
 import ArrowCanvas from "~/components/Chart/ArrowCanvas";
 import ENPSTimeline from "~/components/Chart/NPSTimeline";
 import SegmentTimeline from "~/components/Chart/SegmentTimeline";
@@ -16,6 +15,8 @@ import EditorPanel from "~/components/Chart/Editor";
 import LifebarPlot from "~/components/Chart/Lifebar";
 import chartDescription from "~/components/Chart/Description";
 import { ChartData } from "~/lib/types";
+
+import "~/styles/layout/chartvis.css"
 
 const [activeColumn, setActiveColumn] = createSignal('column1');
 const [editorMode, setEditorMode] = createSignal(false);
@@ -26,13 +27,13 @@ const [editorMode, setEditorMode] = createSignal(false);
  * @returns 
  */
 export default function DynamicPage(): JSXElement {
-  // Stores current route path; /chart/:id = params.id = [id].tsx
+  // Stores current route path; /chart/:id = params.editorid = [id].tsx
   const params = useParams();
-  const [currentParams, setCurrentParams] = createSignal(params.id);
+  const [currentParams, setCurrentParams] = createSignal(params.editorid);
 
-  // Refetches data whenever params.id changes
+  // Refetches data whenever params.editorid changes
   const [chartData, { mutate, refetch }] = createResource<ChartData, string>(
-    () => params.id,
+    () => params.editorid,
     async (id: string) => {
       const result = await fetchData(id);
       if (!result) {
@@ -58,8 +59,8 @@ export default function DynamicPage(): JSXElement {
 
   // Update document title when params change
   createEffect(() => {
-    if (typeof document !== 'undefined' && params.id) {
-      document.title = getShortChartNameWithLevel(params.id);
+    if (typeof document !== 'undefined' && params.editorid) {
+      document.title = getShortChartNameWithLevel(params.editorid);
     }
   });
 
@@ -71,13 +72,7 @@ export default function DynamicPage(): JSXElement {
   });
 
   onMount(() => {
-    // handle editor mode in query string
-    const urlParams = new URLSearchParams(window.location.search);
-    const editFlag = urlParams.get('edit');
-    if (editFlag) {
-      setEditorMode(Boolean(editFlag));
-    };
-
+    setEditorMode(true);
   });
 
   return (
@@ -114,7 +109,7 @@ export default function DynamicPage(): JSXElement {
               
               {/* title */}
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
-                  {params.id.replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ")}
+                  {params.editorid.replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ")}
                   {chartData()?.manuallyAnnotatedFlag}
                   <hr style={`border-color:#666`}></hr>
               </span>
@@ -128,23 +123,21 @@ export default function DynamicPage(): JSXElement {
               </Show>
 
               {/* lifebar calculator instructions */}
-              <div style={`background-color:#ec433960;color:#eee;padding:8px`}>
+              <div style={`background-color:#00a0dc60;color:#eee;padding:8px`}>
                 <div class='font-medium' style={`text-align:center;margin-top:10px`}>
-                  Lifebar calculator mode
+                  Editor mode
                 </div>
                 <span>Instructions:</span>
                 <p>
-                  1. Click arrows to toggle miss/perfect judgment
+                  1. Click a button, to set your click action
+                  <br/>
+                  2. Click arrows/holds
                 </p>
                 <br></br>
                 <div style={`opacity:60%`}>
-                  <p>The lifebar calculator uses red to show your "bleed" compared to perfect play.</p>
-                  <br></br>
-                  <p>The calculator does not support missing holds. Pro tip: don't miss holds! Hold tick counts are listed in the arrows canvas.</p>
-                  <br></br>
-                  <p>Hide/show life overflow: Life above 100% is called "overflow". Any overflow amount appears as a full lifebar in-game. Life overflow can accrue up to a max that depends on the chart level.</p>
-                  <br></br>
-                  <p>Freeze life % until first miss: Use this to fix life to a specific %. Life calculations resume after the first marked miss. Use this to quickly study what happens if you enter a specific section with a specific amount of life.</p>
+                  Important: Your annotations will be discarded if you close this page.
+                  Save json to file to keep your annotations, and use the upload page
+                  to continue where you left off.
                 </div>
               </div>
 

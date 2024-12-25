@@ -1,5 +1,5 @@
-.nice-button {
-  background-color: #666;
+.set-click-button {
+  background-color: #00a0dc33;
   border: none; /* Remove borders */
   color: #bbb; /* White text */
   padding: 0px 4px; /* Some padding */
@@ -13,12 +13,12 @@
   transition: background-color 0.3s, transform 0.2s; /* Smooth transitions */
 }
 
-.nice-button:hover {
-  background-color: #45a049; /* Darker green on hover */
+.set-click-button:hover {
+  background-color: #00a0dc; /* Darker green on hover */
   /* transform: scale(1.05); Slightly larger on hover */
 }
 
-.nice-button:active {
+.set-click-button:active {
   background-color: #3e8e41; /* Even darker green on click */
   box-shadow: 0 2px #666; /* Move the shadow */
   transform: translateY(2px); /* Move the button down */
@@ -93,4 +93,84 @@ a {
   flex: 1;
   padding: 0px;
   /* border: 1px solid #ddd; */
+}
+
+/* Mobile tab navigation */
+.mobile-tabs {
+  display: none;
+}
+
+/* Mobile layout */
+@media screen and (max-width: 768px) {
+  .columns-container {
+      flex-direction: column;
+      margin: auto; 
+    }
+
+  .mobile-tabs {
+      display: flex;
+      justify-content: space-around;
+      background-color: #999;
+      padding: 5px;
+      position: fixed;
+      transform: translate(calc(50vw - 50%));
+      /* width: 100%; */
+      overflow: hidden;
+      margin: auto;
+      /* max-width: 100%; */
+      top: 0;
+      left: 0;
+      height: 50px;
+      z-index: 1000;
+  }
+    
+  body {
+      padding-top: 50px; /* Space for fixed mobile tabs */
+      background-color: #2e2e2e;
+  }
+
+  .mobile-tab {
+      cursor: pointer;
+      padding: 5px;
+      background-color: #e0e0e0;
+      text-align: center;
+      flex-grow: 1;
+      flex-shrink: 1;
+      /* max-width: 33%; */
+      width: 100px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      margin: 0 5px;
+  }
+
+  .mobile-tab.active {
+      background-color: #c0c0c0;
+  }
+
+  .column {
+    visibility: hidden; /* Preserve layout and reactivity */
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+
+  #column1 {
+    min-width: 300px;
+  }
+
+  #column2 {
+    margin-left: 0px;
+    margin-right: 0px;
+    min-width: 300px;
+    max-width: 100%;
+  }
+
+  .column.active {
+      visibility: visible;
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+  }
 }

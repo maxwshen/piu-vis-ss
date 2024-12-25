@@ -6,7 +6,6 @@ import { fetchData } from '~/lib/data';
 import { ArrowArt, ChartArt, HoldArt, Segment, StrToAny } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
 import Nav from '~/components/Nav';
-import "./[id].css"
 import { ChartData } from "~/lib/types";
 
 // Components
@@ -16,6 +15,8 @@ import SegmentTimeline from "~/components/Chart/SegmentTimeline";
 import { ChartProvider } from "~/components/Chart/ChartContext";
 import EditorPanel from "~/components/Chart/Editor";
 import chartDescription from "~/components/Chart/Description";
+
+import "~/styles/layout/chartvis.css"
 
 // Types
 type MutateFunction = (v: ChartData | ((prev: ChartData) => ChartData)) => void;
@@ -73,10 +74,8 @@ const similarCharts = ({ metadata }: SimilarChartsProps): JSXElement => {
 };
 
 
-
 export default function DynamicPage(): JSXElement {
   const params = useParams();
-  const [editorMode, setEditorMode] = createSignal(false);
   
   const [chartData, { mutate, refetch }] = createResource<ChartData, string>(
     () => params.id,
@@ -110,14 +109,6 @@ export default function DynamicPage(): JSXElement {
     }
   });
 
-  onMount(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const editFlag = urlParams.get('edit');
-    if (editFlag) {
-      setEditorMode(Boolean(editFlag));
-    }
-  });
-
   return (
     <>
       <div>{Nav()}</div>
@@ -138,10 +129,6 @@ export default function DynamicPage(): JSXElement {
 
               <span>{chartData.loading && "Loading..."}</span>
               <span>{chartData.error && "Error"}</span>
-
-              <Show when={editorMode()}>
-                <EditorPanel dataGet={chartData} />
-              </Show>
 
               {chartData() && chartDescription(chartData()!.metadata)}
 

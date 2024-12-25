@@ -397,10 +397,12 @@ export default function LifebarPlot(props: Props) {
       stage.add(layerPlot);
     });
 
-    // onMount - try to set click to miss. Timing issues?
-    setClickTo({'type': 'miss', 
-      'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 
-      'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
+    // onMount - if /lifebar/ url, set click to miss
+    if (window.location.href.includes('lifebar')) {
+      setClickTo({'type': 'miss', 
+        'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 
+        'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
+    }
 
     // try to update miss times?
     let arrowarts = props.data.arrowarts;

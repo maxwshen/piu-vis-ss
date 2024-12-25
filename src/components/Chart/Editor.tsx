@@ -30,7 +30,7 @@ function SaveJsonButton(id: string, data: ChartData): JSXElement {
 
   return (
     <div>
-      <button class="nice-button" onClick={saveJsonToFile}>Save JSON to File</button>
+      <button class="set-click-button" onClick={saveJsonToFile}>Save JSON to File</button>
     </div>
   );
 };
@@ -55,7 +55,7 @@ export default function EditorPanel(props: EditorProps) {
     };
     return (
       <div>
-        <button class="nice-button" onClick={ChangeClickAction}>Set Click To Either</button>
+        <button class="set-click-button" onClick={ChangeClickAction}>Set Click To Either</button>
       </div>
     )
   };
@@ -70,7 +70,7 @@ export default function EditorPanel(props: EditorProps) {
     };
     return (
       <div>
-        <button class="nice-button" onClick={ChangeClickAction}>Set Click To Miss</button>
+        <button class="set-click-button" onClick={ChangeClickAction}>Set Click To Miss</button>
       </div>
     )
   };
@@ -86,7 +86,7 @@ export default function EditorPanel(props: EditorProps) {
     };
     return (
       <div>
-        <button class="nice-button" onClick={ChangeClickAction}>Set Click To Show Timing Windows</button>
+        <button class="set-click-button" onClick={ChangeClickAction}>Set Click To Show Timing Windows</button>
       </div>
     )
   };
@@ -98,7 +98,7 @@ export default function EditorPanel(props: EditorProps) {
     };
     return (
       <div>
-        <button class="nice-button" onClick={ChangeClickAction}>Set Click To L/R</button>
+        <button class="set-click-button" onClick={ChangeClickAction}>Set Click To L/R</button>
       </div>
     )
   };

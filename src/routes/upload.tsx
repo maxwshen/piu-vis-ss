@@ -1,12 +1,7 @@
-import { useParams } from "@solidjs/router";
 import { createSignal, createResource, onMount, createEffect, For, Resource } from "solid-js";
 import type { JSXElement } from 'solid-js';
 import { Show } from 'solid-js';
-import { fetchData } from '~/lib/data';
-import { ArrowArt, HoldArt, Segment, StrToAny } from '~/lib/types';
-import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
 import Nav from '~/components/Nav';
-import "./chart/[id].css"
 import { ChartData } from "~/lib/types";
 import { Title } from "@solidjs/meta";
 
@@ -22,6 +17,8 @@ import LifebarPlot from "~/components/Chart/Lifebar";
 import { JSONUploader } from "~/components/JsonUploader";
 import { ChartDataProvider } from "~/components/ChartDataContext";
 import { useChart } from "~/components/ChartDataContext";
+
+import "~/styles/layout/chartvis.css"
 
 
 // Types
