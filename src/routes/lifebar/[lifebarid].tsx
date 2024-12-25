@@ -1,10 +1,10 @@
 import { useParams } from "@solidjs/router";
-import { createSignal, createResource, onMount, onCleanup, createEffect, For } from "solid-js";
+import { createSignal, createResource, createEffect } from "solid-js";
 import type { JSXElement } from 'solid-js';
 import { Show } from 'solid-js';
 import { fetchData } from '~/lib/data';
-import { ChartArt, Segment, StrToAny, ArrowArt, HoldArt } from '~/lib/types';
-import { getShortChartName, getShortChartNameWithLevel, skillBadge } from '~/lib/util';
+import { Segment, StrToAny, ArrowArt, HoldArt } from '~/lib/types';
+import { getShortChartNameWithLevel } from '~/lib/util';
 
 import ArrowCanvas from "~/components/Chart/ArrowCanvas";
 import ENPSTimeline from "~/components/Chart/NPSTimeline";

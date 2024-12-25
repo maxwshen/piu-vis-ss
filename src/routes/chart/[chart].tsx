@@ -19,6 +19,8 @@ import "~/styles/layout/chartvis.css"
 // Types
 type MutateFunction = (v: ChartData | ((prev: ChartData) => ChartData)) => void;
 
+const [activeColumn, setActiveColumn] = createSignal('column1');
+
 interface SimilarChartsProps {
   metadata: StrToAny;
 }
@@ -111,13 +113,33 @@ export default function DynamicPage(): JSXElement {
     <>
       <div style={'background-color: #2e2e2e'}>
 
+        <div class="mobile-tabs">
+          <div 
+            class={`mobile-tab ${activeColumn() === 'column1' ? 'active' : ''}`} 
+            onClick={() => setActiveColumn('column1')}
+          >
+            Overview
+          </div>
+          <div 
+            class={`mobile-tab ${activeColumn() === 'column2' ? 'active' : ''}`} 
+            onClick={() => setActiveColumn('column2')}
+          >
+            Stepchart
+          </div>
+          <div 
+            class={`mobile-tab ${activeColumn() === 'column3' ? 'active' : ''}`} 
+            onClick={() => setActiveColumn('column3')}
+          >
+            Timeline
+          </div>
+        </div>
+
         <ChartProvider>
           <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>
+
             {/* Column 1 */}
-            <div 
-              id="column1" 
-              class="column" 
-            >
+            <div id="column1" class={`column ${activeColumn() === 'column1' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+            {/* <div id="column1" class="column"> */}
               <span class="font-medium" style="color:#eee; text-align: center; display:block; width: 100%">
                 {params.chart.replace('ARCADE', '').replace('INFOBAR_TITLE', '').replace('HALFDOUBLE', '').replace(/_/g," ")}
                 <hr style="border-color:#666" />
@@ -155,10 +177,8 @@ export default function DynamicPage(): JSXElement {
             </div>
 
             {/* Column 2 */}
-            <div 
-              id="column2" 
-              class="column" 
-            >
+            <div id="column2" class={`column ${activeColumn() === 'column2' ? 'active' : ''}`} style={'float: left'}>
+            {/* <div id="column2" class="column"> */}
               <div style={'background-color: #2e2e2e; height: 100%'}>
                 <Show when={chartData()}>
                   <ArrowCanvas
@@ -170,10 +190,8 @@ export default function DynamicPage(): JSXElement {
             </div>
 
             {/* Column 3 */}
-            <div 
-              id="column3" 
-              class="column" 
-            >
+            <div id="column3" class={`column ${activeColumn() === 'column3' ? 'active' : ''}`} style={'float: left; background-color: #2e2e2e'}>
+            {/* <div id="column3" class="column"> */}
               <div style={'height: 100%; overflow: auto'}>
                 <Show when={chartData()}>
                   <ENPSTimeline data={chartData()!} />
