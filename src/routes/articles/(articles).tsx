@@ -1,6 +1,5 @@
 import { createResource, onMount } from "solid-js";
 import { getMarkdownFiles } from "~/lib/markdown";
-import Nav from '~/components/Nav';
 
 
 export default function Index() {
@@ -14,7 +13,6 @@ export default function Index() {
 
   return (
     <div class="min-h-screen bg-[#2e2e2e] text-gray-200">
-      <Nav/>
       <main class="px-4 py-8 mx-auto" style={{ "max-width": "85ch" }}>
         <h1 class="text-3xl font-bold mb-8 text-gray-100">Articles</h1>
         

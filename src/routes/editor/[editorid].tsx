@@ -6,7 +6,6 @@ import { fetchData } from '~/lib/data';
 import { ChartArt, Segment, StrToAny, ArrowArt, HoldArt } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel, skillBadge } from '~/lib/util';
 
-import Nav from '~/components/Nav';
 import ArrowCanvas from "~/components/Chart/ArrowCanvas";
 import ENPSTimeline from "~/components/Chart/NPSTimeline";
 import SegmentTimeline from "~/components/Chart/SegmentTimeline";
@@ -77,29 +76,7 @@ export default function DynamicPage(): JSXElement {
 
   return (
     <>
-      <div>{Nav()}</div>
       <div style={'background-color: #2e2e2e'}>
-
-        <div class="mobile-tabs">
-          <div 
-            class={`mobile-tab ${activeColumn() === 'column1' ? 'active' : ''}`} 
-            onClick={() => setActiveColumn('column1')}
-          >
-            Overview
-          </div>
-          <div 
-            class={`mobile-tab ${activeColumn() === 'column2' ? 'active' : ''}`} 
-            onClick={() => setActiveColumn('column2')}
-          >
-            Stepchart
-          </div>
-          <div 
-            class={`mobile-tab ${activeColumn() === 'column3' ? 'active' : ''}`} 
-            onClick={() => setActiveColumn('column3')}
-          >
-            Timeline
-          </div>
-        </div>
 
         <ChartProvider>
           <div class="columns-container" style={'overflow: hidden; padding: 0; background-color: #2e2e2e'}>

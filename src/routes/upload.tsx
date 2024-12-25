@@ -1,7 +1,6 @@
 import { createSignal, createResource, onMount, createEffect, For, Resource } from "solid-js";
 import type { JSXElement } from 'solid-js';
 import { Show } from 'solid-js';
-import Nav from '~/components/Nav';
 import { ChartData } from "~/lib/types";
 import { Title } from "@solidjs/meta";
 
@@ -34,7 +33,6 @@ function UploaderOrVisualizer(): JSXElement {
   return (
     <>
       <Title>Custom visualizer</Title>
-      <div>{Nav()}</div>
       <div style={'background-color: #2e2e2e'}>
 
         <Show when={chartData() != null} 

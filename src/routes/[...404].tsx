@@ -1,11 +1,6 @@
-import { createSignal, createMemo, For, createEffect, JSXElement, onMount } from "solid-js";
-import { A } from "@solidjs/router";
-import Nav from '~/components/Nav';
-
 export default function NotFound() {
   return (
     <div>
-      <div>{Nav()}</div>
       <div style={`text-align:center;color:#fff`}>
         <span style={`font-size:48px;margin-top:50px`}>
           404: URL not found, 

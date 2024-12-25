@@ -18,7 +18,7 @@ export default function App() {
         root={props => (
           <RootLayout>
             <MetaProvider>
-              {/* <Nav /> */}
+              <Nav />
               <Suspense>
                 {props.children}
               </Suspense>
@@ -37,7 +37,7 @@ export default function App() {
         <ErrorBoundary>
           <RootLayout>
             <MetaProvider>
-              {/* <Nav /> */}
+              <Nav />
               <Suspense>
                 {props.children}
               </Suspense>

@@ -1,7 +1,6 @@
 
 import { createSignal, createMemo, For, createEffect, JSXElement, onMount } from "solid-js";
 import "./simplesearch.css"
-import Nav from '~/components/Nav';
 
 
 interface SearchItemType {
@@ -92,7 +91,6 @@ export default function Page(): JSXElement {
 
   return (
     <div>
-      <div>{Nav()}</div>
       <div class='container' style={'background-color: #2e2e2e; height: 100%'}>      
         {SearchTable()}
       </div>

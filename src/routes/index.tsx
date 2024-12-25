@@ -1,5 +1,4 @@
 import { Title } from "@solidjs/meta";
-import Nav from '~/components/Nav';
 import { marked } from 'marked';
 import { createEffect, createSignal, onMount } from 'solid-js';
 
@@ -59,7 +58,6 @@ export default function Home() {
   return (
     <div>
       <Title>piucenter</Title>
-      <Nav />
 
       <main class="text-center mx-auto p-4" style="justify-content:center">
         <div>

@@ -5,7 +5,6 @@ import { Show } from 'solid-js';
 import { fetchData } from '~/lib/data';
 import { ArrowArt, ChartArt, HoldArt, Segment, StrToAny } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel } from '~/lib/util';
-import Nav from '~/components/Nav';
 import { ChartData } from "~/lib/types";
 
 // Components
@@ -110,7 +109,6 @@ export default function DynamicPage(): JSXElement {
 
   return (
     <>
-      <div>{Nav()}</div>
       <div style={'background-color: #2e2e2e'}>
 
         <ChartProvider>

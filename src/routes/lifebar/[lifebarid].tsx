@@ -5,7 +5,6 @@ import { Show } from 'solid-js';
 import { fetchData } from '~/lib/data';
 import { ChartArt, Segment, StrToAny, ArrowArt, HoldArt } from '~/lib/types';
 import { getShortChartName, getShortChartNameWithLevel, skillBadge } from '~/lib/util';
-import Nav from '~/components/Nav';
 
 import ArrowCanvas from "~/components/Chart/ArrowCanvas";
 import ENPSTimeline from "~/components/Chart/NPSTimeline";
@@ -73,7 +72,6 @@ export default function DynamicPage(): JSXElement {
 
   return (
     <>
-      <div>{Nav()}</div>
       <div style={'background-color: #2e2e2e'}>
 
         <div class="mobile-tabs">

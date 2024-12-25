@@ -2,7 +2,6 @@
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
 import { fetchSkillData } from '../../lib/data';
 import { Show } from 'solid-js';
-import Nav from '../../components/Nav';
 import { skillBadge } from "~/lib/util";
 
 
@@ -80,7 +79,6 @@ export default function Page(): JSXElement {
 
   return (
     <div>
-      <div>{Nav()}</div>
       <div style="background-color: #2e2e2e; height: 100%">
         <SkillLinks />
       </div>
