@@ -102,7 +102,8 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     // Create new stage and layers
     stage = new Konva.Stage({
       container: containerRef,
-      width: window.innerWidth + PADDING * 2,
+      // width: window.innerWidth + PADDING * 2,
+      width: canvasWidth() + 80,
       height: window.innerHeight + PADDING * 2,
     });
 

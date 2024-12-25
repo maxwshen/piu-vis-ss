@@ -156,10 +156,15 @@ a {
   }
 
   #column2 {
-    margin-left: 0px;
-    margin-right: 0px;
-    min-width: 300px;
-    max-width: 100%;
+    /* margin-left: 0px; */
+    /* margin-right: 0px; */
+    /* min-width: 300px; */
+    /* max-width: 100%; */
+    /* transform-origin: top left; */
+    /* on mobile, shrink chart canvas */
+    /* transform: scale(clamp(0, calc((100vw - 40px) / 600), 1)); */
+    /* transform: rotate(90deg); */
+    margin: 0;
   }
 
   .column.active {
