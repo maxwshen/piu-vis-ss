@@ -137,8 +137,8 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
 
     layers = {
       base: new Konva.Layer(),
-      holdCap: new Konva.Layer(),
       holdTrail: new Konva.Layer(),
+      holdCap: new Konva.Layer(),
       holdHead: new Konva.Layer(),
       timingWindow: new Konva.Layer(),
     };
