@@ -156,11 +156,13 @@ export default function DynamicPage(): JSXElement {
 
               <Show when={!isMobile()}>
                 <div style="text-align:center">
-                  <a href={`/lifebar/${params.chart}`}>
+                  <a href={`/lifebar/${params.chart}`}
+                  >
                     Use lifebar calculator
                   </a>
                   &emsp;&emsp;
-                  <a href={`/editor/${params.chart}`}>
+                  <a href={`/editor/${params.chart}`}
+                  >
                     Use editor
                   </a>
                 </div>

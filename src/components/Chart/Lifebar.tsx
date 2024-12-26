@@ -1,9 +1,8 @@
 import { onMount, createSignal, createEffect, onCleanup } from "solid-js";
-import type { Resource } from 'solid-js';
 import { isServer } from 'solid-js/web';
+import { useLocation } from '@solidjs/router'
 import { ChartArt, Segment, HoldTick, StrToAny } from '~/lib/types';
-import { getLevelColor, getLevelText } from "./util";
-import { getENPSColor, secondsToTimeStr } from '~/lib/util';
+import { secondsToTimeStr } from '~/lib/util';
 import { useChartContext } from "~/components/Chart/ChartContext";
 import { ChartData } from "~/lib/types";
 
@@ -397,13 +396,6 @@ export default function LifebarPlot(props: Props) {
       stage.add(layerPlot);
     });
 
-    // onMount - if /lifebar/ url, set click to miss
-    if (window.location.href.includes('lifebar')) {
-      setClickTo({'type': 'miss', 
-        'l': 'l_miss', 'r': 'r_miss', 'e': 'e_miss', 
-        'l_miss': 'l', 'r_miss': 'r', 'e_miss': 'e'});
-    }
-
     // try to update miss times?
     let arrowarts = props.data.arrowarts;
     let initMissTimes: number[] = [];
@@ -415,6 +407,21 @@ export default function LifebarPlot(props: Props) {
       }
     }
     setMissTimes(initMissTimes);
+  });
+
+  const location = useLocation();
+  createEffect(() => {
+    if (location.pathname.includes('lifebar')) {
+      setClickTo({
+        'type': 'miss', 
+        'l': 'l_miss', 
+        'r': 'r_miss', 
+        'e': 'e_miss', 
+        'l_miss': 'l', 
+        'r_miss': 'r', 
+        'e_miss': 'e'
+      });
+    }
   });
 
   return (

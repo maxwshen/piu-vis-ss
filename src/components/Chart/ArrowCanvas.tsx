@@ -53,7 +53,7 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
 
   // Update scroll container dimensions
   const getScrollContainerStyle = () => {
-    if (isMobile()) {
+    if (isMobile() && props.data.metadata['sord_chartlevel'][0] == 'D') {
       return {
         overflow: "auto",
         width: `${canvasWidth() + 100}px`,
