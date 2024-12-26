@@ -31,6 +31,21 @@ const [filters, setFilters] = createSignal<{
   sustainMax: '',
 });
 
+// display columns
+const displayColumns = [
+  'name', 'skills', 'BPM info', 'NPS', 'Sustain time',
+]
+const sortableColumns = [
+  'name', 'BPM info', 'NPS', 'Sustain time'  
+]
+const colToShownName: StrToStr = {
+  'name': 'Name',
+  'skills': 'Skills',
+  'BPM info': 'BPM info',
+  'NPS': 'NPS',
+  'Sustain time': 'Sustain time',
+}
+
 
 // Enhanced interface to allow more flexible data handling
 interface SearchItem {
@@ -231,18 +246,6 @@ function SearchTable() {
   // Sorting state
   const [sortColumn, setSortColumn] = createSignal<keyof SearchItem | null>(null);
   const [sortDirection, setSortDirection] = createSignal<'asc' | 'desc'>('asc');
-
-  // display columns
-  const displayColumns = [
-    'name', 'skills', 'BPM info', 'NPS', 'Sustain time',
-  ]
-  const colToShownName: StrToStr = {
-    'name': 'Name',
-    'skills': 'Skills',
-    'BPM info': 'BPM info',
-    'NPS': 'NPS',
-    'Sustain time': 'Sustain time',
-  }
 
   // Numeric range validation
   const isInRange = (value: number, min: number | '', max: number | '') => {
@@ -600,14 +603,14 @@ function SearchTable() {
                     class="p-2 cursor-pointer hover:bg-gray-500"
                     onClick={() => {
                       // Only enable sorting for numeric columns and name
-                      if (['level', 'NPS', 'Sustain time'].includes(column)) {
+                      if (sortableColumns.includes(column)) {
                         handleSort(column as keyof SearchItem);
                       }
                     }}
                   >
                     {/* {column} */}
                     {
-                      (['level', 'NPS', 'Sustain time'].includes(column)) ? colToShownName[column] + ' *': colToShownName[column] 
+                      (sortableColumns.includes(column)) ? colToShownName[column] + ' *': colToShownName[column] 
                     }
                     {sortColumn() === column && (
                       <span class="ml-2">
