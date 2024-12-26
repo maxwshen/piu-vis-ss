@@ -121,16 +121,19 @@ function displayCell(item: StrToAny, column: string) {
   if (column == 'BPM info') {
     return (
       <td>
-      <span style={`color:${getENPSColor(item['NPS'])}`}>
-        {value}
-      </span>
+        <span style={`color:${getENPSColor(item['NPS'])}`}>
+          {value}
+        </span>
     </td>
     );
   }
   if (column == 'Sustain time') {
     return (
       <td>
-        {item[column]} s
+        <span style={`color:#bbb`}>
+
+          {item[column]}s
+        </span>
       </td>
     );
   }
@@ -602,13 +605,11 @@ function SearchTable() {
                   <th 
                     class="p-2 cursor-pointer hover:bg-gray-500"
                     onClick={() => {
-                      // Only enable sorting for numeric columns and name
                       if (sortableColumns.includes(column)) {
                         handleSort(column as keyof SearchItem);
                       }
                     }}
                   >
-                    {/* {column} */}
                     {
                       (sortableColumns.includes(column)) ? colToShownName[column] + ' *': colToShownName[column] 
                     }
@@ -637,6 +638,10 @@ function SearchTable() {
           </tbody>
         </table>
       )}
+
+      {/* after table */}
+      <PaginationControls />
+
     </div>
   );
 }
