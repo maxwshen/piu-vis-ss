@@ -12,6 +12,7 @@ const [isSkillsModalOpen, setIsSkillsModalOpen] = createSignal(false);
 const [filters, setFilters] = createSignal<{
   name: string;
   sord: 'singles' | 'doubles' | '';
+  levelSort: 'none' | 'asc' | 'desc';
   levelMin: number | '';
   levelMax: number | '';
   NPSMin: number | '';
@@ -22,6 +23,7 @@ const [filters, setFilters] = createSignal<{
 }>({
   name: '',
   sord: '',
+  levelSort: 'none',
   levelMin: '',
   levelMax: '',
   NPSMin: '',
@@ -319,8 +321,17 @@ function SearchTable() {
 
   // Sorting logic
   const sortedFilteredItems = createMemo(() => {
-    const filtered = filteredItems();
+    let filtered = filteredItems();
     
+    // Apply level sort first if specified
+    if (filters().levelSort !== 'none') {
+      filtered = [...filtered].sort((a, b) => {
+        return filters().levelSort === 'asc' 
+          ? a.level - b.level 
+          : b.level - a.level;
+      });
+    }
+
     // If no sort column is selected, return filtered items
     if (!sortColumn()) return filtered;
     
@@ -377,6 +388,21 @@ function SearchTable() {
             <option value="">All</option>
             <option value="singles">Singles</option>
             <option value="doubles">Doubles</option>
+          </select>
+        </div>
+
+        {/* Sorted by level */}
+        <div class="level-sorter">
+          <label class="block">Sort by level</label>
+          <select
+            value={filters().levelSort}
+            onChange={(e) => setFilters(prev => ({...prev, levelSort: e.currentTarget.value as 'none' | 'asc' | 'desc'}))}
+            class="w-full p-1"
+            style={`background-color:#555;color:#fff`}
+          >
+            <option value="none">None</option>
+            <option value="asc">▲</option>
+            <option value="desc">▼</option>
           </select>
         </div>
 
