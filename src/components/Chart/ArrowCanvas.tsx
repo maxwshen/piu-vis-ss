@@ -8,6 +8,7 @@ import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art
 import { secondsToTimeStr } from '~/lib/util';
 import { useChartContext } from "~/components/Chart/ChartContext";
 import { StrToStr } from "./util";
+import { useLayoutContext } from "../LayoutContext";
 
 type MutateFunction = (v: ChartData | ((prev: ChartData) => ChartData)) => void;
 
@@ -18,6 +19,7 @@ interface ArrowCanvasProps {
 
 export default function ArrowCanvas(props: ArrowCanvasProps) {
   const params = useParams();
+  const { isMobile } = useLayoutContext();
   let containerRef: HTMLDivElement;
   let largeContainerRef: HTMLDivElement;
   let stage: any = null;
@@ -48,6 +50,25 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     stage.y(-dy);
     setCanvasScrollPositionMirror(dy);
   }
+
+  // Update scroll container dimensions
+  const getScrollContainerStyle = () => {
+    if (isMobile()) {
+      return {
+        overflow: "auto",
+        width: `${canvasWidth() + 100}px`,
+        height: "120vh",
+        margin: "auto",
+      };
+    } else {
+      return {
+        overflow: "auto",
+        width: `${canvasWidth() + 100}px`,
+        height: "calc(100vh - 80px)",
+        margin: "auto",
+      };
+    }
+  };
 
   const drawEverything = async () => {
     if (typeof window === 'undefined' || !containerRef) return;
@@ -99,12 +120,19 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     const holdTicksColX = arrowsColXRight + 5;
     const enpsAnnotColX = holdTicksColX + 20;
 
+    // desktop
+    let stageHeight = window.innerHeight + PADDING * 2;
+    if (isMobile()) {
+      stageHeight = 1.2 * window.innerHeight;
+    }
+
     // Create new stage and layers
     stage = new Konva.Stage({
       container: containerRef,
       // width: window.innerWidth + PADDING * 2,
       width: canvasWidth() + 80,
-      height: window.innerHeight + PADDING * 2,
+      // height: window.innerHeight + PADDING * 2,
+      height: stageHeight,
     });
 
     layers = {
@@ -591,12 +619,7 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
       <div
         ref={setScrollContainerRef}
         id="scrollbar1"
-        style={{
-          "overflow": "auto",
-          "width": canvasWidth() + 100 + "px",
-          "height": "calc(100vh - 80px)",
-          "margin": "auto",
-        }}
+        style={getScrollContainerStyle()}
       >
         <div
           ref={largeContainerRef!}
