@@ -8,6 +8,7 @@ import { getLevel, getSinglesOrDoubles, computeLastTime } from '~/lib/canvas_art
 import { secondsToTimeStr } from '~/lib/util';
 import { useChartContext } from "~/components/Chart/ChartContext";
 import { StrToStr } from "./util";
+import { useLayoutContext } from "../LayoutContext";
 
 type MutateFunction = (v: ChartData | ((prev: ChartData) => ChartData)) => void;
 
@@ -18,6 +19,8 @@ interface ArrowCanvasProps {
 
 export default function ArrowCanvas(props: ArrowCanvasProps) {
   const params = useParams();
+  const { isMobile } = useLayoutContext();
+
   let containerRef: HTMLDivElement;
   let largeContainerRef: HTMLDivElement;
   let stage: any = null;
@@ -48,6 +51,55 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     stage.y(-dy);
     setCanvasScrollPositionMirror(dy);
   }
+
+  // Calculate dimensions based on device
+  const calculateDimensions = () => {
+    const numPanels = getSinglesOrDoubles(props.data);
+    const baseWidth = panelPxInterval * numPanels + 135; // Added extra padding
+    
+    // Set canvas width
+    setCanvasWidth(baseWidth);
+    
+    // Calculate proper stage dimensions
+    const stageWidth = baseWidth;
+    let stageHeight: number;
+    
+    if (isMobile()) {
+      // On mobile, calculate height to maintain aspect ratio when zoomed out
+      const viewportAspectRatio = window.innerHeight / window.innerWidth;
+      const desiredCanvasAspectRatio = 1.5; // Adjust this value to control how tall the canvas should be
+      
+      // Calculate height that will use most of the screen height when zoomed to fit width
+      const zoomFactor = window.innerWidth / stageWidth;
+      stageHeight = (window.innerHeight / zoomFactor) * desiredCanvasAspectRatio;
+    } else {
+      // On desktop, use viewport height minus header
+      stageHeight = window.innerHeight - 80;
+    }
+    
+    return { stageWidth, stageHeight };
+  };
+
+  // Update scroll container dimensions
+  const getScrollContainerStyle = () => {
+    const { stageWidth, stageHeight } = calculateDimensions();
+    
+    if (isMobile()) {
+      return {
+        // overflow: "none",
+        width: `${stageWidth}px`,
+        height: `${stageHeight}px`,
+        // margin: "auto",
+      };
+    } else {
+      return {
+        // overflow: "none",
+        width: `${stageWidth}px`,
+        height: "calc(100vh - 80px)",
+        // margin: "auto",
+      };
+    }
+  };
 
   const drawEverything = async () => {
     if (typeof window === 'undefined' || !containerRef) return;
@@ -86,10 +138,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     const canvas_height = lastTime * pxPerSecond() + 100;
     const PADDING = 0;
 
-    // Update container dimensions
-    largeContainerRef.style.height = canvas_height + 'px';
-    largeContainerRef.style.width = canvasWidth() + 80 + 'px';
-
     // Constants for positioning
     const timeFontSize = 15;
     const enpsAnnotFontSize = 15;
@@ -100,11 +148,16 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
     const enpsAnnotColX = holdTicksColX + 20;
 
     // Create new stage and layers
+    const { stageWidth, stageHeight } = calculateDimensions();  
+    largeContainerRef.style.height = canvas_height + 'px';
+    largeContainerRef.style.width = stageWidth + 'px';
     stage = new Konva.Stage({
       container: containerRef,
       // width: window.innerWidth + PADDING * 2,
-      width: canvasWidth() + 80,
-      height: window.innerHeight + PADDING * 2,
+      width: stageWidth,
+      height: stageHeight,
+      // height: window.innerHeight + PADDING * 2,
+      // height: stageWidth * (window.innerHeight / window.innerWidth)
     });
 
     layers = {
@@ -591,12 +644,7 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
       <div
         ref={setScrollContainerRef}
         id="scrollbar1"
-        style={{
-          "overflow": "auto",
-          "width": canvasWidth() + 100 + "px",
-          "height": "calc(100vh - 80px)",
-          "margin": "auto",
-        }}
+        style={getScrollContainerStyle()}
       >
         <div
           ref={largeContainerRef!}
