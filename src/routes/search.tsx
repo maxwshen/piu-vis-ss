@@ -362,123 +362,127 @@ function SearchTable() {
     // const f = filters();
     
     return (
-      <div class="filters grid grid-cols-3 gap-4">
-        {/* Text Filters */}
-        <div class="text-filters">
-          <label class="block">Name filter:</label>
-          <input
-            type="text"
-            value={filters().name}
-            onInput={(e) => setFilters(prev => ({...prev, name: e.currentTarget.value}))}
-            placeholder="Filter by name..."
-            class="w-full p-1"
-            style={`background-color:#555;color:#fff`}
-          />
-        </div>
-
-        {/* Sord Filter */}
-        <div class="sord-filter">
-          <label class="block">singles/doubles</label>
-          <select
-            value={filters().sord}
-            onChange={(e) => setFilters(prev => ({...prev, sord: e.currentTarget.value as 'singles' | 'doubles' | ''}))}
-            class="w-full p-1"
-            style={`background-color:#555;color:#fff`}
-          >
-            <option value="">All</option>
-            <option value="singles">Singles</option>
-            <option value="doubles">Doubles</option>
-          </select>
-        </div>
-
-        {/* Sorted by level */}
-        <div class="level-sorter">
-          <label class="block">Sort by level</label>
-          <select
-            value={filters().levelSort}
-            onChange={(e) => setFilters(prev => ({...prev, levelSort: e.currentTarget.value as 'none' | 'asc' | 'desc'}))}
-            class="w-full p-1"
-            style={`background-color:#555;color:#fff`}
-          >
-            <option value="none">None</option>
-            <option value="asc">▲</option>
-            <option value="desc">▼</option>
-          </select>
-        </div>
-
-        {/* Level Range Filters */}
-        <div class="level-filters" style={`max-width:150px`}>
-          <label class="block">Level range:</label>
-          <div class="flex gap-2">
+      <>
+        <div class="filters grid grid-cols-3 gap-4">
+          {/* Text Filters */}
+          <div class="text-filters">
+            <label class="block">Name filter:</label>
             <input
-              type="number"
-              value={filters().levelMin}
-              onInput={(e) => setFilters(prev => ({...prev, levelMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+              type="text"
+              value={filters().name}
+              onInput={(e) => setFilters(prev => ({...prev, name: e.currentTarget.value}))}
+              placeholder="Filter by name..."
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
-              placeholder="min"
-            />
-            <input
-              type="number"
-              value={filters().levelMax}
-              onInput={(e) => setFilters(prev => ({...prev, levelMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
-              class="w-full p-1"
-              style={`background-color:#555;color:#fff`}
-              placeholder="max"
             />
           </div>
-        </div>
 
-        {/* NPS Range Filters */}
-        <div class="nps-filters" style={`max-width:150px`}>
-          <label class="block">Notes per second</label>
-          <div class="flex gap-2">
-            <input
-              type="number"
-              value={filters().NPSMin}
-              onInput={(e) => setFilters(prev => ({...prev, NPSMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+          {/* Sord Filter */}
+          <div class="sord-filter">
+            <label class="block">singles/doubles</label>
+            <select
+              value={filters().sord}
+              onChange={(e) => setFilters(prev => ({...prev, sord: e.currentTarget.value as 'singles' | 'doubles' | ''}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
-              placeholder="min"
-            />
-            <input
-              type="number"
-              value={filters().NPSMax}
-              onInput={(e) => setFilters(prev => ({...prev, NPSMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
-              class="w-full p-1"
-              style={`background-color:#555;color:#fff`}
-              placeholder="max"
-            />
+            >
+              <option value="">All</option>
+              <option value="singles">Singles</option>
+              <option value="doubles">Doubles</option>
+            </select>
           </div>
-        </div>
 
-        {/* Level Range Filters */}
-        <div class="sustain-filters" style={`max-width:150px`}>
-          <label class="block">Sustain time</label>
-          <div class="flex gap-2">
-            <input
-              type="number"
-              value={filters().sustainMin}
-              onInput={(e) => setFilters(prev => ({...prev, sustainMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+          {/* Sorted by level */}
+          <div class="level-sorter">
+            <label class="block">Sort by level</label>
+            <select
+              value={filters().levelSort}
+              onChange={(e) => setFilters(prev => ({...prev, levelSort: e.currentTarget.value as 'none' | 'asc' | 'desc'}))}
               class="w-full p-1"
               style={`background-color:#555;color:#fff`}
-              placeholder="min"
-            />
-            <input
-              type="number"
-              value={filters().sustainMax}
-              onInput={(e) => setFilters(prev => ({...prev, sustainMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
-              class="w-full p-1"
-              style={`background-color:#555;color:#fff`}
-              placeholder="max"
-            />
+            >
+              <option value="none">None</option>
+              <option value="asc">▲</option>
+              <option value="desc">▼</option>
+            </select>
           </div>
+
+          {/* Level Range Filters */}
+          <div class="level-filters" style={`max-width:150px`}>
+            <label class="block">Level range:</label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                value={filters().levelMin}
+                onInput={(e) => setFilters(prev => ({...prev, levelMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+                class="w-full p-1"
+                style={`background-color:#555;color:#fff`}
+                placeholder="min"
+              />
+              <input
+                type="number"
+                value={filters().levelMax}
+                onInput={(e) => setFilters(prev => ({...prev, levelMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+                class="w-full p-1"
+                style={`background-color:#555;color:#fff`}
+                placeholder="max"
+              />
+            </div>
+          </div>
+
+          {/* NPS Range Filters */}
+          <div class="nps-filters" style={`max-width:150px`}>
+            <label class="block">Notes per second</label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                value={filters().NPSMin}
+                onInput={(e) => setFilters(prev => ({...prev, NPSMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+                class="w-full p-1"
+                style={`background-color:#555;color:#fff`}
+                placeholder="min"
+              />
+              <input
+                type="number"
+                value={filters().NPSMax}
+                onInput={(e) => setFilters(prev => ({...prev, NPSMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+                class="w-full p-1"
+                style={`background-color:#555;color:#fff`}
+                placeholder="max"
+              />
+            </div>
+          </div>
+
+          {/* Level Range Filters */}
+          <div class="sustain-filters" style={`max-width:150px`}>
+            <label class="block">Sustain time</label>
+            <div class="flex gap-2">
+              <input
+                type="number"
+                value={filters().sustainMin}
+                onInput={(e) => setFilters(prev => ({...prev, sustainMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+                class="w-full p-1"
+                style={`background-color:#555;color:#fff`}
+                placeholder="min"
+              />
+              <input
+                type="number"
+                value={filters().sustainMax}
+                onInput={(e) => setFilters(prev => ({...prev, sustainMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
+                class="w-full p-1"
+                style={`background-color:#555;color:#fff`}
+                placeholder="max"
+              />
+            </div>
+          </div>
+
+          {/* Skills Multi-Select Filter */}
+          <SkillsFilter/>
         </div>
-
-        {/* Skills Multi-Select Filter */}
-        <SkillsFilter/>
-
-      </div>
+        <div class="mt-4 flex justify-start">
+          <ClearFiltersButton />
+        </div>
+      </>
     );
   };
 
@@ -497,15 +501,54 @@ function SearchTable() {
   // Sort column handler
   const handleSort = (column: keyof SearchItem) => {
     if (sortColumn() === column) {
-      // Toggle sort direction if same column
-      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+      // Cycle through: asc -> desc -> none
+      if (sortDirection() === 'asc') {
+        setSortDirection('desc');
+      } else {
+        // If currently desc, clear sorting
+        setSortColumn(null);
+        setSortDirection('asc');
+      }
     } else {
-      // Set new sort column and default to ascending
+      // Set new sort column and start with ascending
       setSortColumn(column);
       setSortDirection('asc');
     }
     // Reset to first page when sorting changes
     setCurrentPage(1);
+  };
+
+  // clear filters and sorting
+  const clearFilters = () => {
+    setFilters({
+      name: '',
+      sord: '',
+      levelSort: 'none',
+      levelMin: '',
+      levelMax: '',
+      NPSMin: '',
+      NPSMax: '',
+      skills: [],
+      sustainMin: '',
+      sustainMax: '',
+    });
+    // Also clear sorting
+    setSortColumn(null);
+    setSortDirection('asc');
+    // Reset to first page
+    setCurrentPage(1);
+  };
+
+  const ClearFiltersButton = () => {
+    return (
+      <button
+        onClick={clearFilters}
+        class="p-1 bg-gray-700 rounded hover:bg-gray-600"
+        style="color: #fff"
+      >
+        Clear All Filters
+      </button>
+    );
   };
 
   // Pagination controls
