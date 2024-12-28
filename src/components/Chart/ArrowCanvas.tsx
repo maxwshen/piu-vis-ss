@@ -140,10 +140,11 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
       holdTrail: new Konva.Layer(),
       holdCap: new Konva.Layer(),
       holdHead: new Konva.Layer(),
+      arrows: new Konva.Layer(),
       timingWindow: new Konva.Layer(),
     };
 
-    // Helper functions (your existing draw functions)
+    // Drawing functions
     function drawArrowArt(aa: ArrowArt, limb: string, id: number) {
       let arrowart = aa;
       const [panelPos, time, limbAnnot] = arrowart;
@@ -163,7 +164,7 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         id: String(id),
         opacity: alpha,
       });
-      layers.base.add(konva_img);
+      layers.arrows.add(konva_img);
     };
 
     function drawHoldArt(ha: HoldArt, limb: string, id: number) {
@@ -273,16 +274,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
       })
       layers.timingWindow.add(rect);
     }
-
-    // Draw background
-    const background = new Konva.Rect({
-      x: 0,
-      y: 0,
-      width: stage.width(),
-      height: stage.height(),
-      fill: '#2e2e2e'
-    });
-    // layers.base.add(background);
 
     // Draw time lines
     // draw spaced lines for time
@@ -452,7 +443,7 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
           }
 
           // remove prev arrow
-          const node = layers.base?.findOne(`#${id}`);
+          const node = layers.arrows?.findOne(`#${id}`);
           node?.destroy();
 
           // draw new arrow
