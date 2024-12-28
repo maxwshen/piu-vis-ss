@@ -9,15 +9,15 @@ First, why should one try to understand the lifebar in Pump?
 
 <!-- Well, a common goal in Pump is "stage passing" new stepcharts, which means completing them without your lifebar getting to zero. Stage pass count is the dominant factor in earning titles like Intermediate Lv. 1-10, Advanced, Lv. 1-10, and Expert Lv. 1-10, which are common ways to track player progress.  -->
 
-When you go for stage passes, you are playing a game called "don't let the lifebar reach zero". But what are the rules of this game -- what *exactly* do you need to do to win? If you were expected to play an unfamiliar game, you would probably want to learn the rules of the game first. Yet, a surprising number of Pump players are highly interested in the *game* of stage passing, yet don't really understand the *rules* of stage passing. The rules of stage passing are governed by lifebar mechanics, which are surprisingly unintuitive.
+When you go for stage passes, you are playing a game called "don't let the lifebar reach zero". But what are the rules of this game -- what *exactly* do you need to do to win? Well, the rules of stage passing are governed by lifebar mechanics, which are surprisingly unintuitive.
+<!-- If you were expected to play an unfamiliar game, you would probably want to learn the rules of the game first. Yet, a surprising number of Pump players are highly interested in the *game* of stage passing, yet don't really understand the *rules* of stage passing.  -->
+<!-- The rules of stage passing are governed by lifebar mechanics, which are surprisingly unintuitive. -->
 
 <div class="tip">
 A master of lifebar mechanics can optimize a plan on how to execute any stepchart to maximize the chances of stage passing, while making the execution plan as physically easy as possible by skipping certain notes or tricky parts.
 </div>
 
-An understanding of lifebar mechanics will push your stage pass limit, without any improvement in physical skills. 
-by intentionally missing certain notes at specific spots where you calculate that your lifebar will remain above zero. 
-This can also unlock new approaches to playing pump besides the typical strategy of trying one's hardest on every attempt.
+An understanding of lifebar mechanics will push your stage pass limit, without any improvement in physical skills. You can learn to craft stage passing strategies that intentionally miss certain notes. This can also unlock new approaches to playing pump besides the typical strategy of trying one's hardest on every attempt.
 
 <div class="note">
 Aiming for stage passes is only one way to enjoy Pump. Playing for accuracy and score is also hugely rewarding and a different test of one's abilities. Don't get tunnel vision!
