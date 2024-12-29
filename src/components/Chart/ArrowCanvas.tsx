@@ -137,12 +137,11 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
 
     layers = {
       base: new Konva.Layer(),
-      holdTrail: new Konva.Layer(),
-      holdCap: new Konva.Layer(),
-      holdHead: new Konva.Layer(),
+      holds: new Konva.Layer(),
       arrows: new Konva.Layer(),
       timingWindow: new Konva.Layer(),
     };
+    layers.holds.listening(true);
 
     // Drawing functions
     function drawArrowArt(aa: ArrowArt, limb: string, id: number) {
@@ -177,21 +176,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         trail_alpha = 0.15;
       }
 
-      // draw hold head
-      const holdHead = new Image();
-      const [headImageGetter, _] = getImage(panelPos, limb, 'arrow');
-      holdHead.src = headImageGetter();
-      var konva_img = new Konva.Image({
-        x: arrowsColX + panelPos * panelPxInterval,
-        y: startTime * pxPerSecond(),
-        image: holdHead,
-        width: arrowImgWidth,
-        height: arrowImgHeight,
-        id: String(id),
-        opacity: alpha,
-      });
-      layers.holdHead.add(konva_img);
-
       // draw hold trail
       const holdTrail = new Image();
       const [trailImageGetter, __] = getImage(panelPos, limb, 'trail');
@@ -202,10 +186,11 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         image: holdTrail,
         width: arrowImgWidth,
         height: (endTime - startTime) * pxPerSecond(),
-        id: String(id),
+        id: String(id) + 'trail',
         opacity: trail_alpha,
+        zIndex: 1,
       });
-      layers.holdTrail.add(konva_img);
+      layers.holds.add(konva_img);
 
       // draw hold cap
       const holdCap = new Image();
@@ -217,10 +202,28 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         image: holdCap,
         width: arrowImgWidth,
         height: arrowImgHeight,
-        id: String(id),
+        id: String(id) + 'cap',
         opacity: alpha,
+        zIndex: 2,
       });
-      layers.holdCap.add(konva_img);
+      layers.holds.add(konva_img);
+
+      // draw hold head
+      const holdHead = new Image();
+      const [headImageGetter, _] = getImage(panelPos, limb, 'arrow');
+      holdHead.src = headImageGetter();
+      var konva_img = new Konva.Image({
+        x: arrowsColX + panelPos * panelPxInterval,
+        y: startTime * pxPerSecond(),
+        image: holdHead,
+        width: arrowImgWidth,
+        height: arrowImgHeight,
+        id: String(id) + 'head',
+        opacity: alpha,
+        zIndex: 3,
+      });
+      layers.holds.add(konva_img);
+
 
     };
 
@@ -485,12 +488,8 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
 
           // remove prev art
           let id = String(i);
-          const node2 = layers.holdHead.findOne(`#${id}`);
-          node2?.destroy();
-          const node3 = layers.holdCap.findOne(`#${id}`);
-          node3?.destroy();
-          const node4 = layers.holdTrail.findOne(`#${id}`);
-          node4?.destroy();
+          const nodes: any[] = layers.holds.find(`#${id}[head|trail|cap]`);
+          nodes.forEach(node => node.destroy());
 
           // draw new art
           let newLimb = clickTo()[limbAnnot] ?? limbAnnot;
@@ -515,12 +514,8 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
 
           // remove prev art
           let id = String(i);
-          const node2 = layers.holdHead.findOne(`#${id}`);
-          node2?.destroy();
-          const node3 = layers.holdCap.findOne(`#${id}`);
-          node3?.destroy();
-          const node4 = layers.holdTrail.findOne(`#${id}`);
-          node4?.destroy();
+          const nodes: any[] = layers.holds.find(`#${id}[head|trail|cap]`);
+          nodes.forEach(node => node.destroy());
 
           // draw new art
           drawHoldArt(holdart, newLimb, i); 
