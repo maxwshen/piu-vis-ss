@@ -25,8 +25,9 @@ const [chartLevel, setChartLevel] = createSignal<number>(13);
  */
 async function fetchTierListData(): Promise<StrToAny | null> {
   try {
+    const timestamp = Date.now();
     const response = await fetch(
-      checkEnvironment() + `/chart-jsons/120524/page-content/tierlists.json`
+      checkEnvironment() + `/chart-jsons/120524/page-content/tierlists.json?cb=${timestamp}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

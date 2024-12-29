@@ -262,7 +262,8 @@ function SearchTable() {
 
   onMount(async () => {
     try {
-      const searchDict = await fetch(window.location.origin.concat(`/chart-jsons/120524/page-content/chart-table.json`));
+      const timestamp = Date.now();
+      const searchDict = await fetch(window.location.origin.concat(`/chart-jsons/120524/page-content/chart-table.json?cb=${timestamp}`));
       const searchData: SearchItem[] = await searchDict.json();
 
       // Set items and extract columns dynamically

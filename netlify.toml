@@ -38,14 +38,14 @@
   for = "/*.json"
   [headers.values]
     # Cache-Control = "public, max-age=86400" # Cache for 1 day
-    Cache-Control = "public, max-age=60" # Cache for 1 day
+    Cache-Control = "public, max-age=60"
     Vary = "Accept-Encoding"
 
 [[headers]]
   for = "/chart-jsons/*"
   [headers.values]
     # Cache-Control = "public, max-age=86400" # Cache for 1 day
-    Cache-Control = "public, max-age=60" # Cache for 1 day
+    Cache-Control = "public, max-age=60"
     Vary = "Accept-Encoding"
 
 [[headers]]
