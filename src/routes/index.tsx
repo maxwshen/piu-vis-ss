@@ -25,7 +25,8 @@ An interactive web app and knowledge resource for the dance rhythm game, Pump it
 ---
 
 <span style="color:#888;">
-Content version: Phoenix v2.01
+Content version: Phoenix v2.05
+Website last updated 12/29/24
 
 piucenter is founded on the idea that community-made .ssc simfiles are a rich resource for data analysis, visualization, and creating tools to support Pump it Up players.
 
