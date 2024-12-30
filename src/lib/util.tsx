@@ -10,6 +10,7 @@ export function roundToDecimals(input: any, decimals: number): number {
 
 export function getShortChartName(name: string) {
   var n = name.replace('_INFOBAR_TITLE_', '_').replace('_HALFDOUBLE_', '_');
+  n = n.replace('_INFOBAR_2_', '_').replace('_INFOBAR_1_', '_');
   const nsplit = n.split('_');
   const songtype = nsplit[nsplit.length - 1];
   const songname = n.split('_-_')[0].replace(/_+/g, ' ');
@@ -24,6 +25,7 @@ export function getShortChartName(name: string) {
 
 export function getShortChartNameWithLevel(name: string) {
   var n = name.replace('_INFOBAR_TITLE_', '_').replace('_HALFDOUBLE_', '_');
+  n = n.replace('_INFOBAR_2_', '_').replace('_INFOBAR_1_', '_');
   const nsplit = n.split('_');
   const sordlevel = nsplit[nsplit.length - 2];
   const songtype = nsplit[nsplit.length - 1];

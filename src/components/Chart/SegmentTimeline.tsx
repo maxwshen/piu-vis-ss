@@ -91,10 +91,16 @@ export default function SegmentTimeline(props: SegmentTimelineProps) {
   const { isMobile } = useLayoutContext();
 
   const scrollToTime = (startTime: number) => {
-    scrollContainerRef()!.scrollTo({
-      top: startTime * pxPerSecond(),
-      behavior: 'smooth'
-    });
+    if (!isMobile()) {
+      scrollContainerRef()!.scrollTo({
+        top: startTime * pxPerSecond(),
+        behavior: 'smooth'
+      });
+    } else {
+      scrollContainerRef()!.scrollTo({
+        top: startTime * pxPerSecond(),
+      });
+    }
   };
 
   const SegmentCollapsible = (segment: Segment, data: StrToAny, index: number) => {
