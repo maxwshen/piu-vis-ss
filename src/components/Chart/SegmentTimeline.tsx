@@ -1,7 +1,7 @@
-import { createSignal, createEffect, Show } from "solid-js";
+import { createSignal, createEffect, Show, For } from "solid-js";
 import type { JSXElement } from 'solid-js';
 import { Segment } from '~/lib/types';
-import { getShortChartNameWithLevel, secondsToTimeStr } from '~/lib/util';
+import { getShortChartNameWithLevel, secondsToTimeStr, skillBadge } from '~/lib/util';
 import { getLevelColor, getLevelText, StrToAny, StrToStr } from "./util";
 import { useChartContext } from "~/components/Chart/ChartContext";
 import { useParams } from "@solidjs/router";
@@ -17,6 +17,8 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
   // console.log(window.location.href);
   // provides content inside of segment collapsible
   const similarSections = data['Closest sections'];
+  const sectionSkills: string[] = data['Skill badges'];
+  console.log(sectionSkills);
 
   function makeUrlBullets(section: any): JSXElement {
     let [chartName, sectionIdx] = section;
@@ -58,12 +60,19 @@ function segmentCollapsibleContent(segmentNumberP1: number, segment: Segment, da
 
   return (
     <div class="text-md">
-      <Show when={!window.location.href.includes('upload')}>
-        <p class="hover:gray-900 cursor-pointer"
-          style={`color:#888;text-decoration:underline`}
-          onClick={(e) => copyToClipboard()}
-        >copy link to section</p>
-      </Show>
+      <div style={`justify-content:center;text-align:center`}>
+        <For each={sectionSkills}>
+          {(skill: string) => skillBadge(skill)}
+        </For>
+
+        <Show when={!window.location.href.includes('upload')}>
+          <p class="hover:gray-900 cursor-pointer"
+            style={`color:#888;text-decoration:underline`}
+            onClick={(e) => copyToClipboard()}
+          >copy link to section</p>
+        </Show>
+      </div>
+
 
       {makeRareSkillText()}
 

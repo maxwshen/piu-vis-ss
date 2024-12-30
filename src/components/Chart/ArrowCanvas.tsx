@@ -188,7 +188,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         height: (endTime - startTime) * pxPerSecond(),
         id: String(id) + 'trail',
         opacity: trail_alpha,
-        zIndex: 1,
       });
       layers.holds.add(konva_img);
 
@@ -204,7 +203,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         height: arrowImgHeight,
         id: String(id) + 'cap',
         opacity: alpha,
-        zIndex: 2,
       });
       layers.holds.add(konva_img);
 
@@ -220,7 +218,6 @@ export default function ArrowCanvas(props: ArrowCanvasProps) {
         height: arrowImgHeight,
         id: String(id) + 'head',
         opacity: alpha,
-        zIndex: 3,
       });
       layers.holds.add(konva_img);
 
