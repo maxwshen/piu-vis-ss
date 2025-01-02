@@ -83,7 +83,7 @@ const displaySkills = [
   '5-stair',
   '10-stair',
   'yog_walk',
-  'mid6_pad_transition',
+  'cross-pad_transition',
   'co-op_pad_transition',
   'split',
   'hold_footslide',

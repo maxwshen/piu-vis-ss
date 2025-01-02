@@ -79,7 +79,7 @@ export const skillToColor: StrToAny = {
   '5-stair': '#00aeb380',
   '10-stair': '#00aeb380',
   'yog_walk': '#00aeb380',
-  'mid6_pad_transition': '#00aeb380',
+  'cross-pad_transition': '#00aeb380',
   'co-op_pad_transition': '#00aeb380',
   'split': '#ed479580',
   'hold_footslide': '#ed479580',
@@ -88,7 +88,7 @@ export const skillToColor: StrToAny = {
   'bursty': '#f47b1680',
   'sustained': '#f47b1680',
 }
-const defaultColor = '#ed479580';
+const defaultColor = '#b6b9bc80';
 
 export function skillBadge(skill: string) {
   const color = skillToColor[skill] || defaultColor;
