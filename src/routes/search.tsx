@@ -86,6 +86,7 @@ const displaySkills = [
   'mid6_pad_transition',
   'co-op_pad_transition',
   'split',
+  'hold_footslide',
   'hold_footswitch',
   'hands',
   'bursty',

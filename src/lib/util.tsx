@@ -82,6 +82,7 @@ export const skillToColor: StrToAny = {
   'mid6_pad_transition': '#00aeb380',
   'co-op_pad_transition': '#00aeb380',
   'split': '#ed479580',
+  'hold_footslide': '#ed479580',
   'hold_footswitch': '#ed479580',
   'hands': '#ed479580',
   'bursty': '#f47b1680',
