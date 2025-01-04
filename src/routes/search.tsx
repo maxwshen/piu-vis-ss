@@ -35,10 +35,10 @@ const [filters, setFilters] = createSignal<{
 
 // display columns
 const displayColumns = [
-  'name', 'skills', 'BPM info', 'NPS', 'Sustain time',
+  'name', 'skills', 'BPM info', 'NPS', 'Sustain time', 'Total time under tension'
 ]
 const sortableColumns = [
-  'name', 'BPM info', 'NPS', 'Sustain time'  
+  'name', 'BPM info', 'NPS', 'Sustain time', 'Total time under tension'
 ]
 const colToShownName: StrToStr = {
   'name': 'Name',
@@ -46,6 +46,7 @@ const colToShownName: StrToStr = {
   'BPM info': 'BPM info',
   'NPS': 'NPS',
   'Sustain time': 'Sustain time',
+  'Total time under tension': 'Total time under tension',
 }
 
 
@@ -135,11 +136,10 @@ function displayCell(item: StrToAny, column: string) {
     </td>
     );
   }
-  if (column == 'Sustain time') {
+  if (column == 'Sustain time' || column == 'Total time under tension') {
     return (
       <td>
         <span style={`color:#bbb`}>
-
           {item[column]}s
         </span>
       </td>
