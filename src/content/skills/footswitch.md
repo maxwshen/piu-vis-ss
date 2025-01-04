@@ -1,0 +1,1 @@
+Footswitches are when you execute a pattern of multiple arrows in a row on the same panel, by alternating feet. These are an alternative to jacks, where the correct choice depends on the chart context. Typically, footswitches are the correct answer with irregular rhythm, or when they avoid a difficult twist forced with jacks.

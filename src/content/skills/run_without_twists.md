@@ -1,0 +1,1 @@
+Runs without twists are the most straightforward type of run. For a given difficulty level, these are longer in duration than full runs, which make them a useful stepping stone for improving at runs and improving time under tension.

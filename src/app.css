@@ -215,17 +215,17 @@ body {
 }
 
 .markdown-content .tip {
-  background-color: rgba(0, 200, 83, 0.1);
+  background-color: rgba(0, 200, 83, 0.2);
   border-left-color: #00c853;
 }
 
 .markdown-content .note {
-  background-color: rgba(3, 169, 244, 0.1);
+  background-color: rgba(3, 169, 244, 0.2);
   border-left-color: #03a9f4;
 }
 
 .markdown-content .warning {
-  background-color: rgba(255, 145, 0, 0.1);
+  background-color: rgba(255, 145, 0, 0.2);
   border-left-color: #ff9100;
 }
 
@@ -250,4 +250,54 @@ body {
 .markdown-content .warning::before {
   content: "⚠️ Warning";
   color: #ff9100;
+}
+
+.icon-down-left {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  background-image: url('/public/images/arrows-standard/arrow_1.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+}
+
+.icon-down-right {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  background-image: url('/public/images/arrows-standard/arrow_3.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+}
+
+.icon-center {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  background-image: url('/public/images/arrows-standard/arrow_5.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+}
+
+.icon-up-left {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  background-image: url('/public/images/arrows-standard/arrow_7.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
+}
+
+.icon-up-right {
+  display: inline-block;
+  width: 2em;
+  height: 2em;
+  background-image: url('/public/images/arrows-standard/arrow_9.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  vertical-align: middle;
 }

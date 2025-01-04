@@ -1,8 +1,14 @@
 
 import { createSignal, createResource, createMemo, onMount, onCleanup, createEffect, $DEVCOMP, untrack, For, JSXElement, Resource} from "solid-js";
 import { useParams } from "@solidjs/router";
+import { marked } from 'marked';
+import frontMatter from 'front-matter';
 import { fetchSkillData } from '../../lib/data';
 import { getShortChartName, skillBadge } from '~/lib/util';
+
+const [mdContent, setMDContent] = createSignal('');
+const [htmlContent, setHtmlContent] = createSignal('');
+const [isMounted, setIsMounted] = createSignal(false);
 
 
 function SkillList(props: { skillname: string }) {
@@ -51,11 +57,21 @@ function SkillList(props: { skillname: string }) {
       const skillChartDict: SkillDict = data[props.skillname];
       return (
         <div>
-          <div style="margin-bottom:20px">
-            <span style="color:#888">
+          {/* description in json */}
+          {/* <div style="margin-bottom:20px">
+            <span style="color:#ddd">
               {descriptions[props.skillname]}
             </span>
-          </div>
+          </div> */}
+
+          {/* markdown description */}
+          <div 
+            class="markdown-content prose prose-invert max-w-none mx-auto px-4"
+            style={`font-size:1rem;padding-bottom:0rem;margin:0rem;max-width:100%;padding:0rem`}
+            innerHTML={htmlContent()} 
+          />
+
+          {/* list */}
           <ul style={`text-indent: -${indentSize}px; margin-left: ${indentSize}px`}>
             { Object.entries(skillChartDict).map(([key, charts]) => ( makeRow(key, charts) )) }
           </ul>
@@ -88,13 +104,47 @@ export default function Page(): JSXElement {
   // Stores current route path; /skill/[skillname] = params.skillname
   const params = useParams();
 
-  const [currentParams, setCurrentParams] = createSignal(params);
+  const [currentParams, setCurrentParams] = createSignal(params.skillname);
+
+  onMount(() => {
+    setIsMounted(true);
+    marked.setOptions({
+      breaks: true,
+      gfm: true,
+    });
+  });
+
+  createEffect(() => {
+    setCurrentParams(params.skillname);
+  });
+
+  const [content] = createResource(currentParams, async (slug) => {
+    try {
+      const markdown = await import(`~/content/skills/${slug}.md`);
+      const { attributes, body } = frontMatter(markdown.default);
+      return body;
+    } catch (error) {
+      console.error('Error loading markdown:', error);
+      return '';
+    }
+  });
 
   // Optional: React to param changes
   createEffect(() => {
     // This will run whenever the params change
     if (typeof document !== 'undefined') {
       document.title = params.skillname.replace(/_/g, ' ');
+    }
+
+    if (isMounted()) {
+
+      // set 
+      const parseContent = async () => {
+        const parsedContent = await marked(content()!);
+        setMDContent(parsedContent);
+      }
+      parseContent();
+      setHtmlContent(mdContent());
     }
   });
 

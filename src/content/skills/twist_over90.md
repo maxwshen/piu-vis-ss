@@ -1,0 +1,1 @@
+A twist at >90 degrees involves hitting panels at greater than 90 degree angle. Compared to the base stance where your body faces the screen, during a >90 degree twist, you step with one foot fully crossing the other foot, so that your body or hips twist beyond being perpendicular to the screen.

@@ -1,0 +1,1 @@
+A bracket is hitting two arrows with one foot at the same time. Brackets require the two arrows to be physically next to each other on the pad.

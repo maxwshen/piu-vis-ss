@@ -1,0 +1,1 @@
+A staggered bracket are two arrows close in time, but not at the same time, which are nevertheless executed as a bracket with one foot. The perfect judgment window in Pump on normal judgment is 83.2 milliseconds after a note, so consecutive notes at speeds faster than 12.02 NPS can be staggered-bracketed.

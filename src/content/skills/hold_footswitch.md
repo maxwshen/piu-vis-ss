@@ -1,0 +1,1 @@
+A rare pattern that requires switching the foot used on a hold. In piucenter, hold footswitches are denoted with the <img src="/images/arrows-hint/arrow_center_either.png" style="height: 2em; vertical-align: middle; display: inline"> symbol.

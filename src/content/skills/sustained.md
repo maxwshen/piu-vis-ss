@@ -1,0 +1,1 @@
+A sustained stepchart has low variation in its notes per second, over time. This is opposite of bursty charts.

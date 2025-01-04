@@ -1,0 +1,1 @@
+A singles stair pattern where you hit all 5 panels consecutively. You start and end facing the same direction. <span class="icon-down-left"></span>-<span class="icon-up-left"></span>-<span class="icon-center"></span>-<span class="icon-up-right"></span>-<span class="icon-down-right"></span>

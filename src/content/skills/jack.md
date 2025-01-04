@@ -1,0 +1,1 @@
+Jacks are when you execute a pattern of multiple arrows in a row on the same panel, by using one foot to hit all the arrows. To properly execute jacks, it is important to completely lift your foot off the panel each time, which can be a common mistake at higher speeds. Jacks are related to footswitches, where repeated arrows are instead hit with alternating feet.

@@ -1,0 +1,1 @@
+Mid6 doubles, also known as half-doubles, describes chart sections that primarily use the middle 6 panels in doubles. Strong familiarity with mid6 double patterns are necessary for advancing in doubles beyond a certain level. Half-double patterns can sometimes be the hardest part of learning doubles after learning singles.

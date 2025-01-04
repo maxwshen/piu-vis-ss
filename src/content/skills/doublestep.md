@@ -1,0 +1,1 @@
+Doublestepping is stepping with the same foot twice in a row, contrasting with the typical flow of alternating feet. Doublestepping is primarily forced in stepcharts by requiring one foot remain on a hold, while the other foot hits multiple arrows in a row. Unlike jacks where you hit the same panel, doublestepping hits different panels.
