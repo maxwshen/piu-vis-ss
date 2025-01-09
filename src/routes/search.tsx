@@ -443,6 +443,7 @@ function SearchTable() {
             <div class="flex gap-2">
               <input
                 type="number"
+                step="0.1"
                 value={filters().NPSMin}
                 onInput={(e) => setFilters(prev => ({...prev, NPSMin: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
                 class="w-full p-1"
@@ -451,6 +452,7 @@ function SearchTable() {
               />
               <input
                 type="number"
+                step="0.1"
                 value={filters().NPSMax}
                 onInput={(e) => setFilters(prev => ({...prev, NPSMax: e.currentTarget.value === '' ? '' : Number(e.currentTarget.value)}))}
                 class="w-full p-1"
