@@ -27,7 +27,7 @@ async function fetchTierListData(): Promise<StrToAny | null> {
   try {
     const timestamp = Date.now();
     const response = await fetch(
-      checkEnvironment() + `/chart-jsons/120524/page-content/tierlists.json?cb=${timestamp}`
+      checkEnvironment() + `/chart-jsons/050726/page-content/tierlists.json?cb=${timestamp}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

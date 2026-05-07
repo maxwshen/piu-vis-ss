@@ -21,7 +21,7 @@ export function checkEnvironment(): string {
 export async function fetchData(id: string): Promise<ChartArt | null> {
   try {
     const timestamp = Date.now();
-    const url = checkEnvironment().concat(`/chart-jsons/120524/${id}.json?cb=${timestamp}`);
+    const url = checkEnvironment().concat(`/chart-jsons/050726/${id}.json?cb=${timestamp}`);
     const response = await fetch(url);
     const obj = await response.json();
     return obj;
@@ -40,7 +40,7 @@ export async function fetchPageContent(id: string): Promise< | null> {
   try {
     const timestamp = Date.now();
     const response = await fetch(
-      checkEnvironment().concat(`/chart-jsons/120524/page-content/${id}.json?cb=${timestamp}`)
+      checkEnvironment().concat(`/chart-jsons/050726/page-content/${id}.json?cb=${timestamp}`)
   );
     const obj = await response.json();
     return obj;
@@ -59,7 +59,7 @@ export async function fetchSkillData(): Promise<StrToAny | null> {
   try {
     const timestamp = Date.now();
     const response = await fetch(
-      checkEnvironment() + `/chart-jsons/120524/page-content/stepchart-skills.json?cb=${timestamp}`
+      checkEnvironment() + `/chart-jsons/050726/page-content/stepchart-skills.json?cb=${timestamp}`
     );
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

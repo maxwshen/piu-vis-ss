@@ -21,8 +21,8 @@ function SearchTable() {
       setBaseUrl(window.location.origin);
       const timestamp = Date.now();
       const [searchNameList, manualAnnotatedList] = await Promise.all([
-        fetch(baseUrl().concat(`/chart-jsons/120524/__search-struct.json?cb=${timestamp}`)),
-        fetch(baseUrl().concat(`/chart-jsons/120524/__manual-limb-annotated.json?cb=${timestamp}`))
+        fetch(baseUrl().concat(`/chart-jsons/050726/__search-struct.json?cb=${timestamp}`)),
+        fetch(baseUrl().concat(`/chart-jsons/050726/__manual-limb-annotated.json?cb=${timestamp}`))
       ]);
 
       const names: string[] = await searchNameList.json();
